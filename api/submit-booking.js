@@ -27,12 +27,13 @@ export default async function handler(req, res) {
 
     // Also forward to the tracker (fire-and-forget, don't block the response)
     const trackerUrl = process.env.TRACKER_WEBHOOK_URL;
+    console.log('TRACKER_WEBHOOK_URL:', trackerUrl || 'NOT SET');
     if (trackerUrl) {
       fetch(`${trackerUrl}/api/incoming`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...req.body, type: 'booking' })
-      }).catch(e => console.warn('Tracker webhook failed:', e.message));
+      }).then(r => console.log('Tracker response:', r.status)).catch(e => console.warn('Tracker webhook failed:', e.message));
     }
 
     const data = await response.json().catch(() => ({ success: true }));
