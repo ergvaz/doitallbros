@@ -2002,7 +2002,7 @@ export default function App() {
     if (!authed) return;
     const poll = async () => {
       try {
-        const res = await fetch('/api/pending');
+        const res = await fetch(`${import.meta.env.BASE_URL}api/pending`);
         if (!res.ok) return;
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) return;
@@ -2050,7 +2050,7 @@ export default function App() {
           return { ...prev, contacts, bookings };
         });
 
-        await fetch('/api/pending', { method: 'DELETE' });
+        await fetch(`${import.meta.env.BASE_URL}api/pending`, { method: 'DELETE' });
       } catch {}
     };
     poll();
