@@ -1511,7 +1511,7 @@ function ContactPage() {
     e.preventDefault();
     
     try {
-      const response = await fetch('https://n8n.srv1122720.hstgr.cloud/webhook/ee98ccfc-81d0-45e6-a4be-ea52d4cc46f9', {
+      const response = await fetch('/api/submit-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1520,7 +1520,7 @@ function ContactPage() {
           timestamp: new Date().toISOString()
         })
       });
-      
+
       if (response.ok) {
         alert('Message sent! We\'ll get back to you soon.');
         navigate('/');
