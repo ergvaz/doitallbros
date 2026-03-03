@@ -382,13 +382,13 @@ function CartProvider({ children }) {
 // Homepage Component
 function HomePage() {
   const navigate = useNavigate();
-  
+
   return (
     <div className="homepage">
       <div className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
-            <span className="title-main">DoItAllBros</span>
+            <span className="title-main">Do It All Bros</span>
             <span className="title-sub">Louisville's Local Service Pros</span>
           </h1>
           <p className="hero-description">
@@ -422,6 +422,125 @@ function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* About Section */}
+      <section className="home-section about-section">
+        <div className="home-section-inner">
+          <h2>About Do It All Bros</h2>
+          <p>
+            Do It All Bros is a locally owned and operated service company based in Louisville, Kentucky. We handle a wide range of home, lawn, and business tasks so you don't have to. Whether you need your lawn mowed, junk hauled away, furniture assembled, or a TV mounted, our team shows up on time and gets the job done right. We serve homeowners, renters, and small businesses across Louisville and Jefferson County. Our pricing is transparent — you see the cost before you book.
+          </p>
+        </div>
+      </section>
+
+      {/* Services Overview */}
+      <section className="home-section services-overview-section">
+        <div className="home-section-inner">
+          <h2>Our Services in Louisville, KY</h2>
+          <p className="section-intro">We offer 8 categories of services to cover everything your home or business needs.</p>
+          <div className="services-overview-grid">
+            <div className="service-overview-card" onClick={() => navigate('/services/recurring')}>
+              <h3>Recurring Services</h3>
+              <p>Scheduled lawn care, gutter cleaning, power washing, mulching, and dog walking. Starting at $25.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+            <div className="service-overview-card" onClick={() => navigate('/services/landscaping')}>
+              <h3>Landscaping & Lawn Care</h3>
+              <p>Lawn mowing, weed removal, hedge trimming, leaf cleanup, garden beds, and snow removal in Louisville. Starting at $45.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+            <div className="service-overview-card" onClick={() => navigate('/services/homeMaintenance')}>
+              <h3>Home Maintenance & Handyman</h3>
+              <p>Power washing, furniture assembly, picture hanging, door locks, light fixtures, smoke detectors, and more. Starting at $20.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+            <div className="service-overview-card" onClick={() => navigate('/services/moving')}>
+              <h3>Moving, Organization & Junk Removal</h3>
+              <p>Local moving help, junk hauling, furniture rearranging, packing assistance, and donation drop-offs. Starting at $50.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+            <div className="service-overview-card" onClick={() => navigate('/services/tech')}>
+              <h3>Tech Help & Smart Home</h3>
+              <p>TV mounting, WiFi setup, device troubleshooting, smart home installation, and printer setup. Starting at $40.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+            <div className="service-overview-card" onClick={() => navigate('/services/pet')}>
+              <h3>Pet & Outdoor Care</h3>
+              <p>Dog walking, yard cleanup, and outdoor pet area maintenance. Dog walking from $25/30 min.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+            <div className="service-overview-card" onClick={() => navigate('/services/business')}>
+              <h3>Small Business Services</h3>
+              <p>Office furniture assembly, tech setup, light commercial cleaning, and general business maintenance. Starting at $50.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+            <div className="service-overview-card" onClick={() => navigate('/services/emergency')}>
+              <h3>Emergency & Same-Day Help</h3>
+              <p>Urgent services available same day in Louisville. Available 7 days a week with priority scheduling.</p>
+              <span className="overview-link">View Services →</span>
+            </div>
+          </div>
+          <div style={{textAlign: 'center', marginTop: '2rem'}}>
+            <button className="btn btn-primary" onClick={() => navigate('/categories')}>Browse All Services</button>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Area */}
+      <section className="home-section area-section">
+        <div className="home-section-inner">
+          <h2>Service Area — Louisville, KY & Surrounding Communities</h2>
+          <p>
+            We provide services throughout Louisville and Jefferson County, Kentucky, including:
+          </p>
+          <ul className="area-list">
+            <li>Louisville (all neighborhoods)</li>
+            <li>Jeffersontown</li>
+            <li>St. Matthews</li>
+            <li>Shively</li>
+            <li>Pleasure Ridge Park</li>
+            <li>Valley Station</li>
+            <li>Middletown</li>
+            <li>Okolona</li>
+            <li>Lyndon</li>
+            <li>Prospect</li>
+          </ul>
+          <p>Not sure if we cover your area? <Link to="/contact">Contact us</Link> and we'll let you know.</p>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="home-section faq-section">
+        <div className="home-section-inner">
+          <h2>Frequently Asked Questions</h2>
+          <div className="faq-list">
+            <div className="faq-item">
+              <h3>How much does lawn mowing cost in Louisville?</h3>
+              <p>Basic lawn mowing starts at $45 for small yards, $60 for medium yards, $80 for large yards, and $110 for extra-large yards. Advanced lawn care with additional services starts at $95.</p>
+            </div>
+            <div className="faq-item">
+              <h3>Do you offer same-day or emergency services?</h3>
+              <p>Yes. We offer same-day and emergency services in Louisville, KY. Same-day bookings include a 30% rush fee. Call (502) 387-5462 to check availability.</p>
+            </div>
+            <div className="faq-item">
+              <h3>How much does junk removal cost?</h3>
+              <p>Junk removal starts at $150 for small loads and goes up based on volume. A full truck load is approximately $450+. We haul away furniture, appliances, yard debris, and general clutter.</p>
+            </div>
+            <div className="faq-item">
+              <h3>What payment methods do you accept?</h3>
+              <p>We accept cash, Venmo, Cash App, and Zelle. Payment is due after the service is completed.</p>
+            </div>
+            <div className="faq-item">
+              <h3>Do you serve areas outside Louisville?</h3>
+              <p>We primarily serve Louisville and Jefferson County, KY. Contact us to check if we cover your specific location.</p>
+            </div>
+            <div className="faq-item">
+              <h3>How do I book a service?</h3>
+              <p>Click "Book Now" on our website to select your services, preferred date, and time. You can also call us at (502) 387-5462 or use our contact form.</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -1649,23 +1768,34 @@ function Footer() {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
-          <h4>DoItAllBros</h4>
-          <p>Louisville's trusted local service professionals</p>
+          <h4>Do It All Bros</h4>
+          <p>Louisville's trusted local service professionals. Handyman, lawn care, junk removal, moving, tech help, and more.</p>
+        </div>
+        <div className="footer-section">
+          <h4>Services</h4>
+          <Link to="/services/landscaping">Lawn Care & Landscaping</Link>
+          <Link to="/services/homeMaintenance">Home Maintenance</Link>
+          <Link to="/services/moving">Moving & Junk Removal</Link>
+          <Link to="/services/tech">Tech Help</Link>
+          <Link to="/services/emergency">Emergency Services</Link>
         </div>
         <div className="footer-section">
           <h4>Quick Links</h4>
-          <Link to="/categories">Services</Link>
-          <Link to="/contact">Contact</Link>
+          <Link to="/categories">All Services</Link>
+          <Link to="/contact">Contact Us</Link>
           <Link to="/legal">Legal</Link>
         </div>
         <div className="footer-section">
           <h4>Contact</h4>
-          <p>(502) 387-5462</p>
-          <p>Louisville, KY</p>
+          <p itemScope itemType="https://schema.org/LocalBusiness">
+            <span itemProp="name">Do It All Bros</span><br />
+            <a href="tel:+15023875462" itemProp="telephone">(502) 387-5462</a><br />
+            <span itemProp="addressLocality">Louisville</span>, <span itemProp="addressRegion">KY</span>
+          </p>
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; 2026 DoItAllBros. All rights reserved.</p>
+        <p>&copy; 2026 Do It All Bros. All rights reserved. | Louisville, KY Home &amp; Business Services</p>
       </div>
     </footer>
   );
