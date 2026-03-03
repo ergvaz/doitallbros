@@ -54,6 +54,13 @@ const DEFAULT_DATA = {
   tasks: [],
   revenues: [],
   notes: [],
+  requests: [],
+};
+
+const REQUEST_STATUSES = {
+  unaddressed: { label: 'Unaddressed', color: '#EF4444' },
+  contacted:   { label: 'Contacted',   color: '#F59E0B' },
+  confirmed:   { label: 'Confirmed',   color: '#10B981' },
 };
 
 const loadData = () => {
@@ -260,6 +267,7 @@ function LoginScreen({ onLogin }) {
 const NAV = [
   { id: 'dashboard', label: 'Dashboard',   icon: 'grid'   },
   { id: 'inbox',     label: 'Inbox',        icon: 'inbox'  },
+  { id: 'requests',  label: 'Requests',     icon: 'clip'   },
   { id: 'clients',   label: 'Clients',      icon: 'users'  },
   { id: 'bookings',  label: 'Bookings',     icon: 'book'   },
   { id: 'calendar',  label: 'Calendar',     icon: 'cal'    },
@@ -1307,14 +1315,19 @@ function KanbanCard({ booking: b, client, onEdit, onStatus, onPaid, onLogRevenue
             </div>
             <div className="modal-footer">
               <button className="btn btn-ghost btn-danger-ghost" onClick={() => { onDelete(); setOpen(false); }}>{Ic.trash}</button>
+              {b.status !== 'completed' && (
+                <button className="btn btn-ghost" onClick={() => { onStatus(b.id, 'completed'); setOpen(false); }}>
+                  {Ic.check} Mark Complete
+                </button>
+              )}
               {!b.isPaid && (
                 <button className="btn btn-ghost" onClick={() => { onPaid(b.id); setOpen(false); }}>
-                  {Ic.check} Mark Paid
+                  {Ic.dollar} Mark Paid
                 </button>
               )}
               {b.status !== 'completed' && !alreadyLogged && (
                 <button className="btn btn-secondary" onClick={() => { onLogRevenue(b); setOpen(false); }}>
-                  {Ic.dollar} Complete & Log Revenue
+                  {Ic.check} Complete & Log Revenue
                 </button>
               )}
               <button className="btn btn-primary" onClick={() => { setOpen(false); onEdit(b); }}>{Ic.edit} Edit</button>
@@ -1781,6 +1794,40 @@ function RevenueView({ data, update }) {
           </div>
         </div>
 
+        {/* Awaiting Payment — completed but unpaid bookings */}
+        {(() => {
+          const unpaid = data.bookings.filter(b => b.status === 'completed' && !b.isPaid);
+          if (unpaid.length === 0) return null;
+          return (
+            <div className="awaiting-payment-section">
+              <h4 className="awaiting-title">⏳ Awaiting Payment ({unpaid.length})</h4>
+              <div className="awaiting-list">
+                {unpaid.map(b => (
+                  <div key={b.id} className="awaiting-row">
+                    <div className="awaiting-info">
+                      <span className="awaiting-client">{b.clientName}</span>
+                      <span className="awaiting-service">{b.service}</span>
+                      <span className="awaiting-amount">{fmtMoneyFull(b.price)}</span>
+                    </div>
+                    <button className="btn btn-primary btn-xs" onClick={() => {
+                      update('bookings', data.bookings.map(bk => bk.id === b.id ? { ...bk, isPaid: true } : bk));
+                      const newRev = {
+                        id: genId(), amount: b.price || 0, service: b.service,
+                        category: b.category || '', date: todayStr(),
+                        paymentMethod: b.paymentMethod || 'Cash', clientId: b.clientId || '',
+                        notes: `Auto-logged from completed booking`, createdAt: new Date().toISOString(),
+                      };
+                      update('revenues', [...data.revenues, newRev]);
+                    }}>
+                      {Ic.check} Mark Paid & Log
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
         {filtered.length === 0 ? (
           <p className="card-empty">No revenue entries yet</p>
         ) : (
@@ -1987,6 +2034,122 @@ function NotesView({ data, update }) {
 }
 
 // ═══════════════════════════════════════════════════════════
+// REQUESTS VIEW
+// ═══════════════════════════════════════════════════════════
+
+function RequestsView({ data, update }) {
+  const requests = data.requests || [];
+  const [filter, setFilter] = useState('all');
+  const [expandedId, setExpandedId] = useState(null);
+
+  const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter);
+  const sorted = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const updateRequest = (id, changes) => {
+    update('requests', requests.map(r => r.id === id ? { ...r, ...changes } : r));
+  };
+
+  const deleteRequest = (id) => {
+    if (window.confirm('Delete this request?')) {
+      update('requests', requests.filter(r => r.id !== id));
+    }
+  };
+
+  const unaddressedCount = requests.filter(r => r.status === 'unaddressed').length;
+
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Custom Requests</h1>
+          <p className="page-sub">{requests.length} total · {unaddressedCount} unaddressed</p>
+        </div>
+      </div>
+
+      <div className="filter-tabs" style={{ marginBottom: '1.5rem' }}>
+        {[['all', 'All'], ['unaddressed', 'Unaddressed'], ['contacted', 'Contacted'], ['confirmed', 'Confirmed']].map(([val, label]) => (
+          <button key={val} className={clsx('filter-tab', filter === val && 'filter-tab-active')} onClick={() => setFilter(val)}>
+            {label}
+            {val !== 'all' && <span className="filter-count">{requests.filter(r => r.status === val).length}</span>}
+          </button>
+        ))}
+      </div>
+
+      {sorted.length === 0 ? (
+        <div className="empty-state"><p>No requests found.</p></div>
+      ) : (
+        <div className="requests-list">
+          {sorted.map(req => {
+            const statusCfg = REQUEST_STATUSES[req.status] || REQUEST_STATUSES.unaddressed;
+            const isExpanded = expandedId === req.id;
+            return (
+              <div key={req.id} className="request-card">
+                <div className="request-card-header" onClick={() => setExpandedId(isExpanded ? null : req.id)}>
+                  <div className="request-card-left">
+                    <span className="request-status-dot" style={{ background: statusCfg.color }} />
+                    <div>
+                      <div className="request-name">{req.name || 'Unknown'}</div>
+                      <div className="request-meta">{req.phone} · {req.email}</div>
+                    </div>
+                  </div>
+                  <div className="request-card-right">
+                    <span className="request-date">{fmtDateShort(req.date || req.createdAt?.slice(0, 10))}</span>
+                    <span className="chevron">{isExpanded ? '▲' : '▼'}</span>
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div className="request-card-body">
+                    <div className="request-detail-grid">
+                      <div className="req-detail"><span>Address</span><p>{req.address || '—'}</p></div>
+                      <div className="req-detail"><span>Date</span><p>{fmtDate(req.date)} {req.time}</p></div>
+                      <div className="req-detail req-detail-full"><span>Description</span><p>{req.description || '—'}</p></div>
+                      {req.materialsNeeded && <div className="req-detail req-detail-full"><span>Materials Needed</span><p>{req.materialsNeeded}</p></div>}
+                      {req.otherNotes && <div className="req-detail req-detail-full"><span>Other Notes</span><p>{req.otherNotes}</p></div>}
+                    </div>
+
+                    <div className="request-actions">
+                      <div className="request-action-row">
+                        <label className="req-field-label">Status</label>
+                        <select
+                          className="req-select"
+                          value={req.status}
+                          onChange={e => updateRequest(req.id, { status: e.target.value })}
+                        >
+                          {Object.entries(REQUEST_STATUSES).map(([val, cfg]) => (
+                            <option key={val} value={val}>{cfg.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="request-action-row">
+                        <label className="req-field-label">Price Confirmed</label>
+                        <input
+                          className="req-input"
+                          type="text"
+                          placeholder="e.g. $250"
+                          value={req.priceConfirmed || ''}
+                          onChange={e => updateRequest(req.id, { priceConfirmed: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+                      <button className="btn btn-ghost btn-danger-ghost btn-xs" onClick={() => deleteRequest(req.id)}>
+                        {Ic.trash} Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════
 
@@ -1994,6 +2157,7 @@ export default function App() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('dab_auth') === '1');
   const [view, setView] = useState('dashboard');
   const [data, setData] = useState(loadData);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => { saveData(data); }, [data]);
 
@@ -2010,9 +2174,28 @@ export default function App() {
         setData(prev => {
           const contacts = [...prev.contacts];
           const bookings = [...prev.bookings];
+          const requests = [...(prev.requests || [])];
           items.forEach(item => {
             const type = item.type || (item.message ? 'contact' : 'booking');
-            if (type === 'contact') {
+            if (type === 'custom_request') {
+              if (!requests.find(r => r.webhookId === item.id)) {
+                requests.push({
+                  id: genId(), webhookId: item.id,
+                  name: item.name || '',
+                  email: item.email || '',
+                  phone: item.phone || '',
+                  address: item.address || '',
+                  date: item.date || '',
+                  time: item.time || '',
+                  description: item.description || '',
+                  materialsNeeded: item.materialsNeeded || '',
+                  otherNotes: item.otherNotes || '',
+                  priceConfirmed: '',
+                  status: 'unaddressed',
+                  createdAt: item.receivedAt || item.timestamp || new Date().toISOString(),
+                });
+              }
+            } else if (type === 'contact') {
               if (!contacts.find(c => c.webhookId === item.id)) {
                 contacts.push({
                   id: genId(), webhookId: item.id,
@@ -2047,7 +2230,7 @@ export default function App() {
               }
             }
           });
-          return { ...prev, contacts, bookings };
+          return { ...prev, contacts, bookings, requests };
         });
 
         await fetch(`${import.meta.env.BASE_URL}api/pending`, { method: 'DELETE' });
@@ -2074,12 +2257,41 @@ export default function App() {
 
   const props = { data, update, setView };
 
+  const handleNav = (id) => { setView(id); setMobileNavOpen(false); };
+
   return (
     <div className="app">
-      <Sidebar view={view} onChange={setView} inboxCount={newInboxCount} onLogout={logout} />
+      {/* Mobile top bar */}
+      <div className="mobile-topbar">
+        <button className="mobile-menu-btn" onClick={() => setMobileNavOpen(o => !o)}>☰</button>
+        <span className="mobile-brand">DoItAllBros Tracker</span>
+        {newInboxCount > 0 && <span className="mobile-badge">{newInboxCount}</span>}
+      </div>
+
+      {/* Mobile nav overlay */}
+      {mobileNavOpen && (
+        <div className="mobile-nav-overlay" onClick={() => setMobileNavOpen(false)}>
+          <nav className="mobile-nav-panel" onClick={e => e.stopPropagation()}>
+            {NAV.map(({ id, label, icon }) => (
+              <button key={id} className={clsx('mobile-nav-item', view === id && 'nav-active')} onClick={() => handleNav(id)}>
+                <span className="nav-icon">{Ic[icon]}</span>
+                <span>{label}</span>
+                {id === 'inbox' && newInboxCount > 0 && <span className="nav-badge">{newInboxCount}</span>}
+              </button>
+            ))}
+            <button className="mobile-nav-item" onClick={logout}>
+              <span className="nav-icon">{Ic.logout}</span>
+              <span>Lock</span>
+            </button>
+          </nav>
+        </div>
+      )}
+
+      <Sidebar view={view} onChange={handleNav} inboxCount={newInboxCount} onLogout={logout} />
       <div className="main">
         {view === 'dashboard' && <Dashboard {...props} />}
         {view === 'inbox'     && <InboxView {...props} />}
+        {view === 'requests'  && <RequestsView {...props} />}
         {view === 'clients'   && <ClientsView {...props} />}
         {view === 'bookings'  && <BookingsView {...props} />}
         {view === 'calendar'  && <CalendarView {...props} />}

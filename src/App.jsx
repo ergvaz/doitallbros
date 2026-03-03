@@ -76,9 +76,10 @@ const serviceData = {
     icon: Icons.recurring,
     color: "#6366F1",
     services: [
-      { 
-        name: "Basic Lawn Care", 
+      {
+        name: "Basic Lawn Care",
         price: "$45-$110",
+        description: "Includes lawn mowing and weed eating edges. Perfect for keeping your yard neat and tidy on a regular schedule.",
         sizeDependent: true,
         sizePricing: {
           small: { label: "Small Yard", example: "🏡 Cozy cottage lawn", price: 45 },
@@ -89,15 +90,16 @@ const serviceData = {
         recurring: true,
         relatedServices: ["mulching", "hedgeTrimming", "weedRemoval"]
       },
-      { 
-        name: "Advanced Lawn Care", 
-        price: "$95-$160",
+      {
+        name: "Advanced Lawn Care",
+        price: "$85-$175",
+        description: "Includes lawn mowing, weed eating edges, pulling weeds, and trimming bushes. A full yard care package that keeps everything looking sharp.",
         sizeDependent: true,
         sizePricing: {
-          small: { label: "Small Yard", example: "🏡 Cozy cottage lawn", price: 95 },
+          small: { label: "Small Yard", example: "🏡 Cozy cottage lawn", price: 85 },
           medium: { label: "Medium Yard", example: "🏠 Standard suburban yard", price: 110 },
-          large: { label: "Large Yard", example: "🏘️ Spacious property", price: 130 },
-          xl: { label: "Extra Large Yard", example: "🏰 Estate-sized grounds", price: 160 }
+          large: { label: "Large Yard", example: "🏘️ Spacious property", price: 140 },
+          xl: { label: "Extra Large Yard", example: "🏰 Estate-sized grounds", price: 175 }
         },
         recurring: true,
         materialNote: true
@@ -109,43 +111,9 @@ const serviceData = {
         recurring: true, 
         isDogWalking: true 
       },
-      { 
-        name: "Mulching", 
-        price: "$100-$325",
-        sizeDependent: true,
-        sizePricing: {
-          small: { label: "Small Area", example: "🌸 Few flower beds", price: 100 },
-          medium: { label: "Medium Area", example: "🌻 Multiple garden beds", price: 150 },
-          large: { label: "Large Area", example: "🌳 Extensive landscaping", price: 225 },
-          xl: { label: "Extra Large Area", example: "🏞️ Full property coverage", price: 325 }
-        },
-        recurring: true,
-        materialNote: true 
-      },
-      { 
-        name: "Gutter Cleaning", 
-        price: "$150-$400",
-        sizeDependent: true,
-        sizePricing: {
-          small: { label: "Small House", example: "🏡 Single-story cottage", price: 150 },
-          medium: { label: "Medium House", example: "🏠 Two-story home", price: 175 },
-          large: { label: "Large House", example: "🏘️ Spacious two-story", price: 250 },
-          xl: { label: "Extra Large House", example: "🏰 Multi-story estate", price: 400 }
-        },
-        recurring: true 
-      },
-      { 
-        name: "Power Washing", 
-        price: "$60-$300",
-        sizeDependent: true,
-        sizePricing: {
-          small: { label: "Small Area", example: "🚶 Walkway", price: 60 },
-          medium: { label: "Medium Area", example: "☀️ Patio", price: 120 },
-          large: { label: "Large Area", example: "🚗 Driveway", price: 225 },
-          xl: { label: "Extra Large Area", example: "🏠 House siding", price: 300 }
-        },
-        recurring: true 
-      }
+      { name: "Mulching", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true, materialNote: true },
+      { name: "Gutter Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true },
+      { name: "Power Washing", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true }
     ]
   },
   landscaping: {
@@ -191,20 +159,8 @@ const serviceData = {
         },
         id: "leafCleanup" 
       },
-      { 
-        name: "Mulching (beds, trees, walkways)", 
-        price: "$100-$325", 
-        sizeDependent: true,
-        sizePricing: {
-          small: { label: "Small Area", example: "🌸 Few flower beds", price: 100 },
-          medium: { label: "Medium Area", example: "🌻 Multiple garden beds", price: 150 },
-          large: { label: "Large Area", example: "🌳 Extensive landscaping", price: 225 },
-          xl: { label: "Extra Large Area", example: "🏞️ Full property coverage", price: 325 }
-        },
-        materialNote: true,
-        relatedServices: ["gardenBed", "weedRemoval"]
-      },
-      { name: "Garden Bed Installation", price: "$150-$450", materialNote: true, id: "gardenBed" },
+      { name: "Mulching (beds, trees, walkways)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, materialNote: true, id: "mulching", relatedServices: ["gardenBed", "weedRemoval"] },
+      { name: "Garden Bed Installation", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, materialNote: true, id: "gardenBed" },
       { name: "Soil Leveling & Patch Repair", price: "$40", materialNote: true },
       { 
         name: "Snow Shoveling & De-icing", 
@@ -225,18 +181,8 @@ const serviceData = {
     icon: Icons.home,
     color: "#8B5CF6",
     services: [
-      { 
-        name: "Power Washing (driveways, sidewalks, patios)", 
-        price: "$60-$300",
-        sizeDependent: true,
-        sizePricing: {
-          small: { label: "Small Area", example: "🚶 Walkway", price: 60 },
-          medium: { label: "Medium Area", example: "☀️ Patio", price: 120 },
-          large: { label: "Large Area", example: "🚗 Driveway", price: 225 },
-          xl: { label: "Extra Large Area", example: "🏠 House siding", price: 300 }
-        }
-      },
-      { name: "Furniture Assembly (IKEA, Wayfair, etc.)", price: "$50 per", perItem: true },
+      { name: "Power Washing (driveways, sidewalks, patios)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
+      { name: "Furniture Assembly (IKEA, Wayfair, etc.)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
       { name: "Picture Hanging & Wall Mounting", price: "$20 per", perItem: true, materialNote: true },
       { name: "Door Handle & Lock Replacement", price: "$45 per", perItem: true, materialNote: true },
       {
@@ -246,18 +192,8 @@ const serviceData = {
         materialNote: true
       },
       { name: "Smoke Detector Installation", price: "$50 per", perItem: true, materialNote: true },
-      { 
-        name: "Gutter Cleaning", 
-        price: "$150-$400",
-        sizeDependent: true,
-        sizePricing: {
-          small: { label: "Small House", example: "🏡 Single-story cottage", price: 150 },
-          medium: { label: "Medium House", example: "🏠 Two-story home", price: 175 },
-          large: { label: "Large House", example: "🏘️ Spacious two-story", price: 250 },
-          xl: { label: "Extra Large House", example: "🏰 Multi-story estate", price: 400 }
-        }
-      },
-      { name: "Roof Cleaning", price: "$150-$350" },
+      { name: "Gutter Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
+      { name: "Roof Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
       { name: "Minor Drywall Patching", price: "$65", materialNote: true },
       {
         name: "Basic Painting & Touch-ups",
@@ -270,17 +206,7 @@ const serviceData = {
         materialNote: true
       },
       { name: "Curtain & Blind Installation", price: "$65 per", perItem: true, materialNote: true },
-      { 
-        name: "Window Cleaning", 
-        price: "$160-$450",
-        sizeDependent: true,
-        sizePricing: {
-          small: { label: "Small House", example: "🏡 Few windows", price: 160 },
-          medium: { label: "Medium House", example: "🏠 Standard home", price: 200 },
-          large: { label: "Large House", example: "🏘️ Many windows", price: 300 },
-          xl: { label: "Extra Large House", example: "🏰 Extensive windows", price: 450 }
-        }
-      }
+      { name: "Window Cleaning (Exterior)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true }
     ]
   },
   movingOrganization: {
@@ -288,10 +214,10 @@ const serviceData = {
     icon: Icons.moving,
     color: "#F59E0B",
     services: [
-      { name: "Junk Removal", price: "$125/hour (3-hour minimum)", hourly: true, hourlyRate: 125, minHours: 3 },
+      { name: "Junk Removal", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
       { name: "Estate Cleanout", price: "$150/hour (3-hour minimum)", hourly: true, hourlyRate: 150, minHours: 3 },
       { name: "Moving Help", price: "$65/hour (3-hour minimum)", hourly: true, hourlyRate: 65, minHours: 3 },
-      { name: "Closet & Storage Organization", price: "$70/hour (2.5-hour minimum)", hourly: true, hourlyRate: 70, minHours: 2.5 },
+      { name: "Closet & Storage Organization", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
       { name: "Appliance Cleaning (fridge, oven)", price: "$75 per appliance", perItem: true },
       { name: "Outdoor Trash Bin Cleaning", price: "$40 per bin", perItem: true },
       { name: "Furniture Rearrangement", price: "$60/hour (2-hour minimum)", hourly: true, hourlyRate: 60, minHours: 2 },
@@ -313,7 +239,8 @@ const serviceData = {
       { name: "Smart Thermostat Installation", price: "$140", materialNote: true },
       { name: "Smart Doorbell & Camera Setup", price: "$150", materialNote: true },
       { name: "Phone Setup & Basic Tech Help", price: "$45/hour (2-hour minimum)", hourly: true, hourlyRate: 45, minHours: 2 },
-      { name: "Data Transfer Between Devices", price: "$40/hour (2-hour minimum)", hourly: true, hourlyRate: 40, minHours: 2 }
+      { name: "Data Transfer Between Devices", price: "$40/hour (2-hour minimum)", hourly: true, hourlyRate: 40, minHours: 2 },
+      { name: "General Tech Troubleshooting", price: "$55/hour (2-hour minimum)", hourly: true, hourlyRate: 55, minHours: 2 }
     ]
   },
   petCare: {
@@ -422,6 +349,55 @@ function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Popular Packages */}
+      <section className="home-section packages-section">
+        <div className="home-section-inner">
+          <h2>Popular Packages</h2>
+          <p className="section-intro">Our most-booked service bundles — great value for common needs.</p>
+          <div className="packages-grid">
+            <div className="package-card">
+              <div className="package-badge">Most Popular</div>
+              <h3>Basic Lawn Care</h3>
+              <p className="package-desc">Lawn mowing + weed eating edges. Keeps your yard looking neat without the hassle.</p>
+              <div className="package-pricing">
+                <div className="package-price-row"><span>Small Yard</span><strong>$45</strong></div>
+                <div className="package-price-row"><span>Medium Yard</span><strong>$60</strong></div>
+                <div className="package-price-row"><span>Large Yard</span><strong>$80</strong></div>
+                <div className="package-price-row"><span>XL Yard</span><strong>$110</strong></div>
+              </div>
+              <button className="btn btn-primary" onClick={() => navigate('/add-service/recurring/0')}>Book This Package</button>
+            </div>
+
+            <div className="package-card">
+              <div className="package-badge package-badge-purple">Best Value</div>
+              <h3>Advanced Lawn Care</h3>
+              <p className="package-desc">Lawn mowing, weed eating edges, pulling weeds, and trimming bushes. A complete yard care package.</p>
+              <div className="package-pricing">
+                <div className="package-price-row"><span>Small Yard</span><strong>$85</strong></div>
+                <div className="package-price-row"><span>Medium Yard</span><strong>$110</strong></div>
+                <div className="package-price-row"><span>Large Yard</span><strong>$140</strong></div>
+                <div className="package-price-row"><span>XL Yard</span><strong>$175</strong></div>
+              </div>
+              <button className="btn btn-primary" onClick={() => navigate('/add-service/recurring/1')}>Book This Package</button>
+            </div>
+
+            <div className="package-card">
+              <h3>House Glowup</h3>
+              <p className="package-desc">Full exterior refresh: pressure washing (driveway, walkways, siding), exterior window cleaning, roof cleaning, and gutter cleaning.</p>
+              <div className="package-pricing-note">Dependent pricing — free quote included. Pricing varies by home size.</div>
+              <button className="btn btn-secondary" onClick={() => navigate('/contact')}>Request Free Quote</button>
+            </div>
+
+            <div className="package-card">
+              <h3>Organize & Junk</h3>
+              <p className="package-desc">Full area cleanout: junk removal, organization, and cleaning of the space. Tell us the area (garage, basement, room, etc.) and we'll handle the rest.</p>
+              <div className="package-pricing-note">Dependent pricing — free quote included. Pricing varies by area size and volume.</div>
+              <button className="btn btn-secondary" onClick={() => navigate('/contact')}>Request Free Quote</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* About Section */}
       <section className="home-section about-section">
@@ -652,7 +628,7 @@ function AddServicePage() {
   const [dogCount, setDogCount] = useState(1);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringFrequency, setRecurringFrequency] = useState('');
-  const [recurringCount, setRecurringCount] = useState(4);
+  const [recurringCount, setRecurringCount] = useState(2);
   const [paymentType, setPaymentType] = useState('per-job');
   const [extraOvergrown, setExtraOvergrown] = useState(false);
   const [bulbCount, setBulbCount] = useState(0);
@@ -677,20 +653,39 @@ function AddServicePage() {
   // Calculate price preview for recurring services
   const calculateRecurringPreview = () => {
     if (!isRecurring || !service.sizeDependent || !selectedSize) return null;
-    
+
     const basePrice = service.sizePricing[selectedSize].price;
     let total = basePrice * recurringCount;
-    
+
     if (paymentType === 'one-time') {
-      total = total * 0.9; // 10% discount
+      total = total * 0.9;
     }
-    
+
+    const freqLengthMap = {
+      'twice-weekly': { unit: 'weeks', divisor: 2 },
+      'weekly': { unit: 'weeks', divisor: 1 },
+      'biweekly': { unit: 'weeks', divisor: 0.5 },
+      'monthly': { unit: 'months', divisor: 1 },
+      'quarterly': { unit: 'months', divisor: 3 },
+      'every-6-months': { unit: 'months', divisor: 6 },
+      'yearly': { unit: 'years', divisor: 1 }
+    };
+    let timeSummary = '';
+    if (recurringFrequency && freqLengthMap[recurringFrequency]) {
+      const { unit, divisor } = freqLengthMap[recurringFrequency];
+      const length = unit === 'weeks' ? (recurringCount / (divisor === 2 ? 2 : divisor === 0.5 ? 0.5 : 1))
+        : unit === 'years' ? recurringCount : recurringCount * divisor;
+      const rounded = Math.round(length * 10) / 10;
+      timeSummary = `${rounded} ${unit}`;
+    }
+
     return {
       basePrice,
       count: recurringCount,
       subtotal: basePrice * recurringCount,
       discount: paymentType === 'one-time' ? (basePrice * recurringCount * 0.1) : 0,
-      total
+      total,
+      timeSummary
     };
   };
   
@@ -759,6 +754,8 @@ function AddServicePage() {
           ← Back to {category.title}
         </button>
         
+        <button className="close-service-btn" onClick={() => navigate(`/services/${categoryKey}`)}>✕ Close</button>
+
         <div className="booking-header">
           <span className="category-icon-large" style={{color: category.color}}>
             {category.icon}
@@ -768,15 +765,26 @@ function AddServicePage() {
             <div className="service-price-large">{service.price}</div>
           </div>
         </div>
-        
+
         <div className="service-config">
-          {service.materialNote && (
+          {service.dependentPricing && (
+            <div className="dependent-pricing-notice">
+              <strong>🔖 Dependent Pricing — Free Quote Included</strong>
+              <p>This service requires an on-site or photo assessment to provide an accurate quote. Add it to your visit and we'll send you a confirmed price before scheduling.</p>
+            </div>
+          )}
+          {service.description && (
+            <div className="service-description-box">
+              <p>{service.description}</p>
+            </div>
+          )}
+          {service.materialNote && !service.dependentPricing && (
             <div className="material-warning">
-              <strong>Note:</strong> Customer is responsible for all materials. If we need to purchase materials, there's a +$15 procurement fee.
+              <strong>Note:</strong> Customer is responsible for all materials. If we need to purchase materials, there's a +$45 procurement fee.
             </div>
           )}
           
-          {service.sizeDependent && (
+          {service.sizeDependent && !service.dependentPricing && (
             <div className="form-section">
               <h3>Select Size</h3>
               <div className="size-grid">
@@ -835,7 +843,7 @@ function AddServicePage() {
             </div>
           )}
           
-          {service.hourly && (
+          {service.hourly && !service.dependentPricing && (
             <div className="form-section">
               <h3>Select Hours</h3>
               <div className="form-group">
@@ -917,7 +925,7 @@ function AddServicePage() {
             </div>
           )}
           
-          {service.perItem && !service.isLightBulb && (
+          {service.perItem && !service.isLightBulb && !service.dependentPricing && (
             <div className="form-section">
               <h3>Quantity</h3>
               <div className="form-group">
@@ -965,17 +973,20 @@ function AddServicePage() {
                         <option value="">Select frequency</option>
                         <option value="twice-weekly">Twice a Week</option>
                         <option value="weekly">Weekly</option>
-                        <option value="biweekly">Biweekly</option>
+                        <option value="biweekly">Bi-Weekly (Every 2 Weeks)</option>
                         <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly (Every 3 Months)</option>
+                        <option value="every-6-months">Every 6 Months</option>
+                        <option value="yearly">Yearly</option>
                       </select>
                     </div>
                     <div className="form-group">
-                      <label>Number of Services (min. 4)</label>
-                      <input 
-                        type="number" 
-                        min="4"
+                      <label>Number of Terms (min. 2)</label>
+                      <input
+                        type="number"
+                        min="2"
                         value={recurringCount}
-                        onChange={(e) => setRecurringCount(parseInt(e.target.value))}
+                        onChange={(e) => setRecurringCount(Math.max(2, parseInt(e.target.value) || 2))}
                       />
                     </div>
                   </div>
@@ -1015,13 +1026,19 @@ function AddServicePage() {
                       {recurringPreview && (
                         <div className="pricing-breakdown">
                           <div className="price-row">
-                            <span>Base Price per Service:</span>
+                            <span>Base Price per Term:</span>
                             <span>${recurringPreview.basePrice}</span>
                           </div>
                           <div className="price-row">
-                            <span>Number of Services:</span>
+                            <span>Number of Terms:</span>
                             <span>×{recurringPreview.count}</span>
                           </div>
+                          {recurringPreview.timeSummary && (
+                            <div className="price-row">
+                              <span>Total Duration:</span>
+                              <span>~{recurringPreview.timeSummary}</span>
+                            </div>
+                          )}
                           <div className="price-row subtotal">
                             <span>Subtotal:</span>
                             <span>${recurringPreview.subtotal}</span>
@@ -1063,6 +1080,7 @@ function CheckoutPage() {
   const { cart, removeFromCart, clearCart } = React.useContext(CartContext);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [backupDate, setBackupDate] = useState('');
   const [isWeekend, setIsWeekend] = useState(false);
   const [isAfter5pm, setIsAfter5pm] = useState(false);
   const [needsMaterialPurchase, setNeedsMaterialPurchase] = useState(false);
@@ -1092,6 +1110,15 @@ function CheckoutPage() {
     }
   }, [selectedTime]);
   
+  const hasDependentItems = cart.some(item => {
+    const svc = serviceData[item.categoryKey]?.services[item.serviceIndex];
+    return svc?.dependentPricing;
+  });
+  const allDependent = cart.every(item => {
+    const svc = serviceData[item.categoryKey]?.services[item.serviceIndex];
+    return svc?.dependentPricing;
+  });
+
   const calculateTotalPrice = () => {
     let subtotal = 0;
     const itemizedServices = [];
@@ -1099,7 +1126,14 @@ function CheckoutPage() {
     cart.forEach(item => {
       let itemPrice = 0;
       let itemDescription = item.serviceName;
-      
+      const svc = serviceData[item.categoryKey]?.services[item.serviceIndex];
+
+      // Dependent pricing — skip price calculation
+      if (svc?.dependentPricing) {
+        itemizedServices.push({ description: itemDescription + ' (Free Quote — Price TBD)', price: 0, isDependent: true });
+        return;
+      }
+
       // Size-dependent pricing
       if (item.calculatedPrice && typeof item.calculatedPrice === 'number') {
         itemPrice = item.calculatedPrice;
@@ -1224,8 +1258,8 @@ function CheckoutPage() {
     
     // Material procurement fee
     if (needsMaterialPurchase) {
-      fees.push({ label: 'Material Procurement', amount: 15 });
-      total += 15;
+      fees.push({ label: 'Material Procurement', amount: 45 });
+      total += 45;
     }
     
     return { subtotal, fees, discount, total, itemizedServices };
@@ -1241,6 +1275,9 @@ function CheckoutPage() {
     
     // Convert service list to single comma-separated string
     const serviceList = cart.map(item => item.serviceName).join(', ');
+    const dependentServices = cart
+      .filter(item => serviceData[item.categoryKey]?.services[item.serviceIndex]?.dependentPricing)
+      .map(item => item.serviceName);
     
     // Create structured booking data
     const bookingData = {
@@ -1261,7 +1298,8 @@ function CheckoutPage() {
       ) : 'No',
       payment_method: paymentMethod,
       extra_notes: formData.notes || '',
-      scheduled_date: `${selectedDate} ${selectedTime}`
+      scheduled_date: `${selectedDate} ${selectedTime}`,
+      backup_date: backupDate || 'None'
     };
     
     try {
@@ -1272,6 +1310,11 @@ function CheckoutPage() {
       });
       
       if (response.ok) {
+        if (dependentServices.length > 0) {
+          sessionStorage.setItem('pendingQuoteServices', dependentServices.join(', '));
+        } else {
+          sessionStorage.removeItem('pendingQuoteServices');
+        }
         clearCart();
         navigate('/confirmation');
       } else {
@@ -1370,9 +1413,9 @@ function CheckoutPage() {
             <h3>Schedule Your Visit</h3>
             <div className="form-row">
               <div className="form-group">
-                <label>Date</label>
-                <input 
-                  type="date" 
+                <label>Preferred Date</label>
+                <input
+                  type="date"
                   required
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
@@ -1380,22 +1423,60 @@ function CheckoutPage() {
                 />
               </div>
               <div className="form-group">
+                <label>Backup Date <span style={{fontWeight:400, fontSize:'0.85rem', color:'#64748B'}}>(in case first isn't available)</span></label>
+                <input
+                  type="date"
+                  value={backupDate}
+                  onChange={(e) => setBackupDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </div>
+            {selectedDate === new Date().toISOString().split('T')[0] && (
+              <div className="same-day-note">
+                <strong>📞 Same-Day Request:</strong> For the best chance of getting seen today, we recommend calling us directly at <a href="tel:+15023875462">(502) 387-5462</a>. Same-day bookings include a 30% rush fee.
+              </div>
+            )}
+            <div className="form-row" style={{marginTop:'1rem'}}>
+              <div className="form-group">
                 <label>Time</label>
                 <select required value={selectedTime} onChange={(e) => setSelectedTime(e.target.value)}>
                   <option value="">Select time</option>
-                  <option value="08:00">8:00 AM - 10:00 AM</option>
-                  <option value="10:00">10:00 AM - 12:00 PM</option>
-                  <option value="12:00">12:00 PM - 2:00 PM</option>
-                  <option value="14:00">2:00 PM - 4:00 PM</option>
-                  <option value="16:00">4:00 PM - 6:00 PM</option>
-                  <option value="18:00">6:00 PM - 8:00 PM</option>
+                  <option value="07:00">7:00 AM</option>
+                  <option value="07:30">7:30 AM</option>
+                  <option value="08:00">8:00 AM</option>
+                  <option value="08:30">8:30 AM</option>
+                  <option value="09:00">9:00 AM</option>
+                  <option value="09:30">9:30 AM</option>
+                  <option value="10:00">10:00 AM</option>
+                  <option value="10:30">10:30 AM</option>
+                  <option value="11:00">11:00 AM</option>
+                  <option value="11:30">11:30 AM</option>
+                  <option value="12:00">12:00 PM</option>
+                  <option value="12:30">12:30 PM</option>
+                  <option value="13:00">1:00 PM</option>
+                  <option value="13:30">1:30 PM</option>
+                  <option value="14:00">2:00 PM</option>
+                  <option value="14:30">2:30 PM</option>
+                  <option value="15:00">3:00 PM</option>
+                  <option value="15:30">3:30 PM</option>
+                  <option value="16:00">4:00 PM</option>
+                  <option value="16:30">4:30 PM</option>
+                  <option value="17:00">5:00 PM</option>
+                  <option value="17:30">5:30 PM</option>
+                  <option value="18:00">6:00 PM</option>
+                  <option value="18:30">6:30 PM</option>
+                  <option value="19:00">7:00 PM</option>
+                  <option value="19:30">7:30 PM</option>
+                  <option value="20:00">8:00 PM</option>
+                  <option value="20:30">8:30 PM</option>
                 </select>
               </div>
             </div>
             {cart.some(item => item.materialNote) && (
               <div className="form-section">
                 <h3>Do you need DoItAllBros to purchase materials?</h3>
-                <p className="materials-note">You'll be charged for materials + $15 procurement fee</p>
+                <p className="materials-note">You'll be charged for materials + $45 procurement fee</p>
                 
                 <div className="materials-radio-group">
                   <label className={`radio-option ${!needsMaterialPurchase ? 'active' : ''}`}>
@@ -1549,39 +1630,49 @@ function CheckoutPage() {
           <div className="pricing-summary">
             <h3>Services</h3>
             {pricing.itemizedServices.map((service, i) => (
-              <div key={i} className="price-row">
+              <div key={i} className={`price-row ${service.isDependent ? 'dependent-row' : ''}`}>
                 <span>{service.description}</span>
-                <span>${service.price.toFixed(2)}</span>
+                <span>{service.isDependent ? '—' : `$${service.price.toFixed(2)}`}</span>
               </div>
             ))}
-            
-            <div className="price-row subtotal-row">
-              <span>Subtotal:</span>
-              <span>${pricing.subtotal.toFixed(2)}</span>
-            </div>
-            
-            {pricing.fees.map((fee, i) => (
-              <div key={i} className="price-row fee">
-                <span>{fee.label}:</span>
-                <span>+${fee.amount.toFixed(2)}</span>
-              </div>
-            ))}
-            
-            {pricing.discount > 0 && (
-              <div className="price-row discount">
-                <span>Bundle Discount (10%):</span>
-                <span>-${pricing.discount.toFixed(2)}</span>
+
+            {!allDependent && (
+              <>
+                <div className="price-row subtotal-row">
+                  <span>Subtotal:</span>
+                  <span>${pricing.subtotal.toFixed(2)}</span>
+                </div>
+
+                {pricing.fees.map((fee, i) => (
+                  <div key={i} className="price-row fee">
+                    <span>{fee.label}:</span>
+                    <span>+${fee.amount.toFixed(2)}</span>
+                  </div>
+                ))}
+
+                {pricing.discount > 0 && (
+                  <div className="price-row discount">
+                    <span>Bundle Discount (10%):</span>
+                    <span>-${pricing.discount.toFixed(2)}</span>
+                  </div>
+                )}
+
+                <div className="price-row total">
+                  <span>{hasDependentItems ? 'Fixed Services Total:' : 'Total:'}</span>
+                  <span>${pricing.total.toFixed(2)}</span>
+                </div>
+              </>
+            )}
+
+            {hasDependentItems && (
+              <div className="dependent-pricing-note">
+                <strong>📧 Free Quote Included:</strong> You'll receive a quoted price for the marked service(s) via email before we schedule.
               </div>
             )}
-            
-            <div className="price-row total">
-              <span>Total:</span>
-              <span>${pricing.total.toFixed(2)}</span>
-            </div>
           </div>
-          
+
           <button type="submit" className="btn btn-primary btn-large">
-            Submit Visit Request
+            {allDependent ? 'Request Free Quote' : 'Submit Visit Request'}
           </button>
         </form>
       </div>
@@ -1592,7 +1683,8 @@ function CheckoutPage() {
 // Confirmation Page
 function ConfirmationPage() {
   const navigate = useNavigate();
-  
+  const pendingQuotes = sessionStorage.getItem('pendingQuoteServices');
+
   return (
     <div className="confirmation-page">
       <div className="confirmation-container">
@@ -1601,6 +1693,11 @@ function ConfirmationPage() {
         <p className="confirmation-message">
           We've received your visit request and will contact you within 24 hours to confirm.
         </p>
+        {pendingQuotes && (
+          <div className="quote-notice">
+            <strong>📋 Free Quote Coming:</strong> You'll receive a quoted price for <em>{pendingQuotes}</em> via email. We'll confirm everything before scheduling.
+          </div>
+        )}
         <div className="invoice-notice">
           <strong>📧 Check your email for your invoice.</strong>
           <p>If you don't see the invoice in your email, please contact us:</p>
@@ -1741,24 +1838,134 @@ function LegalPage() {
   );
 }
 
+// Custom Service Request Modal
+function CustomRequestModal({ onClose }) {
+  const [formData, setFormData] = useState({
+    name: '', email: '', phone: '', address: '',
+    date: '', time: '', description: '', materialsNeeded: '', otherNotes: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const response = await fetch('/api/submit-custom-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, type: 'custom_request', timestamp: new Date().toISOString() })
+      });
+      if (response.ok) {
+        setSubmitted(true);
+      } else {
+        alert('Something went wrong. Please try again or call (502) 387-5462.');
+      }
+    } catch {
+      alert('Unable to submit. Please call us at (502) 387-5462.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-box" onClick={e => e.stopPropagation()}>
+          <button className="modal-close" onClick={onClose}>✕</button>
+          <div style={{textAlign:'center', padding:'2rem'}}>
+            <div style={{fontSize:'3rem'}}>✅</div>
+            <h2>Request Submitted!</h2>
+            <p>We'll review your request and reach out to confirm pricing and scheduling.</p>
+            <button className="btn btn-primary" onClick={onClose} style={{marginTop:'1rem'}}>Close</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <h2>Custom Service Request</h2>
+        <p style={{color:'#64748B', marginBottom:'1.5rem'}}>Tell us what you need and we'll get back to you with pricing and availability.</p>
+        <form onSubmit={handleSubmit} className="custom-request-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label>Full Name *</label>
+              <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
+            <div className="form-group">
+              <label>Email *</label>
+              <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Phone *</label>
+              <input type="tel" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+            </div>
+            <div className="form-group">
+              <label>Service Address *</label>
+              <input type="text" required placeholder="123 Main St, Louisville, KY" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Preferred Date *</label>
+              <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} min={new Date().toISOString().split('T')[0]} />
+            </div>
+            <div className="form-group">
+              <label>Preferred Time *</label>
+              <input type="time" required value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} />
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Describe What You Need Done *</label>
+            <textarea required rows="4" placeholder="Please describe the job in detail — what needs to be done, size of the area, any access info, etc." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label>Do We Need to Purchase Materials?</label>
+            <textarea rows="2" placeholder="e.g. paint, mulch, hardware — or write 'No' if not applicable" value={formData.materialsNeeded} onChange={e => setFormData({...formData, materialsNeeded: e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label>Anything Else Important?</label>
+            <textarea rows="2" placeholder="Gate codes, pets, parking, special instructions..." value={formData.otherNotes} onChange={e => setFormData({...formData, otherNotes: e.target.value})} />
+          </div>
+          <button type="submit" className="btn btn-primary btn-large" disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit Request'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // Header
 function Header() {
   const { cart } = React.useContext(CartContext);
-  
+  const [showCustomRequest, setShowCustomRequest] = useState(false);
+
   return (
-    <header className="header">
-      <Link to="/" className="logo">
-        <span className="logo-text">DoItAllBros</span>
-      </Link>
-      <nav className="nav">
-        <Link to="/categories" className="nav-link">Services</Link>
-        <Link to="/contact" className="nav-link">Contact</Link>
-        <Link to="/checkout" className="nav-link cart-link">
-          Visit {cart.length > 0 && `(${cart.length})`}
+    <>
+      <header className="header">
+        <Link to="/" className="logo">
+          <span className="logo-text">DoItAllBros</span>
         </Link>
-        <Link to="/categories" className="nav-link nav-link-primary">Book Now</Link>
-      </nav>
-    </header>
+        <nav className="nav">
+          <Link to="/#packages" className="nav-link" onClick={e => { e.preventDefault(); document.querySelector('.packages-section')?.scrollIntoView({behavior:'smooth'}); }}>Packages</Link>
+          <Link to="/categories" className="nav-link">Services</Link>
+          <Link to="/contact" className="nav-link">Contact</Link>
+          <button className="nav-link nav-link-custom" onClick={() => setShowCustomRequest(true)}>Custom Request</button>
+          <Link to="/checkout" className="nav-link cart-link">
+            Visit {cart.length > 0 && `(${cart.length})`}
+          </Link>
+          <Link to="/categories" className="nav-link nav-link-primary">Book Now</Link>
+        </nav>
+      </header>
+      {showCustomRequest && <CustomRequestModal onClose={() => setShowCustomRequest(false)} />}
+    </>
   );
 }
 
