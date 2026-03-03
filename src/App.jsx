@@ -278,6 +278,58 @@ const serviceData = {
       { name: "Last-Minute Moving Help", price: "Standard rate × 1.5", isEmergency: true, baseService: "Moving Help" },
       { name: "Storm Debris Cleanup", price: "Standard rate × 1.5", isEmergency: true, baseService: "Leaf Cleanup & Yard Debris Removal" }
     ]
+  },
+  packages: {
+    title: "Popular Packages",
+    icon: (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 4l5.5 11 12 1.7-8.7 8.5 2 12L24 31.5 13.2 37.2l2-12L6.5 16.7l12-1.7z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" fill="white"/>
+      </svg>
+    ),
+    color: "#F59E0B",
+    isPackages: true,
+    services: [
+      {
+        name: "Basic Lawn Care",
+        price: "$45-$110",
+        description: "Lawn mowing + weed eating edges. Keeps your yard looking neat without the hassle.",
+        sizeDependent: true,
+        sizePricing: {
+          small: { label: "Small Yard", example: "🏡 Cozy cottage lawn", price: 45 },
+          medium: { label: "Medium Yard", example: "🏠 Standard suburban yard", price: 60 },
+          large: { label: "Large Yard", example: "🏘️ Spacious property", price: 80 },
+          xl: { label: "Extra Large Yard", example: "🏰 Estate-sized grounds", price: 110 }
+        },
+        recurring: true,
+        packageBadge: "Most Popular"
+      },
+      {
+        name: "Advanced Lawn Care",
+        price: "$85-$175",
+        description: "Mowing, weed eating, pulling weeds, and trimming bushes — a complete yard care package.",
+        sizeDependent: true,
+        sizePricing: {
+          small: { label: "Small Yard", example: "🏡 Cozy cottage lawn", price: 85 },
+          medium: { label: "Medium Yard", example: "🏠 Standard suburban yard", price: 110 },
+          large: { label: "Large Yard", example: "🏘️ Spacious property", price: 140 },
+          xl: { label: "Extra Large Yard", example: "🏰 Estate-sized grounds", price: 175 }
+        },
+        recurring: true,
+        packageBadge: "Best Value"
+      },
+      {
+        name: "House Glowup",
+        price: "Dependent Pricing — Free Quote Included",
+        dependentPricing: true,
+        description: "Full exterior refresh: pressure washing (driveway, walkways, siding), exterior window cleaning, roof cleaning, and gutter cleaning. Pricing varies by home size."
+      },
+      {
+        name: "Organize & Junk",
+        price: "Dependent Pricing — Free Quote Included",
+        dependentPricing: true,
+        description: "Full area cleanout: junk removal, organization, and cleaning of the space. Tell us the area (garage, basement, room, etc.) and we'll handle the rest."
+      }
+    ]
   }
 };
 
@@ -350,52 +402,16 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Popular Packages */}
-      <section className="home-section packages-section">
-        <div className="home-section-inner">
-          <h2>Popular Packages</h2>
-          <p className="section-intro">Our most-booked service bundles — great value for common needs.</p>
-          <div className="packages-grid">
-            <div className="package-card">
-              <div className="package-badge">Most Popular</div>
-              <h3>Basic Lawn Care</h3>
-              <p className="package-desc">Lawn mowing + weed eating edges. Keeps your yard looking neat without the hassle.</p>
-              <div className="package-pricing">
-                <div className="package-price-row"><span>Small Yard</span><strong>$45</strong></div>
-                <div className="package-price-row"><span>Medium Yard</span><strong>$60</strong></div>
-                <div className="package-price-row"><span>Large Yard</span><strong>$80</strong></div>
-                <div className="package-price-row"><span>XL Yard</span><strong>$110</strong></div>
-              </div>
-              <button className="btn btn-primary" onClick={() => navigate('/add-service/recurring/0')}>Book This Package</button>
-            </div>
-
-            <div className="package-card">
-              <div className="package-badge package-badge-purple">Best Value</div>
-              <h3>Advanced Lawn Care</h3>
-              <p className="package-desc">Lawn mowing, weed eating edges, pulling weeds, and trimming bushes. A complete yard care package.</p>
-              <div className="package-pricing">
-                <div className="package-price-row"><span>Small Yard</span><strong>$85</strong></div>
-                <div className="package-price-row"><span>Medium Yard</span><strong>$110</strong></div>
-                <div className="package-price-row"><span>Large Yard</span><strong>$140</strong></div>
-                <div className="package-price-row"><span>XL Yard</span><strong>$175</strong></div>
-              </div>
-              <button className="btn btn-primary" onClick={() => navigate('/add-service/recurring/1')}>Book This Package</button>
-            </div>
-
-            <div className="package-card">
-              <h3>House Glowup</h3>
-              <p className="package-desc">Full exterior refresh: pressure washing (driveway, walkways, siding), exterior window cleaning, roof cleaning, and gutter cleaning.</p>
-              <div className="package-pricing-note">Dependent pricing — free quote included. Pricing varies by home size.</div>
-              <button className="btn btn-secondary" onClick={() => navigate('/contact')}>Request Free Quote</button>
-            </div>
-
-            <div className="package-card">
-              <h3>Organize & Junk</h3>
-              <p className="package-desc">Full area cleanout: junk removal, organization, and cleaning of the space. Tell us the area (garage, basement, room, etc.) and we'll handle the rest.</p>
-              <div className="package-pricing-note">Dependent pricing — free quote included. Pricing varies by area size and volume.</div>
-              <button className="btn btn-secondary" onClick={() => navigate('/contact')}>Request Free Quote</button>
-            </div>
+      {/* Popular Packages CTA */}
+      <section className="home-section packages-cta-section">
+        <div className="home-section-inner packages-cta-inner">
+          <div className="packages-cta-text">
+            <h2>Popular Packages</h2>
+            <p>Our most-booked service bundles — great value for common needs. From lawn care to full exterior refreshes.</p>
           </div>
+          <button className="btn btn-primary packages-cta-btn" onClick={() => navigate('/services/packages')}>
+            View Popular Packages →
+          </button>
         </div>
       </section>
 
@@ -524,26 +540,47 @@ function HomePage() {
 // Categories Page
 function CategoriesPage() {
   const navigate = useNavigate();
-  
+
   return (
     <div className="categories-page">
       <div className="page-header">
         <h1>Choose Your Service Category</h1>
         <p>Select a category to view available services</p>
       </div>
-      <div className="categories-grid">
-        {Object.entries(serviceData).map(([key, category]) => (
-          <div 
-            key={key}
-            className="category-card"
-            onClick={() => navigate(`/services/${key}`)}
-            style={{'--category-color': category.color}}
-          >
-            <div className="category-icon" style={{color: category.color}}>{category.icon}</div>
-            <h3 className="category-title">{category.title}</h3>
-            <div className="category-count">{category.services.length} services</div>
+
+      {/* Featured: Popular Packages */}
+      <div className="packages-featured-card" onClick={() => navigate('/services/packages')}>
+        <div className="packages-featured-left">
+          <span className="packages-featured-badge">⭐ Featured</span>
+          <h2>Popular Packages</h2>
+          <p>Our most-booked bundles — great value, curated for common needs.</p>
+          <span className="packages-featured-link">View Packages →</span>
+        </div>
+        <div className="packages-featured-right">
+          <div className="packages-featured-pills">
+            <span className="pkg-pill">Basic Lawn Care</span>
+            <span className="pkg-pill">Advanced Lawn Care</span>
+            <span className="pkg-pill">House Glowup</span>
+            <span className="pkg-pill">Organize &amp; Junk</span>
           </div>
-        ))}
+        </div>
+      </div>
+
+      <div className="categories-grid">
+        {Object.entries(serviceData)
+          .filter(([, cat]) => !cat.isPackages)
+          .map(([key, category]) => (
+            <div
+              key={key}
+              className="category-card"
+              onClick={() => navigate(`/services/${key}`)}
+              style={{'--category-color': category.color}}
+            >
+              <div className="category-icon" style={{color: category.color}}>{category.icon}</div>
+              <h3 className="category-title">{category.title}</h3>
+              <div className="category-count">{category.services.length} services</div>
+            </div>
+          ))}
       </div>
     </div>
   );
@@ -592,22 +629,25 @@ function ServicesPage() {
       
       <div className="services-grid">
         {category.services.map((service, index) => (
-          <div 
+          <div
             key={index}
             className="service-card"
             onClick={() => navigate(`/add-service/${selectedCategory}/${index}`)}
           >
             <h3 className="service-name">{service.name}</h3>
-            <div className="service-price">{service.price}</div>
-            {service.materialNote && (
-              <span className="material-note">Materials not included</span>
-            )}
-            {service.recurring && <span className="recurring-badge">Recurring Available</span>}
-            {service.perItem && <span className="per-item-badge">Per Item</span>}
-            {service.isDogWalking && <span className="dog-walking-badge">Custom Duration</span>}
-            {service.extraOvergrown && <span className="extra-badge">+$40 if overgrown</span>}
-            {service.hourly && <span className="hourly-badge">Hourly Rate</span>}
-            {service.isEmergency && <span className="emergency-badge">1.5× Rate</span>}
+            <div className="service-badges">
+              {service.packageBadge && <span className="package-badge-sm">{service.packageBadge}</span>}
+              {service.materialNote && <span className="material-note">Materials not included</span>}
+              {service.recurring && <span className="recurring-badge">Recurring Available</span>}
+              {service.perItem && <span className="per-item-badge">Per Item</span>}
+              {service.isDogWalking && <span className="dog-walking-badge">Custom Duration</span>}
+              {service.extraOvergrown && <span className="extra-badge">+$40 if overgrown</span>}
+              {service.hourly && <span className="hourly-badge">Hourly Rate</span>}
+              {service.isEmergency && <span className="emergency-badge">1.5× Rate</span>}
+            </div>
+            <div className={`service-price${service.dependentPricing ? ' service-price-quote' : ''}`}>
+              {service.dependentPricing ? 'Free Quote' : service.price}
+            </div>
             <button className="service-btn">Add to Visit →</button>
           </div>
         ))}
@@ -753,17 +793,18 @@ function AddServicePage() {
         <button className="back-btn" onClick={() => navigate(`/services/${categoryKey}`)}>
           ← Back to {category.title}
         </button>
-        
-        <button className="close-service-btn" onClick={() => navigate(`/services/${categoryKey}`)}>✕ Close</button>
 
         <div className="booking-header">
-          <span className="category-icon-large" style={{color: category.color}}>
-            {category.icon}
-          </span>
-          <div>
+          <div className="booking-header-top">
+            <span className="category-icon-large" style={{color: category.color}}>
+              {category.icon}
+            </span>
             <h1>{service.name}</h1>
-            <div className="service-price-large">{service.price}</div>
           </div>
+          <div className="service-price-large">{service.price}</div>
+          {service.packageBadge && (
+            <span className="pkg-badge-inline">{service.packageBadge}</span>
+          )}
         </div>
 
         <div className="service-config">
@@ -1081,6 +1122,7 @@ function CheckoutPage() {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [backupDate, setBackupDate] = useState('');
+  const [backupTime, setBackupTime] = useState('');
   const [isWeekend, setIsWeekend] = useState(false);
   const [isAfter5pm, setIsAfter5pm] = useState(false);
   const [needsMaterialPurchase, setNeedsMaterialPurchase] = useState(false);
@@ -1299,7 +1341,8 @@ function CheckoutPage() {
       payment_method: paymentMethod,
       extra_notes: formData.notes || '',
       scheduled_date: `${selectedDate} ${selectedTime}`,
-      backup_date: backupDate || 'None'
+      backup_date: backupDate || 'None',
+      backup_time: backupTime || 'None'
     };
     
     try {
@@ -1432,6 +1475,44 @@ function CheckoutPage() {
                 />
               </div>
             </div>
+            {backupDate && (
+              <div className="form-row" style={{marginTop:'0.75rem'}}>
+                <div className="form-group">
+                  <label>Backup Time</label>
+                  <select value={backupTime} onChange={(e) => setBackupTime(e.target.value)}>
+                    <option value="">Select time</option>
+                    <option value="07:00">7:00 AM</option>
+                    <option value="07:30">7:30 AM</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="08:30">8:30 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="09:30">9:30 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="10:30">10:30 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="11:30">11:30 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="12:30">12:30 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="13:30">1:30 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="14:30">2:30 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="15:30">3:30 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="16:30">4:30 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="17:30">5:30 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="18:30">6:30 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="19:30">7:30 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                    <option value="20:30">8:30 PM</option>
+                  </select>
+                </div>
+              </div>
+            )}
             {selectedDate === new Date().toISOString().split('T')[0] && (
               <div className="same-day-note">
                 <strong>📞 Same-Day Request:</strong> For the best chance of getting seen today, we recommend calling us directly at <a href="tel:+15023875462">(502) 387-5462</a>. Same-day bookings include a 30% rush fee.
@@ -1954,7 +2035,7 @@ function Header() {
           <span className="logo-text">DoItAllBros</span>
         </Link>
         <nav className="nav">
-          <Link to="/#packages" className="nav-link" onClick={e => { e.preventDefault(); document.querySelector('.packages-section')?.scrollIntoView({behavior:'smooth'}); }}>Packages</Link>
+          <Link to="/services/packages" className="nav-link">Packages</Link>
           <Link to="/categories" className="nav-link">Services</Link>
           <Link to="/contact" className="nav-link">Contact</Link>
           <button className="nav-link nav-link-custom" onClick={() => setShowCustomRequest(true)}>Custom Request</button>

@@ -584,6 +584,7 @@ select option { background: var(--bg2); }
 }
 .type-contact { background: rgba(59,130,246,.15); color: var(--accent); }
 .type-booking { background: rgba(245,158,11,.15); color: var(--warn); }
+.type-request { background: rgba(139,92,246,.15); color: #8B5CF6; }
 
 .new-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
 

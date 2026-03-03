@@ -267,7 +267,6 @@ function LoginScreen({ onLogin }) {
 const NAV = [
   { id: 'dashboard', label: 'Dashboard',   icon: 'grid'   },
   { id: 'inbox',     label: 'Inbox',        icon: 'inbox'  },
-  { id: 'requests',  label: 'Requests',     icon: 'clip'   },
   { id: 'clients',   label: 'Clients',      icon: 'users'  },
   { id: 'bookings',  label: 'Bookings',     icon: 'book'   },
   { id: 'calendar',  label: 'Calendar',     icon: 'cal'    },
@@ -569,9 +568,14 @@ function StatCard({ icon, label, value, color, onClick }) {
 function InboxView({ data, update, setView }) {
   const [filter, setFilter] = useState('new');
   const [selected, setSelected] = useState(null);
+  const [quotePrice, setQuotePrice] = useState('');
+  const [quoteMessage, setQuoteMessage] = useState('');
 
   const allItems = useMemo(() => {
-    const contacts = data.contacts.map(c => ({ ...c, _type: 'contact' }));
+    const contacts = data.contacts.map(c => ({
+      ...c,
+      _type: c.subtype === 'custom_request' ? 'custom_request' : 'contact',
+    }));
     const webBookings = data.bookings
       .filter(b => b.source === 'website')
       .map(b => ({ ...b, _type: 'booking' }));
@@ -583,6 +587,7 @@ function InboxView({ data, update, setView }) {
     if (filter === 'new') return allItems.filter(i => i.status === 'new' || i.status === 'pending');
     if (filter === 'contacts') return allItems.filter(i => i._type === 'contact');
     if (filter === 'bookings') return allItems.filter(i => i._type === 'booking');
+    if (filter === 'requests') return allItems.filter(i => i._type === 'custom_request');
     return allItems;
   }, [allItems, filter]);
 
@@ -640,10 +645,11 @@ function InboxView({ data, update, setView }) {
   };
 
   const FILTERS = [
-    { id: 'new', label: 'New' },
-    { id: 'all', label: 'All' },
-    { id: 'contacts', label: 'Contacts' },
-    { id: 'bookings', label: 'Bookings' },
+    { id: 'new',      label: 'New'             },
+    { id: 'all',      label: 'All'             },
+    { id: 'bookings', label: 'Bookings'        },
+    { id: 'contacts', label: 'Contacts'        },
+    { id: 'requests', label: 'Custom Requests' },
   ];
 
   return (
@@ -689,24 +695,30 @@ function InboxView({ data, update, setView }) {
                 onClick={() => { setSelected(item); markRead(item); }}
               >
                 <div className="inbox-item-left">
-                  <span className={clsx('type-badge', item._type === 'contact' ? 'type-contact' : 'type-booking')}>
-                    {item._type === 'contact' ? 'Contact' : 'Booking'}
+                  <span className={clsx('type-badge',
+                    item._type === 'custom_request' ? 'type-request' :
+                    item._type === 'contact' ? 'type-contact' : 'type-booking'
+                  )}>
+                    {item._type === 'custom_request' ? 'Custom Request' :
+                     item._type === 'contact' ? 'Contact' : 'Booking'}
                   </span>
                   {isNew && <span className="new-dot" />}
                 </div>
                 <div className="inbox-item-body">
                   <div className="inbox-item-name">{item.clientName || item.name}</div>
                   <div className="inbox-item-preview">
-                    {item._type === 'contact'
-                      ? item.message?.slice(0, 80) + (item.message?.length > 80 ? '…' : '')
+                    {item._type === 'custom_request'
+                      ? (item.description?.slice(0, 80) + (item.description?.length > 80 ? '…' : '') || 'Custom service request')
+                      : item._type === 'contact'
+                      ? (item.message?.slice(0, 80) + (item.message?.length > 80 ? '…' : ''))
                       : item.service || 'Service request'}
                   </div>
                 </div>
                 <div className="inbox-item-right">
                   <div className="inbox-item-date">{fmtDateShort(item.createdAt?.slice(0,10) || item.date)}</div>
-                  {item._type === 'contact'
-                    ? <Badge label={item.status} color={item.status === 'new' ? '#3B82F6' : '#64748B'} />
-                    : <StatusBadge status={item.status} />}
+                  {item._type === 'booking'
+                    ? <StatusBadge status={item.status} />
+                    : <Badge label={item.status} color={item.status === 'new' ? '#3B82F6' : '#64748B'} />}
                 </div>
               </div>
             );
@@ -715,7 +727,14 @@ function InboxView({ data, update, setView }) {
       )}
 
       {selected && (
-        <Modal title={selected._type === 'contact' ? 'Contact Submission' : 'Booking Request'} onClose={() => setSelected(null)} size="lg">
+        <Modal
+          title={
+            selected._type === 'custom_request' ? 'Custom Service Request' :
+            selected._type === 'contact' ? 'Contact Submission' : 'Booking Request'
+          }
+          onClose={() => { setSelected(null); setQuotePrice(''); setQuoteMessage(''); }}
+          size="lg"
+        >
           <div className="inbox-detail">
             <div className="detail-grid">
               <div className="detail-row">
@@ -730,12 +749,82 @@ function InboxView({ data, update, setView }) {
                 <span className="detail-label">Phone</span>
                 <span className="detail-value">{selected.clientPhone || selected.phone || '—'}</span>
               </div>
+
               {selected._type === 'contact' && (
                 <div className="detail-row detail-row-full">
                   <span className="detail-label">Message</span>
                   <span className="detail-value">{selected.message}</span>
                 </div>
               )}
+
+              {selected._type === 'custom_request' && (
+                <>
+                  {selected.address && (
+                    <div className="detail-row detail-row-full">
+                      <span className="detail-label">Address</span>
+                      <span className="detail-value">{selected.address}</span>
+                    </div>
+                  )}
+                  {selected.date && (
+                    <div className="detail-row">
+                      <span className="detail-label">Requested Date</span>
+                      <span className="detail-value">{selected.date} {selected.time ? `at ${selected.time}` : ''}</span>
+                    </div>
+                  )}
+                  <div className="detail-row detail-row-full">
+                    <span className="detail-label">Description</span>
+                    <span className="detail-value">{selected.description || '—'}</span>
+                  </div>
+                  {selected.materialsNeeded && (
+                    <div className="detail-row detail-row-full">
+                      <span className="detail-label">Materials Needed</span>
+                      <span className="detail-value">{selected.materialsNeeded}</span>
+                    </div>
+                  )}
+                  {selected.otherNotes && (
+                    <div className="detail-row detail-row-full">
+                      <span className="detail-label">Other Notes</span>
+                      <span className="detail-value">{selected.otherNotes}</span>
+                    </div>
+                  )}
+                  <div className="detail-row detail-row-full" style={{borderTop:'1px solid #E2E8F0', paddingTop:'1rem', marginTop:'0.5rem'}}>
+                    <span className="detail-label" style={{fontWeight:700, color:'#1E293B'}}>Send Quote</span>
+                    <div style={{display:'flex', flexDirection:'column', gap:'0.75rem', marginTop:'0.5rem'}}>
+                      <input
+                        type="number"
+                        placeholder="Quoted price ($)"
+                        value={quotePrice}
+                        onChange={e => setQuotePrice(e.target.value)}
+                        style={{padding:'0.6rem 0.85rem', border:'1px solid #CBD5E1', borderRadius:'8px', fontSize:'0.95rem', width:'200px'}}
+                      />
+                      <textarea
+                        placeholder="Message to customer (optional)..."
+                        value={quoteMessage}
+                        onChange={e => setQuoteMessage(e.target.value)}
+                        rows={3}
+                        style={{padding:'0.6rem 0.85rem', border:'1px solid #CBD5E1', borderRadius:'8px', fontSize:'0.9rem', resize:'vertical'}}
+                      />
+                      <button
+                        className="btn btn-primary"
+                        style={{width:'fit-content'}}
+                        onClick={() => {
+                          update('contacts', data.contacts.map(c =>
+                            c.id === selected.id
+                              ? { ...c, quotedPrice: quotePrice, quoteMessage, status: 'read' }
+                              : c
+                          ));
+                          setSelected(null);
+                          setQuotePrice('');
+                          setQuoteMessage('');
+                        }}
+                      >
+                        Save Quote
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+
               {selected._type === 'booking' && (
                 <>
                   <div className="detail-row">
@@ -762,6 +851,7 @@ function InboxView({ data, update, setView }) {
                   )}
                 </>
               )}
+
               <div className="detail-row">
                 <span className="detail-label">Received</span>
                 <span className="detail-value">{fmtDate(selected.createdAt?.slice(0,10))}</span>
@@ -2174,12 +2264,11 @@ export default function App() {
         setData(prev => {
           const contacts = [...prev.contacts];
           const bookings = [...prev.bookings];
-          const requests = [...(prev.requests || [])];
           items.forEach(item => {
             const type = item.type || (item.message ? 'contact' : 'booking');
             if (type === 'custom_request') {
-              if (!requests.find(r => r.webhookId === item.id)) {
-                requests.push({
+              if (!contacts.find(c => c.webhookId === item.id)) {
+                contacts.push({
                   id: genId(), webhookId: item.id,
                   name: item.name || '',
                   email: item.email || '',
@@ -2190,8 +2279,11 @@ export default function App() {
                   description: item.description || '',
                   materialsNeeded: item.materialsNeeded || '',
                   otherNotes: item.otherNotes || '',
-                  priceConfirmed: '',
-                  status: 'unaddressed',
+                  quotedPrice: '',
+                  quoteMessage: '',
+                  subtype: 'custom_request',
+                  status: 'new',
+                  source: 'website',
                   createdAt: item.receivedAt || item.timestamp || new Date().toISOString(),
                 });
               }
@@ -2230,7 +2322,7 @@ export default function App() {
               }
             }
           });
-          return { ...prev, contacts, bookings, requests };
+          return { ...prev, contacts, bookings };
         });
 
         await fetch(`${import.meta.env.BASE_URL}api/pending`, { method: 'DELETE' });
@@ -2246,7 +2338,7 @@ export default function App() {
   const newInboxCount = useMemo(() => {
     const nc = data.contacts.filter(c => c.status === 'new').length;
     const nb = data.bookings.filter(b => b.source === 'website' && b.status === 'pending').length;
-    return nc + nb;
+    return nc + nb; // custom_requests are contacts with status 'new', already counted above
   }, [data.contacts, data.bookings]);
 
   const logout = () => { sessionStorage.removeItem('dab_auth'); setAuthed(false); };
@@ -2291,7 +2383,6 @@ export default function App() {
       <div className="main">
         {view === 'dashboard' && <Dashboard {...props} />}
         {view === 'inbox'     && <InboxView {...props} />}
-        {view === 'requests'  && <RequestsView {...props} />}
         {view === 'clients'   && <ClientsView {...props} />}
         {view === 'bookings'  && <BookingsView {...props} />}
         {view === 'calendar'  && <CalendarView {...props} />}
