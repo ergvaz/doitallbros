@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS & UTILITIES
@@ -151,7 +152,7 @@ function Modal({ title, onClose, children, size = 'md' }) {
     return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`modal-box modal-${size}`}>
         <div className="modal-header">
@@ -160,7 +161,8 @@ function Modal({ title, onClose, children, size = 'md' }) {
         </div>
         <div className="modal-body">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1383,8 +1385,7 @@ function KanbanCard({ booking: b, client, onEdit, onStatus, onPaid, onLogRevenue
       {b.isPaid && <span className="kc-paid">✓ Paid</span>}
 
       {open && (
-        <div onClick={e => e.stopPropagation()}>
-          <Modal title={`Booking — ${b.clientName}`} onClose={() => setOpen(false)} size="lg">
+        <Modal title={`Booking — ${b.clientName}`} onClose={() => setOpen(false)} size="lg">
             <div className="detail-grid">
               <div className="detail-row"><span className="detail-label">Service</span><span className="detail-value">{b.service}</span></div>
               <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{fmtDate(b.date)} {fmtTime(b.time)}</span></div>
@@ -1423,7 +1424,6 @@ function KanbanCard({ booking: b, client, onEdit, onStatus, onPaid, onLogRevenue
               <button className="btn btn-primary" onClick={() => { setOpen(false); onEdit(b); }}>{Ic.edit} Edit</button>
             </div>
           </Modal>
-        </div>
       )}
     </div>
   );
