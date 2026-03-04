@@ -670,10 +670,9 @@ function InboxView({ data, update }) {
       isRecurring: s.isRecurring || false,
       recurringLabel: s.recurringLabel || null,
     }));
-    const quotedServicesList = cartItems.filter(s => s.isQuote).map((s, i) => ({
-      name: s.serviceName,
-      quotedPrice: parseFloat(quotedPrices[i]) || null,
-    }));
+    const quotedServicesList = cartItems
+      .map((s, i) => s.isQuote ? { name: s.serviceName, quotedPrice: parseFloat(quotedPrices[i]) || null } : null)
+      .filter(Boolean);
     const totalFixed = fixedServices.reduce((sum, s) => sum + (s.price || 0), 0);
     const totalQuoted = quotedServicesList.reduce((sum, s) => sum + (s.quotedPrice || 0), 0);
 
@@ -865,119 +864,162 @@ function InboxView({ data, update }) {
           size="lg"
         >
           {/* ── Client info ── */}
-          <div className="detail-grid" style={{marginBottom:'1.5rem'}}>
-            <div className="detail-row"><span className="detail-label">Name</span><span className="detail-value">{selected.name || selected.clientName}</span></div>
-            <div className="detail-row"><span className="detail-label">Email</span><span className="detail-value">{selected.email || selected.clientEmail || '—'}</span></div>
-            <div className="detail-row"><span className="detail-label">Phone</span><span className="detail-value">{selected.phone || selected.clientPhone || '—'}</span></div>
-            <div className="detail-row"><span className="detail-label">Address</span><span className="detail-value">{selected.address || selected.clientAddress || '—'}</span></div>
-            <div className="detail-row"><span className="detail-label">Received</span><span className="detail-value">{fmtDate(selected.createdAt?.slice(0,10))}</span></div>
+          <div className="ib-info">
+            <span className="ib-lbl">Name</span><span className="ib-val">{selected.name || selected.clientName || '—'}</span>
+            <span className="ib-lbl">Email</span><span className="ib-val">{selected.email || selected.clientEmail || '—'}</span>
+            <span className="ib-lbl">Phone</span><span className="ib-val">{selected.phone || selected.clientPhone || '—'}</span>
+            <span className="ib-lbl">Address</span><span className="ib-val">{selected.address || selected.clientAddress || '—'}</span>
+            <span className="ib-lbl">Received</span><span className="ib-val">{fmtDate(selected.createdAt?.slice(0,10))}</span>
             {(selected.notes || selected.extra_notes) && (
-              <div className="detail-row detail-row-full"><span className="detail-label">Notes</span><span className="detail-value">{selected.notes || selected.extra_notes}</span></div>
+              <><span className="ib-lbl">Notes</span><span className="ib-val">{selected.notes || selected.extra_notes}</span></>
             )}
           </div>
 
-          {/* ── Contact message (contacts only) ── */}
+          {/* ── Contact message ── */}
           {selected._type === 'contact' && (
-            <div className="inbox-section">
-              <div className="inbox-section-title">Message</div>
-              <p style={{color:'var(--text2)', lineHeight:1.6}}>{selected.message || '—'}</p>
+            <div className="ib-section">
+              <div className="ib-section-title">Message</div>
+              <p style={{color:'var(--text2)', lineHeight:1.6, margin:0}}>{selected.message || '—'}</p>
             </div>
           )}
 
-          {/* ── Custom request details ── */}
+          {/* ── Custom request description ── */}
           {selected._type === 'custom_request' && (
-            <div className="inbox-section">
-              <div className="inbox-section-title">Request Details</div>
-              <div className="detail-grid">
-                {selected.date && <div className="detail-row"><span className="detail-label">Requested Date</span><span className="detail-value">{fmtDate(selected.date)} {selected.time && `at ${fmtTime(selected.time)}`}</span></div>}
-                <div className="detail-row detail-row-full"><span className="detail-label">Description</span><span className="detail-value">{selected.description || '—'}</span></div>
-                {selected.materialsNeeded && <div className="detail-row detail-row-full"><span className="detail-label">Materials</span><span className="detail-value">{selected.materialsNeeded}</span></div>}
-                {selected.otherNotes && <div className="detail-row detail-row-full"><span className="detail-label">Other Notes</span><span className="detail-value">{selected.otherNotes}</span></div>}
-              </div>
+            <div className="ib-section">
+              <div className="ib-section-title">Request Description</div>
+              <p style={{color:'var(--text2)', lineHeight:1.6, margin:0}}>{selected.description || '—'}</p>
+              {selected.materialsNeeded && <p style={{color:'var(--text3)', fontSize:13, marginTop:8, marginBottom:0}}>Materials: {selected.materialsNeeded}</p>}
+              {selected.otherNotes && <p style={{color:'var(--text3)', fontSize:13, marginTop:4, marginBottom:0}}>Notes: {selected.otherNotes}</p>}
             </div>
           )}
 
-          {/* ── Booking services breakdown ── */}
-          {selected._type === 'booking' && selected.cartItems?.length > 0 && (
-            <div className="inbox-section">
-              <div className="inbox-section-title">Services</div>
-              <div className="services-breakdown">
-                {selected.cartItems.map((svc, i) => (
-                  <div key={i} className={clsx('svc-row', svc.isQuote && 'svc-row-quote')}>
-                    <div className="svc-row-left">
-                      <span className="svc-name">{svc.serviceName}</span>
-                      {svc.sizeLabel && <span className="svc-sub">{svc.sizeLabel}</span>}
-                      {svc.isRecurring && <span className="svc-sub">{svc.recurringLabel}</span>}
-                      {svc.powerWashAreas?.length > 0 && <span className="svc-sub">Areas: {svc.powerWashAreas.join(', ')}</span>}
-                      {svc.isQuote && <span className="svc-quote-badge">Needs Quote</span>}
-                    </div>
-                    <div className="svc-row-right">
-                      {svc.isQuote ? (
-                        <input
-                          type="number"
-                          className="quote-price-input"
-                          placeholder="$ Quote"
-                          value={quotedPrices[i] || ''}
-                          onChange={e => setQuotedPrices(p => ({ ...p, [i]: e.target.value }))}
-                        />
-                      ) : (
-                        <span className="svc-fixed-price">{fmtMoneyFull(svc.fixedPrice)}</span>
-                      )}
-                    </div>
+          {/* ── Booking services + quote inputs ── */}
+          {selected._type === 'booking' && (
+            <div className="ib-section">
+              <div className="ib-section-title">Services</div>
+              {selected.cartItems?.length > 0 ? (
+                <>
+                  <div className="ib-services">
+                    {selected.cartItems.map((svc, i) => (
+                      <div key={i} className={clsx('ib-svc', svc.isQuote && 'ib-svc-quote')}>
+                        <div className="ib-svc-left">
+                          <span className="ib-svc-name">{svc.serviceName}</span>
+                          {svc.sizeLabel && <span className="ib-svc-sub">{svc.sizeLabel}</span>}
+                          {svc.isRecurring && <span className="ib-svc-sub">{svc.recurringLabel}</span>}
+                          {svc.powerWashAreas?.length > 0 && <span className="ib-svc-sub">Areas: {svc.powerWashAreas.join(', ')}</span>}
+                          {svc.isQuote && <span className="ib-needs-quote">Needs Quote</span>}
+                        </div>
+                        <div className="ib-svc-right">
+                          {svc.isQuote ? (
+                            <input
+                              type="number"
+                              className="ib-price-input"
+                              placeholder="$ Enter quote"
+                              value={quotedPrices[i] || ''}
+                              onChange={e => setQuotedPrices(p => ({ ...p, [i]: e.target.value }))}
+                            />
+                          ) : (
+                            <span className="ib-fixed-price">{fmtMoneyFull(svc.fixedPrice)}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-                {/* Totals */}
-                {(() => {
-                  const totalFixed = selected.cartItems.filter(s => !s.isQuote).reduce((sum, s) => sum + (s.fixedPrice || 0), 0);
-                  const totalQuoted = selected.cartItems.filter(s => s.isQuote).reduce((sum, _, i) => sum + (parseFloat(quotedPrices[selected.cartItems.filter(s2 => s2.isQuote).indexOf(_)]) || 0), 0);
-                  return (
-                    <div className="svc-totals">
-                      {totalFixed > 0 && <div className="svc-total-row"><span>Fixed Total</span><span>{fmtMoneyFull(totalFixed)}</span></div>}
-                      {selected.cartItems.some(s => s.isQuote) && <div className="svc-total-row svc-total-quote"><span>Quoted Total</span><span>{totalQuoted > 0 ? fmtMoneyFull(totalQuoted) : 'TBD'}</span></div>}
-                      {totalFixed > 0 && selected.cartItems.some(s => s.isQuote) && totalQuoted > 0 && <div className="svc-total-row svc-total-combined"><span>Combined Total</span><span>{fmtMoneyFull(totalFixed + totalQuoted)}</span></div>}
-                    </div>
-                  );
-                })()}
-              </div>
+                  {(() => {
+                    const totalFixed = selected.cartItems.reduce((sum, s) => sum + (!s.isQuote ? (s.fixedPrice || 0) : 0), 0);
+                    const totalQuoted = selected.cartItems.reduce((sum, s, i) => sum + (s.isQuote ? (parseFloat(quotedPrices[i]) || 0) : 0), 0);
+                    const hasQuotes = selected.cartItems.some(s => s.isQuote);
+                    return (
+                      <div className="ib-totals">
+                        {totalFixed > 0 && <div className="ib-total-row"><span>Fixed Total</span><span>{fmtMoneyFull(totalFixed)}</span></div>}
+                        {hasQuotes && <div className="ib-total-row ib-total-quote"><span>Quoted Total</span><span>{totalQuoted > 0 ? fmtMoneyFull(totalQuoted) : 'TBD'}</span></div>}
+                        {totalFixed > 0 && hasQuotes && totalQuoted > 0 && <div className="ib-total-row ib-total-combined"><span>Combined Total</span><span>{fmtMoneyFull(totalFixed + totalQuoted)}</span></div>}
+                      </div>
+                    );
+                  })()}
+                </>
+              ) : (
+                /* Old-format booking without cartItems */
+                <div className="ib-svc ib-svc-quote">
+                  <div className="ib-svc-left">
+                    <span className="ib-svc-name">{selected.service_list || selected.service || 'Services requested'}</span>
+                    {selected.has_quoted_services && <span className="ib-needs-quote">Needs Quote</span>}
+                  </div>
+                  <div className="ib-svc-right">
+                    {selected.has_quoted_services && (
+                      <input
+                        type="number"
+                        className="ib-price-input"
+                        placeholder="$ Enter quote"
+                        value={quotedPrices[0] || ''}
+                        onChange={e => setQuotedPrices({ 0: e.target.value })}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* ── Date selection (bookings + custom requests) ── */}
+          {/* ── Custom request: quote or unable ── */}
+          {selected._type === 'custom_request' && (
+            <div className="ib-section">
+              {unable ? (
+                <div className="ib-unable-msg">Marking as unable to accommodate — a decline notice will be sent.</div>
+              ) : (
+                <>
+                  <div className="ib-section-title">Your Quoted Price</div>
+                  <input
+                    type="number"
+                    className="ib-price-input ib-price-input-lg"
+                    placeholder="$ Enter quote for this job"
+                    value={quotedPrices[0] || ''}
+                    onChange={e => setQuotedPrices({ 0: e.target.value })}
+                  />
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ── Date selection ── */}
           {selected._type !== 'contact' && (
-            <div className="inbox-section">
-              <div className="inbox-section-title">Select Date</div>
-              <div className="date-options">
-                {/* Preferred */}
+            <div className="ib-section">
+              <div className="ib-section-title">Select Date</div>
+              <div className="ib-date-opts">
                 {(selected.preferredDate || selected.date) && (
-                  <label className={clsx('date-option', dateOption === 'preferred' && 'date-option-active')}>
-                    <input type="radio" name="dateOpt" value="preferred" checked={dateOption === 'preferred'} onChange={() => setDateOption('preferred')} />
-                    <div className="date-option-content">
-                      <span className="date-option-label">Preferred</span>
-                      <span className="date-option-val">{fmtDate(selected.preferredDate || selected.date)} {fmtTime(selected.preferredTime || selected.time)}</span>
-                      {availBadge(selected.dateAvailability?.preferred)}
+                  <label className={clsx('ib-date-opt', dateOption === 'preferred' && 'ib-date-opt-active')}>
+                    <input type="radio" name="dopt" value="preferred" checked={dateOption === 'preferred'} onChange={() => setDateOption('preferred')} />
+                    <div className="ib-date-opt-body">
+                      <div className="ib-date-opt-header">
+                        <span className="ib-date-opt-label">Preferred</span>
+                        {availBadge(selected.dateAvailability?.preferred)}
+                      </div>
+                      <span className="ib-date-opt-val">{fmtDate(selected.preferredDate || selected.date)} {fmtTime(selected.preferredTime || selected.time)}</span>
                     </div>
                   </label>
                 )}
-                {/* Backup */}
                 {(selected.backupDate || selected.backup_date) && (
-                  <label className={clsx('date-option', dateOption === 'backup' && 'date-option-active')}>
-                    <input type="radio" name="dateOpt" value="backup" checked={dateOption === 'backup'} onChange={() => setDateOption('backup')} />
-                    <div className="date-option-content">
-                      <span className="date-option-label">Backup</span>
-                      <span className="date-option-val">{fmtDate(selected.backupDate || selected.backup_date)} {fmtTime(selected.backupTime || selected.backup_time)}</span>
-                      {availBadge(selected.dateAvailability?.backup)}
+                  <label className={clsx('ib-date-opt', dateOption === 'backup' && 'ib-date-opt-active')}>
+                    <input type="radio" name="dopt" value="backup" checked={dateOption === 'backup'} onChange={() => setDateOption('backup')} />
+                    <div className="ib-date-opt-body">
+                      <div className="ib-date-opt-header">
+                        <span className="ib-date-opt-label">Backup</span>
+                        {availBadge(selected.dateAvailability?.backup)}
+                      </div>
+                      <span className="ib-date-opt-val">{fmtDate(selected.backupDate || selected.backup_date)} {fmtTime(selected.backupTime || selected.backup_time)}</span>
                     </div>
                   </label>
                 )}
-                {/* Alternative */}
-                <label className={clsx('date-option', dateOption === 'alternative' && 'date-option-active')}>
-                  <input type="radio" name="dateOpt" value="alternative" checked={dateOption === 'alternative'} onChange={() => setDateOption('alternative')} />
-                  <div className="date-option-content">
-                    <span className="date-option-label">Suggest Alternative</span>
+                <label className={clsx('ib-date-opt', dateOption === 'alternative' && 'ib-date-opt-active')}>
+                  <input type="radio" name="dopt" value="alternative" checked={dateOption === 'alternative'} onChange={() => setDateOption('alternative')} />
+                  <div className="ib-date-opt-body">
+                    <div className="ib-date-opt-header">
+                      <span className="ib-date-opt-label">Suggest Alternative Date</span>
+                    </div>
                     {dateOption === 'alternative' && (
-                      <div className="alt-date-inputs">
-                        <input type="date" className="alt-date-input" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
-                        <select className="alt-date-input" value={altTime} onChange={e => setAltTime(e.target.value)}>
+                      <div className="ib-alt-inputs">
+                        <input type="date" className="ib-input" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
+                        <select className="ib-input" value={altTime} onChange={e => setAltTime(e.target.value)}>
                           <option value="">Select time</option>
                           {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00'].map(t => (
                             <option key={t} value={t}>{fmtTime(t)}</option>
@@ -991,21 +1033,6 @@ function InboxView({ data, update }) {
             </div>
           )}
 
-          {/* ── Custom request: quote input ── */}
-          {selected._type === 'custom_request' && !unable && (
-            <div className="inbox-section">
-              <div className="inbox-section-title">Quoted Price</div>
-              <input
-                type="number"
-                className="quote-price-input"
-                placeholder="$ Enter quote for this job"
-                value={quotedPrices[0] || ''}
-                onChange={e => setQuotedPrices({ 0: e.target.value })}
-                style={{maxWidth:'220px'}}
-              />
-            </div>
-          )}
-
           {/* ── Action buttons ── */}
           <div className="modal-footer">
             <button className="btn btn-ghost btn-danger-ghost" onClick={() => archiveItem(selected)}>{Ic.trash} Remove</button>
@@ -1014,52 +1041,29 @@ function InboxView({ data, update }) {
               <button className="btn btn-primary" onClick={closeModal}>Close</button>
             ) : selected._type === 'custom_request' ? (
               <>
-                <button
-                  className="btn btn-ghost"
-                  disabled={submitting}
-                  onClick={() => { setUnable(u => !u); }}
-                >
+                <button className="btn btn-ghost" disabled={submitting} onClick={() => setUnable(u => !u)}>
                   {unable ? '↩ Back to Quote' : '✗ Unable to Accommodate'}
                 </button>
                 <button
                   className="btn btn-primary"
-                  disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
+                  disabled={submitting || (!unable && dateOption === 'alternative' && (!altDate || !altTime))}
                   onClick={() => processItem(unable ? 'decline' : 'confirm')}
                 >
-                  {submitting ? 'Sending…' : unable ? 'Send Decline' : 'Submit Quote'}
+                  {submitting ? 'Sending…' : unable ? 'Send Decline' : dateOption === 'alternative' ? 'Submit Quote & Suggest Date' : 'Submit Quote'}
                 </button>
               </>
             ) : (
-              /* Booking */
-              <>
-                {itemHasQuotes(selected) ? (
-                  <button
-                    className="btn btn-secondary"
-                    disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
-                    onClick={() => processItem('confirm')}
-                  >
-                    {submitting ? 'Sending…' : 'Submit Quote & Date'}
-                  </button>
-                ) : null}
-                {!itemHasQuotes(selected) && (
-                  <button
-                    className="btn btn-primary"
-                    disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
-                    onClick={() => processItem('confirm')}
-                  >
-                    {submitting ? 'Sending…' : dateOption === 'alternative' ? 'Suggest Alt. Date' : 'Confirm Booking'}
-                  </button>
-                )}
-                {itemHasQuotes(selected) && dateOption !== 'alternative' && (
-                  <button
-                    className="btn btn-primary"
-                    disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
-                    onClick={() => processItem('confirm')}
-                  >
-                    {submitting ? 'Sending…' : 'Submit Quote & Confirm Date'}
-                  </button>
-                )}
-              </>
+              <button
+                className="btn btn-primary"
+                disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
+                onClick={() => processItem('confirm')}
+              >
+                {submitting
+                  ? 'Sending…'
+                  : itemHasQuotes(selected)
+                    ? dateOption === 'alternative' ? 'Submit Quote & Suggest Date' : 'Submit Quote & Confirm Date'
+                    : dateOption === 'alternative' ? 'Suggest Alt. Date' : 'Confirm Booking'}
+              </button>
             )}
           </div>
         </Modal>

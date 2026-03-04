@@ -1161,17 +1161,65 @@ select option { background: var(--bg2); }
 .svc-total-quote { color: #3B82F6; }
 .svc-total-combined { font-weight: 700; color: var(--text1); font-size: 14px; }
 
-/* Date options */
+/* Date options (legacy — kept for safety) */
 .date-options { display: flex; flex-direction: column; gap: 8px; }
 .date-option { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color .15s; }
 .date-option input[type="radio"] { margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
 .date-option-active { border-color: var(--accent); background: rgba(59,130,246,.06); }
-.date-option-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.date-option-content { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
 .date-option-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); }
 .date-option-val { font-size: 13px; font-weight: 600; color: var(--text1); }
 .alt-date-inputs { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .alt-date-input { padding: 6px 10px; background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 8px; color: var(--text1); font-size: 13px; }
 .alt-date-input:focus { outline: none; border-color: var(--accent); }
+
+/* ── Inbox modal redesign (ib-*) ── */
+.ib-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.ib-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); white-space: nowrap; padding-top: 2px; }
+.ib-val { font-size: 14px; color: var(--text1); word-break: break-word; }
+
+.ib-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.ib-section:last-of-type { border-bottom: none; margin-bottom: 0; }
+.ib-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); margin-bottom: 12px; }
+
+.ib-services { display: flex; flex-direction: column; gap: 6px; }
+.ib-svc { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: var(--bg3); border-radius: 8px; border: 1px solid var(--border); }
+.ib-svc-quote { border-color: #3B82F6; background: rgba(59,130,246,.06); }
+.ib-svc-left { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.ib-svc-right { flex-shrink: 0; }
+.ib-svc-name { font-size: 13px; font-weight: 600; color: var(--text1); }
+.ib-svc-sub { font-size: 11px; color: var(--text3); }
+.ib-needs-quote { font-size: 10px; font-weight: 700; color: #3B82F6; background: rgba(59,130,246,.15); padding: 2px 7px; border-radius: 10px; width: fit-content; }
+.ib-fixed-price { font-size: 14px; font-weight: 700; color: var(--success); }
+.ib-price-input { padding: 8px 12px; background: var(--bg2); border: 1.5px solid var(--accent); border-radius: 8px; color: var(--text1); font-size: 14px; width: 140px; }
+.ib-price-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.25); }
+.ib-price-input-lg { width: 200px; font-size: 16px; padding: 10px 14px; }
+
+.ib-totals { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
+.ib-total-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); }
+.ib-total-quote { color: #3B82F6; font-weight: 600; }
+.ib-total-combined { font-weight: 700; color: var(--text1); font-size: 14px; }
+
+.ib-unable-msg { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: #EF4444; border-radius: 8px; padding: 12px 14px; font-size: 14px; }
+
+.ib-date-opts { display: flex; flex-direction: column; gap: 8px; }
+.ib-date-opt { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color .15s; }
+.ib-date-opt input[type="radio"] { margin-top: 3px; accent-color: var(--accent); flex-shrink: 0; }
+.ib-date-opt-active { border-color: var(--accent); background: rgba(59,130,246,.06); }
+.ib-date-opt-body { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.ib-date-opt-header { display: flex; align-items: center; gap: 8px; }
+.ib-date-opt-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); }
+.ib-date-opt-val { font-size: 14px; font-weight: 600; color: var(--text1); }
+.ib-alt-inputs { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.ib-input { padding: 7px 10px; background: var(--bg2); border: 1.5px solid var(--border2); border-radius: 8px; color: var(--text1); font-size: 13px; }
+.ib-input:focus { outline: none; border-color: var(--accent); }
 
 /* ═══════════════ MOBILE NAV ═══════════════ */
 .mobile-topbar {
