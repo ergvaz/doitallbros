@@ -984,14 +984,14 @@ function InboxView({ data, update }) {
                   const active = dateOption === opt.key;
                   return (
                     <div key={opt.key} onClick={() => setDateOption(opt.key)} style={{padding:'12px 14px', background: active ? 'rgba(59,130,246,.07)' : 'var(--bg3)', border:`1.5px solid ${active ? '#3B82F6' : 'var(--border)'}`, borderRadius:'10px', cursor:'pointer'}}>
-                      <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom: opt.date ? '5px' : 0}}>
+                      <div style={{display:'flex', flexDirection:'row', justifyContent:'flex-start', alignItems:'center', gap:'8px', marginBottom: opt.date ? '5px' : 0}}>
                         <input type="radio" name="dopt" value={opt.key} checked={active} onChange={() => setDateOption(opt.key)} onClick={e => e.stopPropagation()} style={{margin:0, flexShrink:0, accentColor:'#3B82F6'}} />
                         <span style={{fontSize:'12px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color: active ? '#3B82F6' : 'var(--text3)'}}>{opt.label}</span>
                         {opt.avail && availBadge(opt.avail)}
                       </div>
                       {opt.date && <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)', paddingLeft:'22px'}}>{opt.date} {opt.time}</div>}
                       {opt.key === 'alternative' && active && (
-                        <div style={{display:'flex', gap:'8px', flexWrap:'wrap', marginTop:'8px', paddingLeft:'22px'}}>
+                        <div style={{display:'flex', flexDirection:'row', justifyContent:'flex-start', gap:'8px', flexWrap:'wrap', marginTop:'8px', paddingLeft:'22px'}}>
                           <input type="date" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}} />
                           <select value={altTime} onChange={e => setAltTime(e.target.value)} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}}>
                             <option value="">Select time</option>
