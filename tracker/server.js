@@ -51,6 +51,34 @@ app.post('/api/incoming', (req, res) => {
     writeQueue(queue);
     console.log(`[tracker] Received ${item.type || 'item'}: ${item.id}`);
     res.json({ success: true, id: item.id });
+
+    // Forward bookings and custom requests to n8n immediately so it can:
+    // 1. Log to Google Sheets with the bookingId
+    // 2. Check calendar availability and send signal back via POST /api/availability
+    const type = item.type || '';
+    if (type === 'booking' || type === 'custom_request') {
+      fetch(N8N_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: type === 'booking' ? 'new_booking' : 'new_custom_request',
+          bookingId: item.id,
+          customer_name: item.customer_name || item.name || '',
+          email: item.email_address || item.email || '',
+          phone: item.phone_number || item.phone || '',
+          address: item.address || '',
+          service_list: item.service_list || item.description || '',
+          has_quoted_services: item.has_quoted_services || false,
+          preferred_date: item.preferred_date || '',
+          preferred_time: item.preferred_time || '',
+          backup_date: item.backup_date || null,
+          backup_time: item.backup_time || null,
+          payment_method: item.payment_method || '',
+          notes: item.extra_notes || item.notes || item.otherNotes || '',
+          receivedAt: item.receivedAt,
+        }),
+      }).catch(err => console.warn('[tracker] n8n initial notify failed:', err.message));
+    }
   } catch (err) {
     console.error('[tracker] /api/incoming error:', err.message);
     res.status(500).json({ error: 'Failed to store item' });
