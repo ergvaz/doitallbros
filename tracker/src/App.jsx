@@ -918,7 +918,7 @@ function InboxView({ data, update }) {
                       {svc.isQuote && <div style={{display:'inline-block', marginTop:4, fontSize:'10px', fontWeight:700, color:'#3B82F6', background:'rgba(59,130,246,.15)', padding:'2px 7px', borderRadius:'10px'}}>Needs Quote</div>}
                     </div>
                     <div style={{flexShrink:0}}>
-                      {svc.isQuote ? (
+                      {(svc.isQuote || !svc.fixedPrice) ? (
                         <input
                           type="number"
                           placeholder="$ Enter quote"
@@ -983,27 +983,25 @@ function InboxView({ data, update }) {
                 ].map(opt => {
                   const active = dateOption === opt.key;
                   return (
-                    <label key={opt.key} style={{display:'flex', alignItems:'flex-start', gap:'12px', padding:'12px 14px', background: active ? 'rgba(59,130,246,.07)' : 'var(--bg3)', border:`1.5px solid ${active ? '#3B82F6' : 'var(--border)'}`, borderRadius:'10px', cursor:'pointer'}}>
-                      <input type="radio" name="dopt" value={opt.key} checked={active} onChange={() => setDateOption(opt.key)} style={{marginTop:'3px', accentColor:'var(--accent)', flexShrink:0}} />
-                      <div style={{flex:1, minWidth:0}}>
-                        <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom: opt.date ? '4px' : 0}}>
-                          <span style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'var(--text3)'}}>{opt.label}</span>
-                          {opt.avail && availBadge(opt.avail)}
-                        </div>
-                        {opt.date && <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)'}}>{opt.date} {opt.time}</div>}
-                        {opt.key === 'alternative' && active && (
-                          <div style={{display:'flex', gap:'8px', flexWrap:'wrap', marginTop:'8px'}}>
-                            <input type="date" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}} />
-                            <select value={altTime} onChange={e => setAltTime(e.target.value)} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}}>
-                              <option value="">Select time</option>
-                              {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00'].map(t => (
-                                <option key={t} value={t}>{fmtTime(t)}</option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
+                    <div key={opt.key} onClick={() => setDateOption(opt.key)} style={{padding:'12px 14px', background: active ? 'rgba(59,130,246,.07)' : 'var(--bg3)', border:`1.5px solid ${active ? '#3B82F6' : 'var(--border)'}`, borderRadius:'10px', cursor:'pointer'}}>
+                      <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom: opt.date ? '5px' : 0}}>
+                        <input type="radio" name="dopt" value={opt.key} checked={active} onChange={() => setDateOption(opt.key)} onClick={e => e.stopPropagation()} style={{margin:0, flexShrink:0, accentColor:'#3B82F6'}} />
+                        <span style={{fontSize:'12px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color: active ? '#3B82F6' : 'var(--text3)'}}>{opt.label}</span>
+                        {opt.avail && availBadge(opt.avail)}
                       </div>
-                    </label>
+                      {opt.date && <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)', paddingLeft:'22px'}}>{opt.date} {opt.time}</div>}
+                      {opt.key === 'alternative' && active && (
+                        <div style={{display:'flex', gap:'8px', flexWrap:'wrap', marginTop:'8px', paddingLeft:'22px'}}>
+                          <input type="date" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}} />
+                          <select value={altTime} onChange={e => setAltTime(e.target.value)} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}}>
+                            <option value="">Select time</option>
+                            {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00'].map(t => (
+                              <option key={t} value={t}>{fmtTime(t)}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
