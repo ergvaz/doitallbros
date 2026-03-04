@@ -1370,6 +1370,26 @@ function CheckoutPage() {
       .filter(item => serviceData[item.categoryKey]?.services[item.serviceIndex]?.dependentPricing)
       .map(item => item.serviceName);
     
+    // Build structured cart items for the tracker
+    const cartItemsStructured = cart.map(item => {
+      const svc = serviceData[item.categoryKey]?.services[item.serviceIndex];
+      const isQuote = svc?.dependentPricing || false;
+      let sizeLabel = null;
+      if (item.selectedSize && svc?.sizePricing) {
+        sizeLabel = svc.sizePricing[item.selectedSize]?.label || item.selectedSize;
+      }
+      return {
+        serviceName: item.serviceName,
+        category: item.category,
+        isQuote,
+        fixedPrice: isQuote ? null : (item.calculatedPrice || 0),
+        sizeLabel,
+        powerWashAreas: item.powerWashAreas || null,
+        isRecurring: !!item.recurring,
+        recurringLabel: item.recurring?.frequency || null,
+      };
+    });
+
     // Create structured booking data
     const bookingData = {
       customer_name: formData.name,
@@ -1382,16 +1402,21 @@ function CheckoutPage() {
       subtotal: pricing.subtotal,
       fees: totalFees,
       total_amount: pricing.total,
+      has_quoted_services: dependentServices.length > 0,
+      quoted_service_names: dependentServices,
+      cart_items: cartItemsStructured,
       materials_needed: needsMaterialPurchase ? (
-        selectedMaterials.includes('Other (specify below)') 
+        selectedMaterials.includes('Other (specify below)')
           ? selectedMaterials.filter(m => m !== 'Other (specify below)').concat(otherMaterialText ? `Other: ${otherMaterialText}` : []).join(', ')
           : selectedMaterials.join(', ')
       ) : 'No',
       payment_method: paymentMethod,
       extra_notes: formData.notes || '',
+      preferred_date: selectedDate,
+      preferred_time: selectedTime,
+      backup_date: backupDate || null,
+      backup_time: backupTime || null,
       scheduled_date: `${selectedDate} ${selectedTime}`,
-      backup_date: backupDate || 'None',
-      backup_time: backupTime || 'None'
     };
     
     try {

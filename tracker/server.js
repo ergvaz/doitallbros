@@ -7,10 +7,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
 const QUEUE_FILE = path.join(__dirname, 'pending.json');
+const AVAIL_FILE = path.join(__dirname, 'availability.json');
+
+// n8n booking webhook — receives confirmed/quoted/declined bookings from tracker
+const N8N_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/9937e869-76b6-4b62-891f-6cbb4d00ab24';
 
 app.use(express.json());
 
-// CORS — allow the main site to POST to /api/incoming
+// CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
@@ -19,19 +23,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── Queue helpers (stored in pending.json on disk) ──────────
+// ── Queue helpers ────────────────────────────────────────────
 const readQueue = () => {
   try { return JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8')); }
   catch { return []; }
 };
+const writeQueue = (items) => fs.writeFileSync(QUEUE_FILE, JSON.stringify(items));
 
-const writeQueue = (items) => {
-  fs.writeFileSync(QUEUE_FILE, JSON.stringify(items));
+const readAvail = () => {
+  try { return JSON.parse(fs.readFileSync(AVAIL_FILE, 'utf8')); }
+  catch { return []; }
 };
+const writeAvail = (items) => fs.writeFileSync(AVAIL_FILE, JSON.stringify(items));
 
 // ── API routes ───────────────────────────────────────────────
 
-// Receive incoming webhook from the main DoItAllBros site
+// Receive incoming webhook from main site (bookings, custom requests, contacts)
 app.post('/api/incoming', (req, res) => {
   try {
     const queue = readQueue();
@@ -42,33 +49,99 @@ app.post('/api/incoming', (req, res) => {
     };
     queue.push(item);
     writeQueue(queue);
-    console.log(`[tracker] Received ${item.type || 'item'} from website: ${item.id}`);
+    console.log(`[tracker] Received ${item.type || 'item'}: ${item.id}`);
     res.json({ success: true, id: item.id });
   } catch (err) {
-    console.error('[tracker] Error in /api/incoming:', err.message);
+    console.error('[tracker] /api/incoming error:', err.message);
     res.status(500).json({ error: 'Failed to store item' });
   }
 });
 
-// Return all pending items (tracker frontend polls this every 30s)
-app.get('/api/pending', (req, res) => {
-  res.json(readQueue());
-});
+// Return all pending items (frontend polls every 30s)
+app.get('/api/pending', (req, res) => res.json(readQueue()));
 
-// Clear the queue after the frontend processes items
+// Clear entire queue
 app.delete('/api/pending', (req, res) => {
   writeQueue([]);
   res.json({ success: true });
 });
 
+// Delete a single item from the queue by ID
+app.delete('/api/pending/:id', (req, res) => {
+  const queue = readQueue().filter(i => i.id !== req.params.id);
+  writeQueue(queue);
+  res.json({ success: true });
+});
+
+// ── Availability signals from n8n ────────────────────────────
+// n8n POSTs here after checking calendar availability for a booking's dates
+// Body: { bookingId, preferredAvailable: true|false, backupAvailable: true|false|null }
+app.post('/api/availability', (req, res) => {
+  try {
+    const { bookingId, preferredAvailable, backupAvailable } = req.body;
+    if (!bookingId) return res.status(400).json({ error: 'bookingId required' });
+
+    const avail = readAvail();
+    const idx = avail.findIndex(a => a.bookingId === bookingId);
+    const entry = {
+      bookingId,
+      preferred: preferredAvailable != null ? (preferredAvailable ? 'available' : 'unavailable') : null,
+      backup: backupAvailable != null ? (backupAvailable ? 'available' : 'unavailable') : null,
+      updatedAt: new Date().toISOString(),
+      applied: false,
+    };
+    if (idx >= 0) avail[idx] = entry;
+    else avail.push(entry);
+    writeAvail(avail);
+
+    console.log(`[tracker] Availability update for ${bookingId}: preferred=${entry.preferred} backup=${entry.backup}`);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[tracker] /api/availability error:', err.message);
+    res.status(500).json({ error: 'Failed to store availability' });
+  }
+});
+
+// Return unapplied availability updates (frontend polls this)
+app.get('/api/availability', (req, res) => {
+  const avail = readAvail().filter(a => !a.applied);
+  res.json(avail);
+});
+
+// Mark availability updates as applied (frontend calls after processing)
+app.delete('/api/availability/:bookingId', (req, res) => {
+  const avail = readAvail().map(a =>
+    a.bookingId === req.params.bookingId ? { ...a, applied: true } : a
+  );
+  writeAvail(avail);
+  res.json({ success: true });
+});
+
+// ── Forward processed booking to n8n ────────────────────────
+// Frontend calls this when owner confirms/quotes/declines a request
+// Body: the full structured payload to send to n8n
+app.post('/api/forward', async (req, res) => {
+  try {
+    const response = await fetch(N8N_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      console.error('[tracker] n8n forward failed:', response.status, text);
+      return res.status(502).json({ error: 'n8n webhook failed' });
+    }
+    console.log(`[tracker] Forwarded ${req.body.type} to n8n`);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[tracker] /api/forward error:', err.message);
+    res.status(500).json({ error: 'Failed to forward to n8n' });
+  }
+});
+
 // ── Serve the React app ──────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'dist')));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')));
 
-// All other routes → React (SPA routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`DoItAllBros Tracker running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`DoItAllBros Tracker running on port ${PORT}`));

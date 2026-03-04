@@ -1,44 +1,31 @@
 export default async function handler(req, res) {
-  // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-  
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
   try {
-    // Forward to n8n webhook
-    const response = await fetch('https://n8n.srv1122720.hstgr.cloud/webhook/9937e869-76b6-4b62-891f-6cbb4d00ab24', {
+    const trackerUrl = process.env.TRACKER_WEBHOOK_URL;
+    if (!trackerUrl) {
+      return res.status(500).json({ error: 'Tracker URL not configured' });
+    }
+
+    const response = await fetch(`${trackerUrl}/api/incoming`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify({ ...req.body, type: 'booking' })
     });
 
     if (!response.ok) {
-      throw new Error('Webhook request failed');
-    }
-
-    // Also forward to the tracker (awaited so Vercel doesn't kill it early)
-    const trackerUrl = process.env.TRACKER_WEBHOOK_URL;
-    if (trackerUrl) {
-      await fetch(`${trackerUrl}/api/incoming`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...req.body, type: 'booking' })
-      }).catch(e => console.warn('Tracker webhook failed:', e.message));
+      throw new Error('Tracker webhook failed');
     }
 
     const data = await response.json().catch(() => ({ success: true }));
     res.status(200).json(data);
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('Booking submit error:', error);
     res.status(500).json({ error: 'Failed to submit booking' });
   }
 }

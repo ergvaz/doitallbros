@@ -567,82 +567,210 @@ function StatCard({ icon, label, value, color, onClick }) {
 // INBOX
 // ═══════════════════════════════════════════════════════════
 
-function InboxView({ data, update, setView }) {
+function InboxView({ data, update }) {
   const [filter, setFilter] = useState('new');
   const [selected, setSelected] = useState(null);
-  const [quotePrice, setQuotePrice] = useState('');
-  const [quoteMessage, setQuoteMessage] = useState('');
+  // Processing form state
+  const [dateOption, setDateOption] = useState('preferred');
+  const [altDate, setAltDate] = useState('');
+  const [altTime, setAltTime] = useState('');
+  const [quotedPrices, setQuotedPrices] = useState({});
+  const [unable, setUnable] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const allItems = useMemo(() => {
-    const contacts = data.contacts.map(c => ({
-      ...c,
-      _type: c.subtype === 'custom_request' ? 'custom_request' : 'contact',
-    }));
-    const webBookings = data.bookings
-      .filter(b => b.source === 'website')
-      .map(b => ({ ...b, _type: 'booking' }));
-    return [...contacts, ...webBookings]
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, [data.contacts, data.bookings]);
+  const itemHasQuotes = (item) => {
+    if (!item) return false;
+    if (item._type === 'custom_request') return true;
+    return (item.cartItems || []).some(s => s.isQuote);
+  };
+
+  const allItems = useMemo(() =>
+    data.contacts
+      .map(c => ({ ...c, _type: c._type || (c.subtype === 'custom_request' ? 'custom_request' : 'contact') }))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    [data.contacts]
+  );
+
+  const unprocessedCount = allItems.filter(i => !i.processedStatus && i._type !== 'contact').length
+    + allItems.filter(i => i._type === 'contact' && i.status === 'new').length;
 
   const filtered = useMemo(() => {
-    if (filter === 'new') return allItems.filter(i => i.status === 'new' || i.status === 'pending');
+    if (filter === 'new') return allItems.filter(i =>
+      (i._type === 'contact' && i.status === 'new') ||
+      (i._type !== 'contact' && !i.processedStatus)
+    );
     if (filter === 'contacts') return allItems.filter(i => i._type === 'contact');
     if (filter === 'bookings') return allItems.filter(i => i._type === 'booking');
+    if (filter === 'quotes') return allItems.filter(i => itemHasQuotes(i));
     if (filter === 'requests') return allItems.filter(i => i._type === 'custom_request');
     return allItems;
   }, [allItems, filter]);
 
-  const markRead = (item) => {
-    if (item._type === 'contact') {
+  const openItem = (item) => {
+    setSelected(item);
+    // Default date option: if preferred has availability signal, use it; else prefer 'preferred'
+    const prefAvail = item.dateAvailability?.preferred;
+    const backAvail = item.dateAvailability?.backup;
+    if (prefAvail === 'unavailable' && backAvail === 'available') setDateOption('backup');
+    else setDateOption('preferred');
+    setAltDate('');
+    setAltTime('');
+    setQuotedPrices({});
+    setUnable(false);
+    // Mark contact-type items as read
+    if (item._type === 'contact' && item.status === 'new') {
       update('contacts', data.contacts.map(c => c.id === item.id ? { ...c, status: 'read' } : c));
-    } else {
-      update('bookings', data.bookings.map(b => b.id === item.id ? { ...b, inboxRead: true } : b));
     }
   };
 
-  const convertToClient = (item) => {
-    const existingClient = data.clients.find(
-      c => c.email === (item.email || item.clientEmail) || c.phone === (item.phone || item.clientPhone)
+  const closeModal = () => setSelected(null);
+
+  const ensureClient = (item) => {
+    const email = item.email || item.clientEmail || '';
+    const phone = item.phone || item.clientPhone || '';
+    const existing = data.clients.find(c =>
+      (email && c.email === email) || (phone && c.phone === phone)
     );
+    if (existing) return { clientId: existing.id, newClients: data.clients };
+    const nc = {
+      id: genId(),
+      name: item.name || item.clientName || '',
+      email, phone,
+      address: item.address || item.clientAddress || '',
+      notes: '', tags: ['New'],
+      createdAt: new Date().toISOString(),
+    };
+    return { clientId: nc.id, newClients: [...data.clients, nc] };
+  };
 
-    let clientId = existingClient?.id;
-    let newClients = data.clients;
+  const processItem = async (action) => {
+    if (!selected || submitting) return;
+    setSubmitting(true);
+    const item = selected;
+    const isAlt = dateOption === 'alternative';
+    const isCustom = item._type === 'custom_request';
+    const cartItems = item.cartItems || [];
 
-    if (!existingClient) {
-      const newClient = {
-        id: genId(),
-        name: item.clientName || item.name || '',
-        email: item.clientEmail || item.email || '',
-        phone: item.clientPhone || item.phone || '',
-        address: item.clientAddress || item.address || '',
-        notes: '',
-        tags: ['New'],
-        createdAt: new Date().toISOString(),
+    const scheduledDate = dateOption === 'preferred'
+      ? (item.preferredDate || item.date || '')
+      : dateOption === 'backup'
+      ? (item.backupDate || item.backup_date || '')
+      : altDate;
+    const scheduledTime = dateOption === 'preferred'
+      ? (item.preferredTime || item.time || '')
+      : dateOption === 'backup'
+      ? (item.backupTime || item.backup_time || '')
+      : altTime;
+
+    const fixedServices = cartItems.filter(s => !s.isQuote).map(s => ({
+      name: s.serviceName,
+      size: s.sizeLabel || null,
+      price: s.fixedPrice || 0,
+      powerWashAreas: s.powerWashAreas || null,
+      isRecurring: s.isRecurring || false,
+      recurringLabel: s.recurringLabel || null,
+    }));
+    const quotedServicesList = cartItems.filter(s => s.isQuote).map((s, i) => ({
+      name: s.serviceName,
+      quotedPrice: parseFloat(quotedPrices[i]) || null,
+    }));
+    const totalFixed = fixedServices.reduce((sum, s) => sum + (s.price || 0), 0);
+    const totalQuoted = quotedServicesList.reduce((sum, s) => sum + (s.quotedPrice || 0), 0);
+
+    const isConfirmed = action === 'confirm' && !isAlt && !isCustom && !itemHasQuotes(item);
+    let n8nType;
+    if (action === 'decline') n8nType = 'request_declined';
+    else if (isConfirmed) n8nType = 'booking_confirmed';
+    else if (isAlt) n8nType = 'booking_alternative_date';
+    else if (isCustom) n8nType = 'custom_quote_submitted';
+    else n8nType = 'quote_submitted';
+
+    const payload = {
+      type: n8nType,
+      client: {
+        name: item.name || item.clientName || '',
+        email: item.email || item.clientEmail || '',
+        phone: item.phone || item.clientPhone || '',
+        address: item.address || item.clientAddress || '',
+      },
+      scheduling: {
+        scheduledDate,
+        scheduledTime,
+        isAlternativeDate: isAlt,
+        originalPreferredDate: item.preferredDate || item.date || '',
+        originalPreferredTime: item.preferredTime || item.time || '',
+        originalBackupDate: item.backupDate || item.backup_date || null,
+        originalBackupTime: item.backupTime || item.backup_time || null,
+      },
+      services: isCustom ? null : {
+        fixedServices,
+        quotedServices: quotedServicesList,
+        totalFixed,
+        totalQuoted,
+        totalCombined: totalFixed + totalQuoted,
+        fees: item.fees || 0,
+        paymentMethod: item.paymentMethod || item.payment_method || 'Cash',
+        materialsNeeded: item.materials_needed || 'No',
+      },
+      customRequest: isCustom ? {
+        description: item.description || '',
+        materialsNeeded: item.materialsNeeded || '',
+        notes: item.otherNotes || '',
+        quotedPrice: parseFloat(quotedPrices[0]) || null,
+        isDeclined: action === 'decline',
+      } : null,
+      request: {
+        originalSubmissionDate: item.createdAt,
+        notes: item.notes || item.extra_notes || item.otherNotes || '',
+        source: 'website',
+      },
+      processedAt: new Date().toISOString(),
+    };
+
+    try {
+      await fetch(`${import.meta.env.BASE_URL}api/forward`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch (err) { console.warn('Forward to n8n failed:', err); }
+
+    if (isConfirmed) {
+      const { clientId, newClients } = ensureClient(item);
+      const svcName = cartItems.length > 0
+        ? cartItems.map(s => s.serviceName).join(', ')
+        : (item.service_list || item.service || '');
+      const newBooking = {
+        id: genId(), webhookId: item.webhookId, clientId,
+        clientName: item.name || item.clientName || '',
+        clientEmail: item.email || item.clientEmail || '',
+        clientPhone: item.phone || item.clientPhone || '',
+        clientAddress: item.address || item.clientAddress || '',
+        service: svcName, date: scheduledDate, time: scheduledTime,
+        price: totalFixed, status: 'confirmed', source: 'website',
+        paymentMethod: item.payment_method || item.paymentMethod || 'Cash',
+        notes: item.notes || item.extra_notes || '',
+        isPaid: false, createdAt: new Date().toISOString(),
       };
-      clientId = newClient.id;
-      newClients = [...data.clients, newClient];
-    }
-
-    if (item._type === 'contact') {
-      update('contacts', data.contacts.map(c => c.id === item.id ? { ...c, status: 'converted' } : c));
+      update('bookings', [...data.bookings, newBooking]);
       update('clients', newClients);
+      update('contacts', data.contacts.filter(c => c.id !== item.id));
+    } else if (action === 'decline') {
+      update('contacts', data.contacts.filter(c => c.id !== item.id));
     } else {
-      const updatedBookings = data.bookings.map(b =>
-        b.id === item.id ? { ...b, clientId, status: 'confirmed' } : b
-      );
-      update('bookings', updatedBookings);
-      update('clients', newClients);
+      const ps = isAlt ? 'alternative_date' : 'quote_submitted';
+      update('contacts', data.contacts.map(c =>
+        c.id === item.id
+          ? { ...c, processedStatus: ps, savedQuotedPrices: quotedPrices, scheduledDate, scheduledTime }
+          : c
+      ));
     }
+    setSubmitting(false);
     setSelected(null);
   };
 
   const archiveItem = (item) => {
-    if (item._type === 'contact') {
-      update('contacts', data.contacts.map(c => c.id === item.id ? { ...c, status: 'archived' } : c));
-    } else {
-      update('bookings', data.bookings.map(b => b.id === item.id ? { ...b, status: 'cancelled' } : b));
-    }
+    update('contacts', data.contacts.filter(c => c.id !== item.id));
     setSelected(null);
   };
 
@@ -650,9 +778,20 @@ function InboxView({ data, update, setView }) {
     { id: 'new',      label: 'New'             },
     { id: 'all',      label: 'All'             },
     { id: 'bookings', label: 'Bookings'        },
+    { id: 'quotes',   label: 'Quotes'          },
     { id: 'contacts', label: 'Contacts'        },
     { id: 'requests', label: 'Custom Requests' },
   ];
+
+  const availBadge = (status) => {
+    if (!status) return null;
+    const isAvail = status === 'available';
+    return (
+      <span className={isAvail ? 'avail-badge avail-yes' : 'avail-badge avail-no'}>
+        {isAvail ? '✓ Available' : '✗ Unavailable'}
+      </span>
+    );
+  };
 
   return (
     <div className="page">
@@ -665,62 +804,53 @@ function InboxView({ data, update, setView }) {
 
       <div className="filter-tabs">
         {FILTERS.map(f => (
-          <button
-            key={f.id}
-            className={clsx('filter-tab', filter === f.id && 'filter-active')}
-            onClick={() => setFilter(f.id)}
-          >
+          <button key={f.id} className={clsx('filter-tab', filter === f.id && 'filter-active')} onClick={() => setFilter(f.id)}>
             {f.label}
-            {f.id === 'new' && allItems.filter(i => i.status === 'new' || i.status === 'pending').length > 0 && (
-              <span className="tab-count">
-                {allItems.filter(i => i.status === 'new' || i.status === 'pending').length}
-              </span>
-            )}
+            {f.id === 'new' && unprocessedCount > 0 && <span className="tab-count">{unprocessedCount}</span>}
           </button>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState
-          icon={Ic.inbox}
-          text="No items here"
-          sub="New bookings and contact forms from your website will appear here."
-        />
+        <EmptyState icon={Ic.inbox} text="No items here" sub="New bookings and contact forms from your website will appear here." />
       ) : (
         <div className="inbox-list">
           {filtered.map(item => {
-            const isNew = item.status === 'new' || item.status === 'pending';
+            const isNew = (item._type === 'contact' && item.status === 'new') || (item._type !== 'contact' && !item.processedStatus);
+            const hasAvail = item.dateAvailability?.preferred || item.dateAvailability?.backup;
             return (
-              <div
-                key={item.id}
-                className={clsx('inbox-item', isNew && 'inbox-item-new', selected?.id === item.id && 'inbox-item-selected')}
-                onClick={() => { setSelected(item); markRead(item); }}
-              >
+              <div key={item.id} className={clsx('inbox-item', isNew && 'inbox-item-new')} onClick={() => openItem(item)}>
                 <div className="inbox-item-left">
-                  <span className={clsx('type-badge',
-                    item._type === 'custom_request' ? 'type-request' :
-                    item._type === 'contact' ? 'type-contact' : 'type-booking'
-                  )}>
-                    {item._type === 'custom_request' ? 'Custom Request' :
-                     item._type === 'contact' ? 'Contact' : 'Booking'}
+                  <span className={clsx('type-badge', item._type === 'custom_request' ? 'type-request' : item._type === 'contact' ? 'type-contact' : 'type-booking')}>
+                    {item._type === 'custom_request' ? 'Custom' : item._type === 'contact' ? 'Contact' : itemHasQuotes(item) ? 'Quote' : 'Booking'}
                   </span>
                   {isNew && <span className="new-dot" />}
                 </div>
                 <div className="inbox-item-body">
-                  <div className="inbox-item-name">{item.clientName || item.name}</div>
+                  <div className="inbox-item-name">{item.name || item.clientName}</div>
                   <div className="inbox-item-preview">
                     {item._type === 'custom_request'
-                      ? (item.description?.slice(0, 80) + (item.description?.length > 80 ? '…' : '') || 'Custom service request')
+                      ? (item.description?.slice(0, 80) || 'Custom service request')
                       : item._type === 'contact'
-                      ? (item.message?.slice(0, 80) + (item.message?.length > 80 ? '…' : ''))
-                      : item.service || 'Service request'}
+                      ? (item.message?.slice(0, 80) || '')
+                      : (item.service_list || item.service || 'Service request')}
+                  </div>
+                  <div className="inbox-item-tags">
+                    {item.processedStatus === 'quote_submitted' && <span className="proc-badge proc-quote">Price Submitted</span>}
+                    {item.processedStatus === 'alternative_date' && <span className="proc-badge proc-alt">Alt. Date Suggested</span>}
+                    {hasAvail && (
+                      <>
+                        {item.dateAvailability?.preferred && availBadge(item.dateAvailability.preferred)}
+                        {item.dateAvailability?.backup && availBadge(item.dateAvailability.backup)}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="inbox-item-right">
-                  <div className="inbox-item-date">{fmtDateShort(item.createdAt?.slice(0,10) || item.date)}</div>
-                  {item._type === 'booking'
-                    ? <StatusBadge status={item.status} />
-                    : <Badge label={item.status} color={item.status === 'new' ? '#3B82F6' : '#64748B'} />}
+                  <div className="inbox-item-date">{fmtDateShort(item.createdAt?.slice(0,10))}</div>
+                  {item._type === 'booking' || item._type === 'custom_request'
+                    ? <Badge label={item.processedStatus || 'pending'} color={item.processedStatus ? '#10B981' : '#3B82F6'} />
+                    : <Badge label={item.status || 'new'} color={item.status === 'new' ? '#3B82F6' : '#64748B'} />}
                 </div>
               </div>
             );
@@ -730,143 +860,207 @@ function InboxView({ data, update, setView }) {
 
       {selected && (
         <Modal
-          title={
-            selected._type === 'custom_request' ? 'Custom Service Request' :
-            selected._type === 'contact' ? 'Contact Submission' : 'Booking Request'
-          }
-          onClose={() => { setSelected(null); setQuotePrice(''); setQuoteMessage(''); }}
+          title={selected._type === 'custom_request' ? 'Custom Service Request' : selected._type === 'contact' ? 'Contact Submission' : 'Booking Request'}
+          onClose={closeModal}
           size="lg"
         >
-          <div className="inbox-detail">
-            <div className="detail-grid">
-              <div className="detail-row">
-                <span className="detail-label">Name</span>
-                <span className="detail-value">{selected.clientName || selected.name}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Email</span>
-                <span className="detail-value">{selected.clientEmail || selected.email || '—'}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Phone</span>
-                <span className="detail-value">{selected.clientPhone || selected.phone || '—'}</span>
-              </div>
+          {/* ── Client info ── */}
+          <div className="detail-grid" style={{marginBottom:'1.5rem'}}>
+            <div className="detail-row"><span className="detail-label">Name</span><span className="detail-value">{selected.name || selected.clientName}</span></div>
+            <div className="detail-row"><span className="detail-label">Email</span><span className="detail-value">{selected.email || selected.clientEmail || '—'}</span></div>
+            <div className="detail-row"><span className="detail-label">Phone</span><span className="detail-value">{selected.phone || selected.clientPhone || '—'}</span></div>
+            <div className="detail-row"><span className="detail-label">Address</span><span className="detail-value">{selected.address || selected.clientAddress || '—'}</span></div>
+            <div className="detail-row"><span className="detail-label">Received</span><span className="detail-value">{fmtDate(selected.createdAt?.slice(0,10))}</span></div>
+            {(selected.notes || selected.extra_notes) && (
+              <div className="detail-row detail-row-full"><span className="detail-label">Notes</span><span className="detail-value">{selected.notes || selected.extra_notes}</span></div>
+            )}
+          </div>
 
-              {selected._type === 'contact' && (
-                <div className="detail-row detail-row-full">
-                  <span className="detail-label">Message</span>
-                  <span className="detail-value">{selected.message}</span>
-                </div>
-              )}
+          {/* ── Contact message (contacts only) ── */}
+          {selected._type === 'contact' && (
+            <div className="inbox-section">
+              <div className="inbox-section-title">Message</div>
+              <p style={{color:'var(--text2)', lineHeight:1.6}}>{selected.message || '—'}</p>
+            </div>
+          )}
 
-              {selected._type === 'custom_request' && (
-                <>
-                  {selected.address && (
-                    <div className="detail-row detail-row-full">
-                      <span className="detail-label">Address</span>
-                      <span className="detail-value">{selected.address}</span>
-                    </div>
-                  )}
-                  {selected.date && (
-                    <div className="detail-row">
-                      <span className="detail-label">Requested Date</span>
-                      <span className="detail-value">{selected.date} {selected.time ? `at ${selected.time}` : ''}</span>
-                    </div>
-                  )}
-                  <div className="detail-row detail-row-full">
-                    <span className="detail-label">Description</span>
-                    <span className="detail-value">{selected.description || '—'}</span>
-                  </div>
-                  {selected.materialsNeeded && (
-                    <div className="detail-row detail-row-full">
-                      <span className="detail-label">Materials Needed</span>
-                      <span className="detail-value">{selected.materialsNeeded}</span>
-                    </div>
-                  )}
-                  {selected.otherNotes && (
-                    <div className="detail-row detail-row-full">
-                      <span className="detail-label">Other Notes</span>
-                      <span className="detail-value">{selected.otherNotes}</span>
-                    </div>
-                  )}
-                  <div className="detail-row detail-row-full" style={{borderTop:'1px solid #E2E8F0', paddingTop:'1rem', marginTop:'0.5rem'}}>
-                    <span className="detail-label" style={{fontWeight:700, color:'#1E293B'}}>Send Quote</span>
-                    <div style={{display:'flex', flexDirection:'column', gap:'0.75rem', marginTop:'0.5rem'}}>
-                      <input
-                        type="number"
-                        placeholder="Quoted price ($)"
-                        value={quotePrice}
-                        onChange={e => setQuotePrice(e.target.value)}
-                        style={{padding:'0.6rem 0.85rem', border:'1px solid #CBD5E1', borderRadius:'8px', fontSize:'0.95rem', width:'200px'}}
-                      />
-                      <textarea
-                        placeholder="Message to customer (optional)..."
-                        value={quoteMessage}
-                        onChange={e => setQuoteMessage(e.target.value)}
-                        rows={3}
-                        style={{padding:'0.6rem 0.85rem', border:'1px solid #CBD5E1', borderRadius:'8px', fontSize:'0.9rem', resize:'vertical'}}
-                      />
-                      <button
-                        className="btn btn-primary"
-                        style={{width:'fit-content'}}
-                        onClick={() => {
-                          update('contacts', data.contacts.map(c =>
-                            c.id === selected.id
-                              ? { ...c, quotedPrice: quotePrice, quoteMessage, status: 'read' }
-                              : c
-                          ));
-                          setSelected(null);
-                          setQuotePrice('');
-                          setQuoteMessage('');
-                        }}
-                      >
-                        Save Quote
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {selected._type === 'booking' && (
-                <>
-                  <div className="detail-row">
-                    <span className="detail-label">Service</span>
-                    <span className="detail-value">{selected.service}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Date & Time</span>
-                    <span className="detail-value">{fmtDate(selected.date)} {fmtTime(selected.time)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Address</span>
-                    <span className="detail-value">{selected.clientAddress || '—'}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Est. Price</span>
-                    <span className="detail-value">{fmtMoneyFull(selected.price)}</span>
-                  </div>
-                  {selected.notes && (
-                    <div className="detail-row detail-row-full">
-                      <span className="detail-label">Notes</span>
-                      <span className="detail-value">{selected.notes}</span>
-                    </div>
-                  )}
-                </>
-              )}
-
-              <div className="detail-row">
-                <span className="detail-label">Received</span>
-                <span className="detail-value">{fmtDate(selected.createdAt?.slice(0,10))}</span>
+          {/* ── Custom request details ── */}
+          {selected._type === 'custom_request' && (
+            <div className="inbox-section">
+              <div className="inbox-section-title">Request Details</div>
+              <div className="detail-grid">
+                {selected.date && <div className="detail-row"><span className="detail-label">Requested Date</span><span className="detail-value">{fmtDate(selected.date)} {selected.time && `at ${fmtTime(selected.time)}`}</span></div>}
+                <div className="detail-row detail-row-full"><span className="detail-label">Description</span><span className="detail-value">{selected.description || '—'}</span></div>
+                {selected.materialsNeeded && <div className="detail-row detail-row-full"><span className="detail-label">Materials</span><span className="detail-value">{selected.materialsNeeded}</span></div>}
+                {selected.otherNotes && <div className="detail-row detail-row-full"><span className="detail-label">Other Notes</span><span className="detail-value">{selected.otherNotes}</span></div>}
               </div>
             </div>
-          </div>
+          )}
+
+          {/* ── Booking services breakdown ── */}
+          {selected._type === 'booking' && selected.cartItems?.length > 0 && (
+            <div className="inbox-section">
+              <div className="inbox-section-title">Services</div>
+              <div className="services-breakdown">
+                {selected.cartItems.map((svc, i) => (
+                  <div key={i} className={clsx('svc-row', svc.isQuote && 'svc-row-quote')}>
+                    <div className="svc-row-left">
+                      <span className="svc-name">{svc.serviceName}</span>
+                      {svc.sizeLabel && <span className="svc-sub">{svc.sizeLabel}</span>}
+                      {svc.isRecurring && <span className="svc-sub">{svc.recurringLabel}</span>}
+                      {svc.powerWashAreas?.length > 0 && <span className="svc-sub">Areas: {svc.powerWashAreas.join(', ')}</span>}
+                      {svc.isQuote && <span className="svc-quote-badge">Needs Quote</span>}
+                    </div>
+                    <div className="svc-row-right">
+                      {svc.isQuote ? (
+                        <input
+                          type="number"
+                          className="quote-price-input"
+                          placeholder="$ Quote"
+                          value={quotedPrices[i] || ''}
+                          onChange={e => setQuotedPrices(p => ({ ...p, [i]: e.target.value }))}
+                        />
+                      ) : (
+                        <span className="svc-fixed-price">{fmtMoneyFull(svc.fixedPrice)}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {/* Totals */}
+                {(() => {
+                  const totalFixed = selected.cartItems.filter(s => !s.isQuote).reduce((sum, s) => sum + (s.fixedPrice || 0), 0);
+                  const totalQuoted = selected.cartItems.filter(s => s.isQuote).reduce((sum, _, i) => sum + (parseFloat(quotedPrices[selected.cartItems.filter(s2 => s2.isQuote).indexOf(_)]) || 0), 0);
+                  return (
+                    <div className="svc-totals">
+                      {totalFixed > 0 && <div className="svc-total-row"><span>Fixed Total</span><span>{fmtMoneyFull(totalFixed)}</span></div>}
+                      {selected.cartItems.some(s => s.isQuote) && <div className="svc-total-row svc-total-quote"><span>Quoted Total</span><span>{totalQuoted > 0 ? fmtMoneyFull(totalQuoted) : 'TBD'}</span></div>}
+                      {totalFixed > 0 && selected.cartItems.some(s => s.isQuote) && totalQuoted > 0 && <div className="svc-total-row svc-total-combined"><span>Combined Total</span><span>{fmtMoneyFull(totalFixed + totalQuoted)}</span></div>}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* ── Date selection (bookings + custom requests) ── */}
+          {selected._type !== 'contact' && (
+            <div className="inbox-section">
+              <div className="inbox-section-title">Select Date</div>
+              <div className="date-options">
+                {/* Preferred */}
+                {(selected.preferredDate || selected.date) && (
+                  <label className={clsx('date-option', dateOption === 'preferred' && 'date-option-active')}>
+                    <input type="radio" name="dateOpt" value="preferred" checked={dateOption === 'preferred'} onChange={() => setDateOption('preferred')} />
+                    <div className="date-option-content">
+                      <span className="date-option-label">Preferred</span>
+                      <span className="date-option-val">{fmtDate(selected.preferredDate || selected.date)} {fmtTime(selected.preferredTime || selected.time)}</span>
+                      {availBadge(selected.dateAvailability?.preferred)}
+                    </div>
+                  </label>
+                )}
+                {/* Backup */}
+                {(selected.backupDate || selected.backup_date) && (
+                  <label className={clsx('date-option', dateOption === 'backup' && 'date-option-active')}>
+                    <input type="radio" name="dateOpt" value="backup" checked={dateOption === 'backup'} onChange={() => setDateOption('backup')} />
+                    <div className="date-option-content">
+                      <span className="date-option-label">Backup</span>
+                      <span className="date-option-val">{fmtDate(selected.backupDate || selected.backup_date)} {fmtTime(selected.backupTime || selected.backup_time)}</span>
+                      {availBadge(selected.dateAvailability?.backup)}
+                    </div>
+                  </label>
+                )}
+                {/* Alternative */}
+                <label className={clsx('date-option', dateOption === 'alternative' && 'date-option-active')}>
+                  <input type="radio" name="dateOpt" value="alternative" checked={dateOption === 'alternative'} onChange={() => setDateOption('alternative')} />
+                  <div className="date-option-content">
+                    <span className="date-option-label">Suggest Alternative</span>
+                    {dateOption === 'alternative' && (
+                      <div className="alt-date-inputs">
+                        <input type="date" className="alt-date-input" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
+                        <select className="alt-date-input" value={altTime} onChange={e => setAltTime(e.target.value)}>
+                          <option value="">Select time</option>
+                          {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00'].map(t => (
+                            <option key={t} value={t}>{fmtTime(t)}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* ── Custom request: quote input ── */}
+          {selected._type === 'custom_request' && !unable && (
+            <div className="inbox-section">
+              <div className="inbox-section-title">Quoted Price</div>
+              <input
+                type="number"
+                className="quote-price-input"
+                placeholder="$ Enter quote for this job"
+                value={quotedPrices[0] || ''}
+                onChange={e => setQuotedPrices({ 0: e.target.value })}
+                style={{maxWidth:'220px'}}
+              />
+            </div>
+          )}
+
+          {/* ── Action buttons ── */}
           <div className="modal-footer">
-            <button className="btn btn-ghost" onClick={() => archiveItem(selected)}>
-              {Ic.trash} Archive
-            </button>
-            <button className="btn btn-primary" onClick={() => convertToClient(selected)}>
-              {Ic.users} Add to Clients
-            </button>
+            <button className="btn btn-ghost btn-danger-ghost" onClick={() => archiveItem(selected)}>{Ic.trash} Remove</button>
+
+            {selected._type === 'contact' ? (
+              <button className="btn btn-primary" onClick={closeModal}>Close</button>
+            ) : selected._type === 'custom_request' ? (
+              <>
+                <button
+                  className="btn btn-ghost"
+                  disabled={submitting}
+                  onClick={() => { setUnable(u => !u); }}
+                >
+                  {unable ? '↩ Back to Quote' : '✗ Unable to Accommodate'}
+                </button>
+                <button
+                  className="btn btn-primary"
+                  disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
+                  onClick={() => processItem(unable ? 'decline' : 'confirm')}
+                >
+                  {submitting ? 'Sending…' : unable ? 'Send Decline' : 'Submit Quote'}
+                </button>
+              </>
+            ) : (
+              /* Booking */
+              <>
+                {itemHasQuotes(selected) ? (
+                  <button
+                    className="btn btn-secondary"
+                    disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
+                    onClick={() => processItem('confirm')}
+                  >
+                    {submitting ? 'Sending…' : 'Submit Quote & Date'}
+                  </button>
+                ) : null}
+                {!itemHasQuotes(selected) && (
+                  <button
+                    className="btn btn-primary"
+                    disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
+                    onClick={() => processItem('confirm')}
+                  >
+                    {submitting ? 'Sending…' : dateOption === 'alternative' ? 'Suggest Alt. Date' : 'Confirm Booking'}
+                  </button>
+                )}
+                {itemHasQuotes(selected) && dateOption !== 'alternative' && (
+                  <button
+                    className="btn btn-primary"
+                    disabled={submitting || (dateOption === 'alternative' && (!altDate || !altTime))}
+                    onClick={() => processItem('confirm')}
+                  >
+                    {submitting ? 'Sending…' : 'Submit Quote & Confirm Date'}
+                  </button>
+                )}
+              </>
+            )}
           </div>
         </Modal>
       )}
@@ -2272,10 +2466,11 @@ export default function App() {
 
   useEffect(() => { saveData(data); }, [data]);
 
-  // Poll the Express server every 30s for new bookings/contacts from the main site
+  // Poll the Express server every 30s for new bookings/contacts + availability updates
   useEffect(() => {
     if (!authed) return;
-    const poll = async () => {
+
+    const pollPending = async () => {
       try {
         const res = await fetch(`${import.meta.env.BASE_URL}api/pending`);
         if (!res.ok) return;
@@ -2284,13 +2479,38 @@ export default function App() {
 
         setData(prev => {
           const contacts = [...prev.contacts];
-          const bookings = [...prev.bookings];
           items.forEach(item => {
             const type = item.type || (item.message ? 'contact' : 'booking');
-            if (type === 'custom_request') {
+            if (type === 'booking') {
+              // All website bookings → Inbox first (contacts array with _type:'booking')
               if (!contacts.find(c => c.webhookId === item.id)) {
                 contacts.push({
-                  id: genId(), webhookId: item.id,
+                  id: genId(), webhookId: item.id, _type: 'booking',
+                  name: item.customer_name || item.name || '',
+                  email: item.email_address || item.email || '',
+                  phone: item.phone_number || item.phone || '',
+                  address: item.address || '',
+                  service_list: item.service_list || '',
+                  cartItems: item.cart_items || [],
+                  preferredDate: item.preferred_date || item.scheduled_date?.split(' ')[0] || '',
+                  preferredTime: item.preferred_time || item.scheduled_date?.split(' ')[1] || '',
+                  backupDate: item.backup_date || null,
+                  backupTime: item.backup_time || null,
+                  has_quoted_services: item.has_quoted_services || false,
+                  payment_method: item.payment_method || 'Cash',
+                  materials_needed: item.materials_needed || 'No',
+                  notes: item.extra_notes || item.notes || '',
+                  fees: (item.total_amount || 0) - (item.subtotal || 0),
+                  dateAvailability: null,
+                  processedStatus: null,
+                  status: 'new', source: 'website',
+                  createdAt: item.receivedAt || item.date_submitted || new Date().toISOString(),
+                });
+              }
+            } else if (type === 'custom_request') {
+              if (!contacts.find(c => c.webhookId === item.id)) {
+                contacts.push({
+                  id: genId(), webhookId: item.id, _type: 'custom_request',
                   name: item.name || '',
                   email: item.email || '',
                   phone: item.phone || '',
@@ -2300,18 +2520,16 @@ export default function App() {
                   description: item.description || '',
                   materialsNeeded: item.materialsNeeded || '',
                   otherNotes: item.otherNotes || '',
-                  quotedPrice: '',
-                  quoteMessage: '',
-                  subtype: 'custom_request',
-                  status: 'new',
-                  source: 'website',
+                  dateAvailability: null,
+                  processedStatus: null,
+                  status: 'new', source: 'website',
                   createdAt: item.receivedAt || item.timestamp || new Date().toISOString(),
                 });
               }
             } else if (type === 'contact') {
               if (!contacts.find(c => c.webhookId === item.id)) {
                 contacts.push({
-                  id: genId(), webhookId: item.id,
+                  id: genId(), webhookId: item.id, _type: 'contact',
                   name: item.name || item.contactName || '',
                   email: item.email || item.contactEmail || '',
                   phone: item.phone || item.contactPhone || '',
@@ -2321,36 +2539,39 @@ export default function App() {
                   notes: '',
                 });
               }
-            } else {
-              if (!bookings.find(b => b.webhookId === item.id)) {
-                bookings.push({
-                  id: genId(), webhookId: item.id,
-                  clientName: item.customer_name || item.name || '',
-                  clientEmail: item.email_address || item.email || '',
-                  clientPhone: item.phone_number || item.phone || '',
-                  clientAddress: item.address || '',
-                  service: item.service_list || item.service || '',
-                  category: item.category || '',
-                  date: item.scheduled_date?.split(' ')[0] || item.date || '',
-                  time: item.scheduled_date?.split(' ')[1] || item.time || '',
-                  price: item.total_amount || item.price || 0,
-                  status: 'pending', source: 'website',
-                  notes: item.extra_notes || item.notes || '',
-                  paymentMethod: item.payment_method || 'Cash',
-                  isPaid: false, clientId: null,
-                  createdAt: item.receivedAt || new Date().toISOString(),
-                });
-              }
             }
           });
-          return { ...prev, contacts, bookings };
+          return { ...prev, contacts };
         });
 
         await fetch(`${import.meta.env.BASE_URL}api/pending`, { method: 'DELETE' });
       } catch {}
     };
-    poll();
-    const interval = setInterval(poll, 30000);
+
+    const pollAvailability = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.BASE_URL}api/availability`);
+        if (!res.ok) return;
+        const updates = await res.json();
+        if (!Array.isArray(updates) || updates.length === 0) return;
+
+        setData(prev => ({
+          ...prev,
+          contacts: prev.contacts.map(c => {
+            const upd = updates.find(u => u.bookingId === c.webhookId);
+            return upd ? { ...c, dateAvailability: { preferred: upd.preferred, backup: upd.backup } } : c;
+          }),
+        }));
+
+        for (const upd of updates) {
+          fetch(`${import.meta.env.BASE_URL}api/availability/${upd.bookingId}`, { method: 'DELETE' }).catch(() => {});
+        }
+      } catch {}
+    };
+
+    pollPending();
+    pollAvailability();
+    const interval = setInterval(() => { pollPending(); pollAvailability(); }, 30000);
     return () => clearInterval(interval);
   }, [authed]);
 

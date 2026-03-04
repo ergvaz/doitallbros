@@ -7,23 +7,19 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const n8nWebhook = 'https://n8n.srv1122720.hstgr.cloud/webhook/5ebf6849-cf49-4f63-a335-811104ada728';
+    const trackerUrl = process.env.TRACKER_WEBHOOK_URL;
+    if (!trackerUrl) {
+      return res.status(500).json({ error: 'Tracker URL not configured' });
+    }
 
-    // Forward to n8n webhook
-    await fetch(n8nWebhook, {
+    const response = await fetch(`${trackerUrl}/api/incoming`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body)
-    }).catch(e => console.warn('n8n webhook failed:', e.message));
+      body: JSON.stringify({ ...req.body, type: 'custom_request' })
+    });
 
-    // Forward to tracker
-    const trackerUrl = process.env.TRACKER_WEBHOOK_URL;
-    if (trackerUrl) {
-      await fetch(`${trackerUrl}/api/incoming`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...req.body, type: 'custom_request' })
-      }).catch(e => console.warn('Tracker webhook failed:', e.message));
+    if (!response.ok) {
+      throw new Error('Tracker webhook failed');
     }
 
     res.status(200).json({ success: true });
