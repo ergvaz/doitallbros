@@ -9,7 +9,9 @@ const PORT = process.env.PORT || 3001;
 const QUEUE_FILE = path.join(__dirname, 'pending.json');
 const AVAIL_FILE = path.join(__dirname, 'availability.json');
 
-// n8n booking webhook — receives confirmed/quoted/declined bookings from tracker
+// n8n intake webhook — receives new bookings/requests for logging + availability check
+const N8N_INTAKE_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/5ebf6849-cf49-4f63-a335-811104ada728';
+// n8n confirmation webhook — receives confirmed/quoted/declined actions from tracker owner
 const N8N_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/9937e869-76b6-4b62-891f-6cbb4d00ab24';
 
 app.use(express.json());
@@ -57,7 +59,7 @@ app.post('/api/incoming', (req, res) => {
     // 2. Check calendar availability and send signal back via POST /api/availability
     const type = item.type || '';
     if (type === 'booking' || type === 'custom_request') {
-      fetch(N8N_WEBHOOK, {
+      fetch(N8N_INTAKE_WEBHOOK, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
