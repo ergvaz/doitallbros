@@ -154,12 +154,12 @@ function Modal({ title, onClose, children, size = 'md' }) {
 
   return createPortal(
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`modal-box modal-${size}`}>
+      <div className={`modal-box modal-${size}`} dir="ltr" style={{direction:'ltr', textAlign:'left'}}>
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
           <button className="icon-btn" onClick={onClose}>{Ic.x}</button>
         </div>
-        <div className="modal-body">{children}</div>
+        <div className="modal-body" style={{overflowX:'hidden'}}>{children}</div>
       </div>
     </div>,
     document.body
@@ -863,30 +863,40 @@ function InboxView({ data, update }) {
           onClose={closeModal}
           size="lg"
         >
-          {/* ── Client info ── */}
-          <div className="ib-info">
-            <span className="ib-lbl">Name</span><span className="ib-val">{selected.name || selected.clientName || '—'}</span>
-            <span className="ib-lbl">Email</span><span className="ib-val">{selected.email || selected.clientEmail || '—'}</span>
-            <span className="ib-lbl">Phone</span><span className="ib-val">{selected.phone || selected.clientPhone || '—'}</span>
-            <span className="ib-lbl">Address</span><span className="ib-val">{selected.address || selected.clientAddress || '—'}</span>
-            <span className="ib-lbl">Received</span><span className="ib-val">{fmtDate(selected.createdAt?.slice(0,10))}</span>
-            {(selected.notes || selected.extra_notes) && (
-              <><span className="ib-lbl">Notes</span><span className="ib-val">{selected.notes || selected.extra_notes}</span></>
-            )}
-          </div>
+          {/* ── Client info table ── */}
+          {(() => {
+            const S = { lbl: {width:'90px', paddingBottom:'10px', paddingRight:'16px', fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'var(--text3)', verticalAlign:'top', whiteSpace:'nowrap'}, val: {paddingBottom:'10px', fontSize:'14px', color:'var(--text1)', wordBreak:'break-word'} };
+            const rows = [
+              ['Name', selected.name || selected.clientName],
+              ['Email', selected.email || selected.clientEmail],
+              ['Phone', selected.phone || selected.clientPhone],
+              ['Address', selected.address || selected.clientAddress],
+              ['Received', fmtDate(selected.createdAt?.slice(0,10))],
+              ...((selected.notes || selected.extra_notes) ? [['Notes', selected.notes || selected.extra_notes]] : []),
+            ];
+            return (
+              <table style={{width:'100%', borderCollapse:'collapse', marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+                <tbody>
+                  {rows.map(([lbl, val]) => (
+                    <tr key={lbl}><td style={S.lbl}>{lbl}</td><td style={S.val}>{val || '—'}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            );
+          })()}
 
           {/* ── Contact message ── */}
           {selected._type === 'contact' && (
-            <div className="ib-section">
-              <div className="ib-section-title">Message</div>
+            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Message</div>
               <p style={{color:'var(--text2)', lineHeight:1.6, margin:0}}>{selected.message || '—'}</p>
             </div>
           )}
 
           {/* ── Custom request description ── */}
           {selected._type === 'custom_request' && (
-            <div className="ib-section">
-              <div className="ib-section-title">Request Description</div>
+            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Request Description</div>
               <p style={{color:'var(--text2)', lineHeight:1.6, margin:0}}>{selected.description || '—'}</p>
               {selected.materialsNeeded && <p style={{color:'var(--text3)', fontSize:13, marginTop:8, marginBottom:0}}>Materials: {selected.materialsNeeded}</p>}
               {selected.otherNotes && <p style={{color:'var(--text3)', fontSize:13, marginTop:4, marginBottom:0}}>Notes: {selected.otherNotes}</p>}
@@ -895,86 +905,66 @@ function InboxView({ data, update }) {
 
           {/* ── Booking services + quote inputs ── */}
           {selected._type === 'booking' && (
-            <div className="ib-section">
-              <div className="ib-section-title">Services</div>
-              {selected.cartItems?.length > 0 ? (
-                <>
-                  <div className="ib-services">
-                    {selected.cartItems.map((svc, i) => (
-                      <div key={i} className={clsx('ib-svc', svc.isQuote && 'ib-svc-quote')}>
-                        <div className="ib-svc-left">
-                          <span className="ib-svc-name">{svc.serviceName}</span>
-                          {svc.sizeLabel && <span className="ib-svc-sub">{svc.sizeLabel}</span>}
-                          {svc.isRecurring && <span className="ib-svc-sub">{svc.recurringLabel}</span>}
-                          {svc.powerWashAreas?.length > 0 && <span className="ib-svc-sub">Areas: {svc.powerWashAreas.join(', ')}</span>}
-                          {svc.isQuote && <span className="ib-needs-quote">Needs Quote</span>}
-                        </div>
-                        <div className="ib-svc-right">
-                          {svc.isQuote ? (
-                            <input
-                              type="number"
-                              className="ib-price-input"
-                              placeholder="$ Enter quote"
-                              value={quotedPrices[i] || ''}
-                              onChange={e => setQuotedPrices(p => ({ ...p, [i]: e.target.value }))}
-                            />
-                          ) : (
-                            <span className="ib-fixed-price">{fmtMoneyFull(svc.fixedPrice)}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Services</div>
+              <div style={{display:'flex', flexDirection:'column', gap:'6px'}}>
+                {(selected.cartItems?.length > 0 ? selected.cartItems : [{serviceName: selected.service_list || selected.service || 'Services requested', isQuote: selected.has_quoted_services, fixedPrice: null, sizeLabel: null, isRecurring: false, powerWashAreas: [], _fallback: true}]).map((svc, i) => (
+                  <div key={i} style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', padding:'10px 14px', background: svc.isQuote ? 'rgba(59,130,246,.07)' : 'var(--bg3)', border: `1px solid ${svc.isQuote ? '#3B82F6' : 'var(--border)'}`, borderRadius:'8px'}}>
+                    <div style={{flex:1, minWidth:0}}>
+                      <div style={{fontSize:'13px', fontWeight:600, color:'var(--text1)'}}>{svc.serviceName}</div>
+                      {svc.sizeLabel && <div style={{fontSize:'11px', color:'var(--text3)'}}>{svc.sizeLabel}</div>}
+                      {svc.isRecurring && <div style={{fontSize:'11px', color:'var(--text3)'}}>{svc.recurringLabel}</div>}
+                      {svc.powerWashAreas?.length > 0 && <div style={{fontSize:'11px', color:'var(--text3)'}}>Areas: {svc.powerWashAreas.join(', ')}</div>}
+                      {svc.isQuote && <div style={{display:'inline-block', marginTop:4, fontSize:'10px', fontWeight:700, color:'#3B82F6', background:'rgba(59,130,246,.15)', padding:'2px 7px', borderRadius:'10px'}}>Needs Quote</div>}
+                    </div>
+                    <div style={{flexShrink:0}}>
+                      {svc.isQuote ? (
+                        <input
+                          type="number"
+                          placeholder="$ Enter quote"
+                          value={quotedPrices[svc._fallback ? 0 : i] || ''}
+                          onChange={e => setQuotedPrices(p => ({ ...p, [svc._fallback ? 0 : i]: e.target.value }))}
+                          style={{padding:'8px 12px', background:'var(--bg2)', border:'1.5px solid #3B82F6', borderRadius:'8px', color:'var(--text1)', fontSize:'14px', width:'140px'}}
+                        />
+                      ) : (
+                        <span style={{fontSize:'14px', fontWeight:700, color:'var(--success)'}}>{fmtMoneyFull(svc.fixedPrice)}</span>
+                      )}
+                    </div>
                   </div>
-                  {(() => {
-                    const totalFixed = selected.cartItems.reduce((sum, s) => sum + (!s.isQuote ? (s.fixedPrice || 0) : 0), 0);
-                    const totalQuoted = selected.cartItems.reduce((sum, s, i) => sum + (s.isQuote ? (parseFloat(quotedPrices[i]) || 0) : 0), 0);
-                    const hasQuotes = selected.cartItems.some(s => s.isQuote);
-                    return (
-                      <div className="ib-totals">
-                        {totalFixed > 0 && <div className="ib-total-row"><span>Fixed Total</span><span>{fmtMoneyFull(totalFixed)}</span></div>}
-                        {hasQuotes && <div className="ib-total-row ib-total-quote"><span>Quoted Total</span><span>{totalQuoted > 0 ? fmtMoneyFull(totalQuoted) : 'TBD'}</span></div>}
-                        {totalFixed > 0 && hasQuotes && totalQuoted > 0 && <div className="ib-total-row ib-total-combined"><span>Combined Total</span><span>{fmtMoneyFull(totalFixed + totalQuoted)}</span></div>}
-                      </div>
-                    );
-                  })()}
-                </>
-              ) : (
-                /* Old-format booking without cartItems */
-                <div className="ib-svc ib-svc-quote">
-                  <div className="ib-svc-left">
-                    <span className="ib-svc-name">{selected.service_list || selected.service || 'Services requested'}</span>
-                    {selected.has_quoted_services && <span className="ib-needs-quote">Needs Quote</span>}
+                ))}
+              </div>
+              {selected.cartItems?.length > 0 && (() => {
+                const totalFixed = selected.cartItems.reduce((sum, s) => sum + (!s.isQuote ? (s.fixedPrice || 0) : 0), 0);
+                const totalQuoted = selected.cartItems.reduce((sum, s, i) => sum + (s.isQuote ? (parseFloat(quotedPrices[i]) || 0) : 0), 0);
+                const hasQuotes = selected.cartItems.some(s => s.isQuote);
+                if (!totalFixed && !hasQuotes) return null;
+                return (
+                  <div style={{marginTop:'10px', paddingTop:'10px', borderTop:'1px solid var(--border)', display:'flex', flexDirection:'column', gap:'4px'}}>
+                    {totalFixed > 0 && <div style={{display:'flex', justifyContent:'space-between', fontSize:'13px', color:'var(--text2)'}}><span>Fixed Total</span><span>{fmtMoneyFull(totalFixed)}</span></div>}
+                    {hasQuotes && <div style={{display:'flex', justifyContent:'space-between', fontSize:'13px', fontWeight:600, color:'#3B82F6'}}><span>Quoted Total</span><span>{totalQuoted > 0 ? fmtMoneyFull(totalQuoted) : 'TBD'}</span></div>}
+                    {totalFixed > 0 && hasQuotes && totalQuoted > 0 && <div style={{display:'flex', justifyContent:'space-between', fontSize:'14px', fontWeight:700, color:'var(--text1)'}}><span>Combined Total</span><span>{fmtMoneyFull(totalFixed + totalQuoted)}</span></div>}
                   </div>
-                  <div className="ib-svc-right">
-                    {selected.has_quoted_services && (
-                      <input
-                        type="number"
-                        className="ib-price-input"
-                        placeholder="$ Enter quote"
-                        value={quotedPrices[0] || ''}
-                        onChange={e => setQuotedPrices({ 0: e.target.value })}
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
 
           {/* ── Custom request: quote or unable ── */}
           {selected._type === 'custom_request' && (
-            <div className="ib-section">
+            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
               {unable ? (
-                <div className="ib-unable-msg">Marking as unable to accommodate — a decline notice will be sent.</div>
+                <div style={{background:'rgba(239,68,68,.1)', border:'1px solid rgba(239,68,68,.3)', color:'#EF4444', borderRadius:'8px', padding:'12px 14px', fontSize:'14px'}}>
+                  Marking as unable to accommodate — a decline notice will be sent.
+                </div>
               ) : (
                 <>
-                  <div className="ib-section-title">Your Quoted Price</div>
+                  <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Your Quoted Price</div>
                   <input
                     type="number"
-                    className="ib-price-input ib-price-input-lg"
                     placeholder="$ Enter quote for this job"
                     value={quotedPrices[0] || ''}
                     onChange={e => setQuotedPrices({ 0: e.target.value })}
+                    style={{padding:'10px 14px', background:'var(--bg2)', border:'1.5px solid #3B82F6', borderRadius:'8px', color:'var(--text1)', fontSize:'16px', width:'220px'}}
                   />
                 </>
               )}
@@ -983,52 +973,39 @@ function InboxView({ data, update }) {
 
           {/* ── Date selection ── */}
           {selected._type !== 'contact' && (
-            <div className="ib-section">
-              <div className="ib-section-title">Select Date</div>
-              <div className="ib-date-opts">
-                {(selected.preferredDate || selected.date) && (
-                  <label className={clsx('ib-date-opt', dateOption === 'preferred' && 'ib-date-opt-active')}>
-                    <input type="radio" name="dopt" value="preferred" checked={dateOption === 'preferred'} onChange={() => setDateOption('preferred')} />
-                    <div className="ib-date-opt-body">
-                      <div className="ib-date-opt-header">
-                        <span className="ib-date-opt-label">Preferred</span>
-                        {availBadge(selected.dateAvailability?.preferred)}
+            <div style={{marginBottom:'20px'}}>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Select Date</div>
+              <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                {[
+                  ...(selected.preferredDate || selected.date ? [{key:'preferred', label:'Preferred', date: fmtDate(selected.preferredDate || selected.date), time: fmtTime(selected.preferredTime || selected.time), avail: selected.dateAvailability?.preferred}] : []),
+                  ...(selected.backupDate || selected.backup_date ? [{key:'backup', label:'Backup', date: fmtDate(selected.backupDate || selected.backup_date), time: fmtTime(selected.backupTime || selected.backup_time), avail: selected.dateAvailability?.backup}] : []),
+                  {key:'alternative', label:'Suggest Alternative Date', date:null, time:null, avail:null},
+                ].map(opt => {
+                  const active = dateOption === opt.key;
+                  return (
+                    <label key={opt.key} style={{display:'flex', alignItems:'flex-start', gap:'12px', padding:'12px 14px', background: active ? 'rgba(59,130,246,.07)' : 'var(--bg3)', border:`1.5px solid ${active ? '#3B82F6' : 'var(--border)'}`, borderRadius:'10px', cursor:'pointer'}}>
+                      <input type="radio" name="dopt" value={opt.key} checked={active} onChange={() => setDateOption(opt.key)} style={{marginTop:'3px', accentColor:'var(--accent)', flexShrink:0}} />
+                      <div style={{flex:1, minWidth:0}}>
+                        <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom: opt.date ? '4px' : 0}}>
+                          <span style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'var(--text3)'}}>{opt.label}</span>
+                          {opt.avail && availBadge(opt.avail)}
+                        </div>
+                        {opt.date && <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)'}}>{opt.date} {opt.time}</div>}
+                        {opt.key === 'alternative' && active && (
+                          <div style={{display:'flex', gap:'8px', flexWrap:'wrap', marginTop:'8px'}}>
+                            <input type="date" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}} />
+                            <select value={altTime} onChange={e => setAltTime(e.target.value)} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}}>
+                              <option value="">Select time</option>
+                              {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00'].map(t => (
+                                <option key={t} value={t}>{fmtTime(t)}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                       </div>
-                      <span className="ib-date-opt-val">{fmtDate(selected.preferredDate || selected.date)} {fmtTime(selected.preferredTime || selected.time)}</span>
-                    </div>
-                  </label>
-                )}
-                {(selected.backupDate || selected.backup_date) && (
-                  <label className={clsx('ib-date-opt', dateOption === 'backup' && 'ib-date-opt-active')}>
-                    <input type="radio" name="dopt" value="backup" checked={dateOption === 'backup'} onChange={() => setDateOption('backup')} />
-                    <div className="ib-date-opt-body">
-                      <div className="ib-date-opt-header">
-                        <span className="ib-date-opt-label">Backup</span>
-                        {availBadge(selected.dateAvailability?.backup)}
-                      </div>
-                      <span className="ib-date-opt-val">{fmtDate(selected.backupDate || selected.backup_date)} {fmtTime(selected.backupTime || selected.backup_time)}</span>
-                    </div>
-                  </label>
-                )}
-                <label className={clsx('ib-date-opt', dateOption === 'alternative' && 'ib-date-opt-active')}>
-                  <input type="radio" name="dopt" value="alternative" checked={dateOption === 'alternative'} onChange={() => setDateOption('alternative')} />
-                  <div className="ib-date-opt-body">
-                    <div className="ib-date-opt-header">
-                      <span className="ib-date-opt-label">Suggest Alternative Date</span>
-                    </div>
-                    {dateOption === 'alternative' && (
-                      <div className="ib-alt-inputs">
-                        <input type="date" className="ib-input" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
-                        <select className="ib-input" value={altTime} onChange={e => setAltTime(e.target.value)}>
-                          <option value="">Select time</option>
-                          {['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00'].map(t => (
-                            <option key={t} value={t}>{fmtTime(t)}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                </label>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           )}
