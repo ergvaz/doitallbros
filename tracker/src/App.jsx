@@ -1384,7 +1384,7 @@ function KanbanCard({ booking: b, client, onEdit, onStatus, onPaid, onLogRevenue
 
       {open && (
         <div onClick={e => e.stopPropagation()}>
-          <Modal title={`Booking — ${b.clientName}`} onClose={() => setOpen(false)} size="md">
+          <Modal title={`Booking — ${b.clientName}`} onClose={() => setOpen(false)} size="lg">
             <div className="detail-grid">
               <div className="detail-row"><span className="detail-label">Service</span><span className="detail-value">{b.service}</span></div>
               <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{fmtDate(b.date)} {fmtTime(b.time)}</span></div>
@@ -1438,6 +1438,7 @@ function CalendarView({ data, update, setView }) {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [selectedDay, setSelectedDay] = useState(null);
+  const [detailBooking, setDetailBooking] = useState(null);
 
   const todayStr2 = now.toISOString().slice(0, 10);
 
@@ -1524,7 +1525,7 @@ function CalendarView({ data, update, setView }) {
               <p className="card-empty">No bookings this day</p>
             ) : (
               selectedBookings.map(b => (
-                <div key={b.id} className="cal-booking">
+                <div key={b.id} className="cal-booking cal-booking-clickable" onClick={() => setDetailBooking(b)}>
                   <div className="cal-booking-time">{fmtTime(b.time) || 'TBD'}</div>
                   <div className="cal-booking-info">
                     <div className="cal-booking-name">{b.clientName}</div>
@@ -1538,6 +1539,26 @@ function CalendarView({ data, update, setView }) {
           </div>
         )}
       </div>
+
+      {detailBooking && (
+        <Modal title={`Booking — ${detailBooking.clientName}`} onClose={() => setDetailBooking(null)} size="lg">
+          <div className="detail-grid">
+            <div className="detail-row"><span className="detail-label">Service</span><span className="detail-value">{detailBooking.service || '—'}</span></div>
+            <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{fmtDate(detailBooking.date)} {fmtTime(detailBooking.time)}</span></div>
+            <div className="detail-row"><span className="detail-label">Address</span><span className="detail-value">{detailBooking.clientAddress || '—'}</span></div>
+            <div className="detail-row"><span className="detail-label">Phone</span><span className="detail-value">{detailBooking.clientPhone || '—'}</span></div>
+            <div className="detail-row"><span className="detail-label">Price</span><span className="detail-value">{fmtMoneyFull(detailBooking.price)}</span></div>
+            <div className="detail-row"><span className="detail-label">Payment</span><span className="detail-value">{detailBooking.paymentMethod || '—'}</span></div>
+            <div className="detail-row"><span className="detail-label">Status</span><span className="detail-value"><StatusBadge status={detailBooking.status} /></span></div>
+            {detailBooking.isPaid && <div className="detail-row"><span className="detail-label">Paid</span><span className="detail-value" style={{color:'var(--success)', fontWeight:600}}>✓ Yes</span></div>}
+            {detailBooking.notes && <div className="detail-row detail-row-full"><span className="detail-label">Notes</span><span className="detail-value">{detailBooking.notes}</span></div>}
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-ghost" onClick={() => setDetailBooking(null)}>Close</button>
+            <button className="btn btn-primary" onClick={() => { setDetailBooking(null); setView('bookings'); }}>Go to Bookings</button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

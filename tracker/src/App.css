@@ -442,6 +442,7 @@ select option { background: var(--bg2); }
 .modal-footer {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 24px;
   padding-top: 16px;
@@ -799,6 +800,8 @@ select option { background: var(--bg2); }
 .cal-booking-name { font-weight: 600; font-size: 13px; }
 .cal-booking-svc { font-size: 12px; color: var(--text2); }
 .cal-booking-price { font-size: 12px; color: var(--success); font-weight: 600; }
+.cal-booking-clickable { cursor: pointer; border-radius: 8px; padding: 8px 6px; margin: 0 -6px; transition: background 0.15s; }
+.cal-booking-clickable:hover { background: var(--bg3); }
 
 /* ═══════════════════════════════════════════════════════════
    TASKS

@@ -17,54 +17,63 @@ function ScrollToTop() {
 const Icons = {
   recurring: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <path d="M24 12v12l8 4" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-      <path d="M30 10a14 14 0 0 1 0 28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="24" cy="24" r="17" stroke="currentColor" strokeWidth="2.5"/>
+      <path d="M24 13v11l7 4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   landscaping: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="24" cy="14" r="8" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <path d="M24 22v18M16 30l8 8 8-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M24 38V22" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+      <path d="M24 22c0-6-5-11-11-11 0 6 5 11 11 11z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/>
+      <path d="M24 22c0-6 5-11 11-11 0 6-5 11-11 11z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/>
+      <path d="M24 30c0-4-4-7-8-7 0 4 4 7 8 7z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/>
+      <path d="M8 38h32" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
     </svg>
   ),
   home: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 24l16-16 16 16v16a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V24z" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <path d="M18 40V28h12v12" stroke="currentColor" strokeWidth="3"/>
+      <path d="M6 23L24 7l18 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M10 20v20h10V28h8v12h10V20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   moving: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="10" y="14" width="28" height="24" rx="2" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <path d="M10 24h28M18 14v10M30 14v10" stroke="currentColor" strokeWidth="3"/>
+      <path d="M14 12h20l4 8H10l4-8z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/>
+      <rect x="10" y="20" width="28" height="18" rx="2" stroke="currentColor" strokeWidth="2.5"/>
+      <path d="M18 20v6M30 20v6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+      <circle cx="18" cy="40" r="3" stroke="currentColor" strokeWidth="2.5"/>
+      <circle cx="30" cy="40" r="3" stroke="currentColor" strokeWidth="2.5"/>
     </svg>
   ),
   tech: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="8" y="12" width="32" height="20" rx="2" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <path d="M14 38h20M24 32v6" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+      <rect x="6" y="8" width="36" height="24" rx="3" stroke="currentColor" strokeWidth="2.5"/>
+      <path d="M15 38h18M24 32v6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+      <path d="M16 20l4 4-4 4M26 24h6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
   pet: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="24" cy="28" rx="12" ry="10" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <circle cx="16" cy="18" r="4" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <circle cx="32" cy="18" r="4" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <circle cx="12" cy="26" r="3" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <circle cx="36" cy="26" r="3" stroke="currentColor" strokeWidth="3" fill="white"/>
+      <ellipse cx="24" cy="31" rx="9" ry="8" stroke="currentColor" strokeWidth="2.5"/>
+      <ellipse cx="13" cy="21" rx="3.5" ry="4.5" stroke="currentColor" strokeWidth="2.5"/>
+      <ellipse cx="20" cy="16" rx="3.5" ry="4.5" stroke="currentColor" strokeWidth="2.5"/>
+      <ellipse cx="28" cy="16" rx="3.5" ry="4.5" stroke="currentColor" strokeWidth="2.5"/>
+      <ellipse cx="35" cy="21" rx="3.5" ry="4.5" stroke="currentColor" strokeWidth="2.5"/>
     </svg>
   ),
   business: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="8" y="16" width="32" height="24" rx="2" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <path d="M16 16V12a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4M8 24h32" stroke="currentColor" strokeWidth="3"/>
+      <rect x="6" y="18" width="36" height="22" rx="3" stroke="currentColor" strokeWidth="2.5"/>
+      <path d="M17 18v-4a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6 28h36" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+      <path d="M21 28v4M27 28v4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
     </svg>
   ),
   emergency: (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="3" fill="white"/>
-      <path d="M24 16v12M24 32v2" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="24" cy="24" r="17" stroke="currentColor" strokeWidth="2.5"/>
+      <path d="M24 13v14" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="24" cy="33" r="2" fill="currentColor"/>
     </svg>
   )
 };
@@ -113,7 +122,7 @@ const serviceData = {
       },
       { name: "Mulching", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true, materialNote: true },
       { name: "Gutter Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true },
-      { name: "Power Washing", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true }
+      { name: "Power Washing", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true, isPowerWash: true }
     ]
   },
   landscaping: {
@@ -181,7 +190,7 @@ const serviceData = {
     icon: Icons.home,
     color: "#8B5CF6",
     services: [
-      { name: "Power Washing (driveways, sidewalks, patios)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
+      { name: "Power Washing (driveways, sidewalks, patios)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, isPowerWash: true },
       { name: "Furniture Assembly (IKEA, Wayfair, etc.)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
       { name: "Picture Hanging & Wall Mounting", price: "$20 per", perItem: true, materialNote: true },
       { name: "Door Handle & Lock Replacement", price: "$45 per", perItem: true, materialNote: true },
@@ -549,19 +558,21 @@ function CategoriesPage() {
       </div>
 
       {/* Featured: Popular Packages */}
-      <div className="packages-featured-card" onClick={() => navigate('/services/packages')}>
-        <div className="packages-featured-left">
-          <span className="packages-featured-badge">⭐ Featured</span>
-          <h2>Popular Packages</h2>
-          <p>Our most-booked bundles — great value, curated for common needs.</p>
-          <span className="packages-featured-link">View Packages →</span>
-        </div>
-        <div className="packages-featured-right">
-          <div className="packages-featured-pills">
-            <span className="pkg-pill">Basic Lawn Care</span>
-            <span className="pkg-pill">Advanced Lawn Care</span>
-            <span className="pkg-pill">House Glowup</span>
-            <span className="pkg-pill">Organize &amp; Junk</span>
+      <div className="packages-featured-wrap">
+        <div className="packages-featured-card" onClick={() => navigate('/services/packages')}>
+          <div className="packages-featured-left">
+            <span className="packages-featured-badge">⭐ Featured</span>
+            <h2>Popular Packages</h2>
+            <p>Our most-booked service bundles — great value, curated for common needs.</p>
+            <span className="packages-featured-link">View All Packages →</span>
+          </div>
+          <div className="packages-featured-right">
+            <div className="packages-featured-pills">
+              <span className="pkg-pill">Basic Lawn Care</span>
+              <span className="pkg-pill">Advanced Lawn Care</span>
+              <span className="pkg-pill">House Glowup</span>
+              <span className="pkg-pill">Organize &amp; Junk</span>
+            </div>
           </div>
         </div>
       </div>
@@ -675,6 +686,8 @@ function AddServicePage() {
   const [fixtureCount, setFixtureCount] = useState(0);
   const [hours, setHours] = useState(0);
   const [urgencyDescription, setUrgencyDescription] = useState('');
+  const [powerWashAreas, setPowerWashAreas] = useState([]);
+  const [powerWashOther, setPowerWashOther] = useState('');
   
   useEffect(() => {
     const path = window.location.pathname;
@@ -780,9 +793,13 @@ function AddServicePage() {
       extraOvergrown: service.extraOvergrown && extraOvergrown,
       isEmergency: service.isEmergency,
       urgencyDescription: service.isEmergency ? urgencyDescription : null,
-      materialNote: service.materialNote
+      materialNote: service.materialNote,
+      powerWashAreas: service.isPowerWash ? [
+        ...powerWashAreas,
+        ...(powerWashAreas.includes('Other') && powerWashOther ? [`Other: ${powerWashOther}`] : [])
+      ].filter(a => a !== 'Other' || !powerWashOther) : null
     };
-    
+
     addToCart(cartItem);
     navigate(`/services/${categoryKey}`);
   };
@@ -812,6 +829,38 @@ function AddServicePage() {
             <div className="dependent-pricing-notice">
               <strong>🔖 Dependent Pricing — Free Quote Included</strong>
               <p>This service requires an on-site or photo assessment to provide an accurate quote. Add it to your visit and we'll send you a confirmed price before scheduling.</p>
+            </div>
+          )}
+          {service.isPowerWash && (
+            <div className="form-section">
+              <h3>What needs power washed?</h3>
+              <p style={{color:'#64748B', fontSize:'0.9rem', marginBottom:'1rem'}}>Select all that apply:</p>
+              <div className="powerwash-grid">
+                {['Driveway','Sidewalks & Walkways','Patio / Deck','House Siding','Fence','Roof','Garage Floor','Other'].map(area => (
+                  <label key={area} className={`powerwash-option ${powerWashAreas.includes(area) ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={powerWashAreas.includes(area)}
+                      onChange={e => {
+                        if (e.target.checked) setPowerWashAreas([...powerWashAreas, area]);
+                        else { setPowerWashAreas(powerWashAreas.filter(a => a !== area)); if (area === 'Other') setPowerWashOther(''); }
+                      }}
+                    />
+                    <span>{area}</span>
+                  </label>
+                ))}
+              </div>
+              {powerWashAreas.includes('Other') && (
+                <div className="form-group" style={{marginTop:'1rem'}}>
+                  <label>Describe what needs power washed:</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., pool deck, retaining wall..."
+                    value={powerWashOther}
+                    onChange={e => setPowerWashOther(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
           )}
           {service.description && (
@@ -1506,9 +1555,6 @@ function CheckoutPage() {
                     <option value="18:00">6:00 PM</option>
                     <option value="18:30">6:30 PM</option>
                     <option value="19:00">7:00 PM</option>
-                    <option value="19:30">7:30 PM</option>
-                    <option value="20:00">8:00 PM</option>
-                    <option value="20:30">8:30 PM</option>
                   </select>
                 </div>
               </div>
@@ -1548,9 +1594,6 @@ function CheckoutPage() {
                   <option value="18:00">6:00 PM</option>
                   <option value="18:30">6:30 PM</option>
                   <option value="19:00">7:00 PM</option>
-                  <option value="19:30">7:30 PM</option>
-                  <option value="20:00">8:00 PM</option>
-                  <option value="20:30">8:30 PM</option>
                 </select>
               </div>
             </div>
@@ -1717,8 +1760,18 @@ function CheckoutPage() {
               </div>
             ))}
 
-            {!allDependent && (
+            {allDependent ? (
+              <div className="tbd-total-notice">
+                <div className="tbd-badge">Price TBD</div>
+                <p>All services in your visit require an on-site assessment. You'll receive a confirmed quote before we schedule.</p>
+              </div>
+            ) : (
               <>
+                {hasDependentItems && (
+                  <div className="dependent-pricing-note" style={{marginBottom:'0.75rem'}}>
+                    <strong>Note:</strong> Quote items (marked above as "Price TBD") are not included in the total below.
+                  </div>
+                )}
                 <div className="price-row subtotal-row">
                   <span>Subtotal:</span>
                   <span>${pricing.subtotal.toFixed(2)}</span>
@@ -1739,16 +1792,16 @@ function CheckoutPage() {
                 )}
 
                 <div className="price-row total">
-                  <span>{hasDependentItems ? 'Fixed Services Total:' : 'Total:'}</span>
+                  <span>{hasDependentItems ? 'Fixed Items Total:' : 'Total:'}</span>
                   <span>${pricing.total.toFixed(2)}</span>
                 </div>
-              </>
-            )}
 
-            {hasDependentItems && (
-              <div className="dependent-pricing-note">
-                <strong>📧 Free Quote Included:</strong> You'll receive a quoted price for the marked service(s) via email before we schedule.
-              </div>
+                {hasDependentItems && (
+                  <div className="dependent-pricing-note" style={{marginTop:'0.75rem'}}>
+                    <strong>📧 Free Quote Included:</strong> You'll receive a quoted price for the marked service(s) via email before we schedule.
+                  </div>
+                )}
+              </>
             )}
           </div>
 
