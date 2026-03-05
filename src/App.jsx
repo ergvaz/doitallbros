@@ -1175,7 +1175,7 @@ function AddServicePage() {
                   </label>
                 ))}
               </div>
-              {(serviceDetails.glowupServices||[]).includes('Power Washing') && !(serviceDetails.glowupServices||[]).includes('Everything') && (
+              {((serviceDetails.glowupServices||[]).includes('Power Washing') || (serviceDetails.glowupServices||[]).includes('Everything')) && (
                 <div style={{marginTop:'1.5rem'}}>
                   <h3>Power washing — what areas?</h3>
                   <div className="powerwash-grid">
