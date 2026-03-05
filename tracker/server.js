@@ -108,15 +108,22 @@ app.delete('/api/pending/:id', (req, res) => {
 // Body: { bookingId, preferredAvailable: true|false, backupAvailable: true|false|null }
 app.post('/api/availability', (req, res) => {
   try {
-    const { bookingId, preferredAvailable, backupAvailable } = req.body;
+    const { bookingId, dateAvailability } = req.body;
     if (!bookingId) return res.status(400).json({ error: 'bookingId required' });
 
+    const mapStatus = (v) => {
+      if (!v || v === 'not_provided') return null;
+      if (v === 'available') return 'available';
+      return 'unavailable';
+    };
+
+    const da = typeof dateAvailability === 'string' ? JSON.parse(dateAvailability) : (dateAvailability || {});
     const avail = readAvail();
     const idx = avail.findIndex(a => a.bookingId === bookingId);
     const entry = {
       bookingId,
-      preferred: preferredAvailable != null ? (preferredAvailable ? 'available' : 'unavailable') : null,
-      backup: backupAvailable != null ? (backupAvailable ? 'available' : 'unavailable') : null,
+      preferred: mapStatus(da.preferred),
+      backup: mapStatus(da.backup),
       updatedAt: new Date().toISOString(),
       applied: false,
     };
