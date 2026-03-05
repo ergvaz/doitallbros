@@ -841,8 +841,7 @@ function AddServicePage() {
           {service.isPowerWash && (
             <div className="form-section">
               <h3>What needs power washed?</h3>
-              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
-              <div className="powerwash-grid">
+                            <div className="powerwash-grid">
                 {['Driveway','Walkway','Patio','Porch','Siding','Brick','Sidewalk','Other'].map(area => (
                   <label key={area} className={`powerwash-option ${powerWashAreas.includes(area) ? 'active' : ''}`}>
                     <input
@@ -889,7 +888,10 @@ function AddServicePage() {
           {service.detailsKey === 'hedgeTrimming' && (
             <div className="form-section">
               <h3>What needs trimming?</h3>
-              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
+              <label style={{display:'flex', alignItems:'center', gap:'10px', padding:'12px 16px', background: (serviceDetails.trimItems||[]).includes('Everything') ? 'rgba(245,158,11,.15)' : 'rgba(245,158,11,.06)', border:`2px solid ${(serviceDetails.trimItems||[]).includes('Everything') ? '#F59E0B' : 'rgba(245,158,11,.4)'}`, borderRadius:'10px', cursor:'pointer', marginBottom:'10px', fontWeight:700, fontSize:'14px', color:'#D97706'}}>
+                <input type="checkbox" checked={(serviceDetails.trimItems||[]).includes('Everything')} onChange={e => { const cur = serviceDetails.trimItems||[]; setDetail('trimItems', e.target.checked ? [...cur, 'Everything'] : cur.filter(a => a !== 'Everything')); }} />
+                <span>⭐ Everything</span>
+              </label>
               <div className="powerwash-grid">
                 {['Hedges', 'Bushes', 'Tree Trimming', 'Stump Removal', 'Haul Away Debris', 'Other'].map(opt => (
                   <label key={opt} className={`powerwash-option ${(serviceDetails.trimItems||[]).includes(opt) ? 'active' : ''}`}>
@@ -898,7 +900,7 @@ function AddServicePage() {
                   </label>
                 ))}
               </div>
-              {(serviceDetails.trimItems||[]).includes('Other') && (
+              {((serviceDetails.trimItems||[]).includes('Other') || (serviceDetails.trimItems||[]).includes('Everything')) && (
                 <div className="form-group" style={{marginTop:'1rem'}}>
                   <label>Describe what needs trimming:</label>
                   <input type="text" placeholder="e.g., ornamental grasses, vines..." value={serviceDetails.trimOther||''} onChange={e => setDetail('trimOther', e.target.value)} />
@@ -911,8 +913,7 @@ function AddServicePage() {
           {service.detailsKey === 'mulching' && (
             <div className="form-section">
               <h3>Where needs mulching?</h3>
-              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
-              <div className="powerwash-grid">
+                            <div className="powerwash-grid">
                 {['Flower Beds', 'Around Trees', 'Walkways', 'All of the Above'].map(opt => (
                   <label key={opt} className={`powerwash-option ${(serviceDetails.areas||[]).includes(opt) ? 'active' : ''}`}>
                     <input type="checkbox" checked={(serviceDetails.areas||[]).includes(opt)} onChange={e => { const cur = serviceDetails.areas||[]; setDetail('areas', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
@@ -974,7 +975,6 @@ function AddServicePage() {
           {service.detailsKey === 'furnitureAssembly' && (
             <div className="form-section">
               <h3>What needs assembling?</h3>
-              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select items and set quantity for each:</p>
               {['Desk', 'Table', 'Couch', 'Chair', 'Bed Frame', 'Dresser', 'Bookshelf', 'Other'].map(type => {
                 const items = serviceDetails.furnitureItems || [];
                 const found = items.find(i => i.type === type);
@@ -1162,8 +1162,7 @@ function AddServicePage() {
           {service.detailsKey === 'houseGlowup' && (
             <div className="form-section">
               <h3>What services do you need?</h3>
-              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
-              <label style={{display:'flex', alignItems:'center', gap:'10px', padding:'12px 16px', background: (serviceDetails.glowupServices||[]).includes('Everything') ? 'rgba(245,158,11,.15)' : 'rgba(245,158,11,.06)', border:`2px solid ${(serviceDetails.glowupServices||[]).includes('Everything') ? '#F59E0B' : 'rgba(245,158,11,.4)'}`, borderRadius:'10px', cursor:'pointer', marginBottom:'10px', fontWeight:700, fontSize:'14px', color:'#D97706'}}>
+                            <label style={{display:'flex', alignItems:'center', gap:'10px', padding:'12px 16px', background: (serviceDetails.glowupServices||[]).includes('Everything') ? 'rgba(245,158,11,.15)' : 'rgba(245,158,11,.06)', border:`2px solid ${(serviceDetails.glowupServices||[]).includes('Everything') ? '#F59E0B' : 'rgba(245,158,11,.4)'}`, borderRadius:'10px', cursor:'pointer', marginBottom:'10px', fontWeight:700, fontSize:'14px', color:'#D97706'}}>
                 <input type="checkbox" checked={(serviceDetails.glowupServices||[]).includes('Everything')} onChange={e => { const cur = serviceDetails.glowupServices||[]; setDetail('glowupServices', e.target.checked ? [...cur, 'Everything'] : cur.filter(a => a !== 'Everything')); }} />
                 <span>⭐ Everything (Full Package)</span>
               </label>
@@ -1201,7 +1200,10 @@ function AddServicePage() {
           {service.detailsKey === 'organizeJunk' && (
             <div className="form-section">
               <h3>What do you need done?</h3>
-              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
+              <label style={{display:'flex', alignItems:'center', gap:'10px', padding:'12px 16px', background: (serviceDetails.ojServices||[]).includes('Everything') ? 'rgba(245,158,11,.15)' : 'rgba(245,158,11,.06)', border:`2px solid ${(serviceDetails.ojServices||[]).includes('Everything') ? '#F59E0B' : 'rgba(245,158,11,.4)'}`, borderRadius:'10px', cursor:'pointer', marginBottom:'10px', fontWeight:700, fontSize:'14px', color:'#D97706'}}>
+                <input type="checkbox" checked={(serviceDetails.ojServices||[]).includes('Everything')} onChange={e => { const cur = serviceDetails.ojServices||[]; setDetail('ojServices', e.target.checked ? [...cur, 'Everything'] : cur.filter(a => a !== 'Everything')); }} />
+                <span>⭐ Everything</span>
+              </label>
               <div className="powerwash-grid">
                 {['Moving', 'Junk Removal', 'Organization'].map(opt => (
                   <label key={opt} className={`powerwash-option ${(serviceDetails.ojServices||[]).includes(opt) ? 'active' : ''}`}>
@@ -1210,7 +1212,7 @@ function AddServicePage() {
                   </label>
                 ))}
               </div>
-              {(serviceDetails.ojServices||[]).includes('Moving') && (
+              {((serviceDetails.ojServices||[]).includes('Moving') || (serviceDetails.ojServices||[]).includes('Everything')) && (
                 <div style={{marginTop:'1.5rem'}}>
                   <h3>Moving — how much?</h3>
                   <div className="size-grid">
@@ -1227,7 +1229,7 @@ function AddServicePage() {
                   </div>
                 </div>
               )}
-              {(serviceDetails.ojServices||[]).includes('Junk Removal') && (
+              {((serviceDetails.ojServices||[]).includes('Junk Removal') || (serviceDetails.ojServices||[]).includes('Everything')) && (
                 <div style={{marginTop:'1.5rem'}}>
                   <h3>Junk Removal — how much?</h3>
                   <div className="size-grid">
@@ -1244,7 +1246,7 @@ function AddServicePage() {
                   </div>
                 </div>
               )}
-              {(serviceDetails.ojServices||[]).includes('Organization') && (
+              {((serviceDetails.ojServices||[]).includes('Organization') || (serviceDetails.ojServices||[]).includes('Everything')) && (
                 <div style={{marginTop:'1.5rem'}}>
                   <h3>Organization — what type?</h3>
                   <div className="size-grid">
