@@ -155,7 +155,8 @@ const serviceData = {
           large: { label: "Large Job", example: "🌲 Multiple large trees", price: 150 },
           xl: { label: "Extra Large Job", example: "🏞️ Extensive trimming", price: 225 }
         },
-        id: "hedgeTrimming" 
+        id: "hedgeTrimming",
+        detailsKey: 'hedgeTrimming'
       },
       { 
         name: "Leaf Cleanup & Yard Debris Removal", 
@@ -840,7 +841,7 @@ function AddServicePage() {
           {service.isPowerWash && (
             <div className="form-section">
               <h3>What needs power washed?</h3>
-              <p style={{color:'#64748B', fontSize:'0.9rem', marginBottom:'1rem'}}>Select all that apply:</p>
+              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
               <div className="powerwash-grid">
                 {['Driveway','Walkway','Patio','Porch','Siding','Brick','Sidewalk','Other'].map(area => (
                   <label key={area} className={`powerwash-option ${powerWashAreas.includes(area) ? 'active' : ''}`}>
@@ -884,10 +885,33 @@ function AddServicePage() {
             </div>
           )}
 
+          {/* ── Hedge, Bush & Tree Trimming ── */}
+          {service.detailsKey === 'hedgeTrimming' && (
+            <div className="form-section">
+              <h3>What needs trimming?</h3>
+              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
+              <div className="powerwash-grid">
+                {['Hedges', 'Bushes', 'Tree Trimming', 'Stump Removal', 'Haul Away Debris', 'Other'].map(opt => (
+                  <label key={opt} className={`powerwash-option ${(serviceDetails.trimItems||[]).includes(opt) ? 'active' : ''}`}>
+                    <input type="checkbox" checked={(serviceDetails.trimItems||[]).includes(opt)} onChange={e => { const cur = serviceDetails.trimItems||[]; setDetail('trimItems', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              {(serviceDetails.trimItems||[]).includes('Other') && (
+                <div className="form-group" style={{marginTop:'1rem'}}>
+                  <label>Describe what needs trimming:</label>
+                  <input type="text" placeholder="e.g., ornamental grasses, vines..." value={serviceDetails.trimOther||''} onChange={e => setDetail('trimOther', e.target.value)} />
+                </div>
+              )}
+            </div>
+          )}
+
           {/* ── Mulching ── */}
           {service.detailsKey === 'mulching' && (
             <div className="form-section">
               <h3>Where needs mulching?</h3>
+              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
               <div className="powerwash-grid">
                 {['Flower Beds', 'Around Trees', 'Walkways', 'All of the Above'].map(opt => (
                   <label key={opt} className={`powerwash-option ${(serviceDetails.areas||[]).includes(opt) ? 'active' : ''}`}>
@@ -950,7 +974,7 @@ function AddServicePage() {
           {service.detailsKey === 'furnitureAssembly' && (
             <div className="form-section">
               <h3>What needs assembling?</h3>
-              <p style={{color:'#64748B', fontSize:'0.9rem', marginBottom:'1rem'}}>Select items and set quantity for each:</p>
+              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select items and set quantity for each:</p>
               {['Desk', 'Table', 'Couch', 'Chair', 'Bed Frame', 'Dresser', 'Bookshelf', 'Other'].map(type => {
                 const items = serviceDetails.furnitureItems || [];
                 const found = items.find(i => i.type === type);
@@ -1138,8 +1162,13 @@ function AddServicePage() {
           {service.detailsKey === 'houseGlowup' && (
             <div className="form-section">
               <h3>What services do you need?</h3>
+              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
+              <label style={{display:'flex', alignItems:'center', gap:'10px', padding:'12px 16px', background: (serviceDetails.glowupServices||[]).includes('Everything') ? 'rgba(245,158,11,.15)' : 'rgba(245,158,11,.06)', border:`2px solid ${(serviceDetails.glowupServices||[]).includes('Everything') ? '#F59E0B' : 'rgba(245,158,11,.4)'}`, borderRadius:'10px', cursor:'pointer', marginBottom:'10px', fontWeight:700, fontSize:'14px', color:'#D97706'}}>
+                <input type="checkbox" checked={(serviceDetails.glowupServices||[]).includes('Everything')} onChange={e => { const cur = serviceDetails.glowupServices||[]; setDetail('glowupServices', e.target.checked ? [...cur, 'Everything'] : cur.filter(a => a !== 'Everything')); }} />
+                <span>⭐ Everything (Full Package)</span>
+              </label>
               <div className="powerwash-grid">
-                {['Everything', 'Power Washing', 'Window Washing', 'Gutter Cleaning', 'Roof Cleaning', 'Other'].map(opt => (
+                {['Power Washing', 'Window Washing', 'Gutter Cleaning', 'Roof Cleaning', 'Other'].map(opt => (
                   <label key={opt} className={`powerwash-option ${(serviceDetails.glowupServices||[]).includes(opt) ? 'active' : ''}`}>
                     <input type="checkbox" checked={(serviceDetails.glowupServices||[]).includes(opt)} onChange={e => { const cur = serviceDetails.glowupServices||[]; setDetail('glowupServices', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
                     <span>{opt}</span>
@@ -1172,6 +1201,7 @@ function AddServicePage() {
           {service.detailsKey === 'organizeJunk' && (
             <div className="form-section">
               <h3>What do you need done?</h3>
+              <p style={{color:'#3B82F6', fontSize:'0.85rem', fontWeight:600, marginBottom:'1rem'}}>☑ Select all that apply</p>
               <div className="powerwash-grid">
                 {['Moving', 'Junk Removal', 'Organization'].map(opt => (
                   <label key={opt} className={`powerwash-option ${(serviceDetails.ojServices||[]).includes(opt) ? 'active' : ''}`}>
@@ -1225,10 +1255,11 @@ function AddServicePage() {
                       </label>
                     ))}
                   </div>
-                  <div className="form-group" style={{marginTop:'1rem'}}>
-                    <label>Additional details (optional)</label>
-                    <input type="text" placeholder="Any other info..." value={serviceDetails.orgDesc||''} onChange={e => setDetail('orgDesc', e.target.value)} />
-                  </div>
+                  {serviceDetails.orgType === 'Other' && (
+                    <div className="form-group" style={{marginTop:'0.5rem'}}>
+                      <input type="text" placeholder="Describe the type of organization..." value={serviceDetails.orgDesc||''} onChange={e => setDetail('orgDesc', e.target.value)} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1912,6 +1943,44 @@ function CheckoutPage() {
                 />
               </div>
               <div className="form-group">
+                <label>Preferred Time</label>
+                <select required value={selectedTime} onChange={(e) => setSelectedTime(e.target.value)}>
+                  <option value="">Select time</option>
+                  <option value="07:00">7:00 AM</option>
+                  <option value="07:30">7:30 AM</option>
+                  <option value="08:00">8:00 AM</option>
+                  <option value="08:30">8:30 AM</option>
+                  <option value="09:00">9:00 AM</option>
+                  <option value="09:30">9:30 AM</option>
+                  <option value="10:00">10:00 AM</option>
+                  <option value="10:30">10:30 AM</option>
+                  <option value="11:00">11:00 AM</option>
+                  <option value="11:30">11:30 AM</option>
+                  <option value="12:00">12:00 PM</option>
+                  <option value="12:30">12:30 PM</option>
+                  <option value="13:00">1:00 PM</option>
+                  <option value="13:30">1:30 PM</option>
+                  <option value="14:00">2:00 PM</option>
+                  <option value="14:30">2:30 PM</option>
+                  <option value="15:00">3:00 PM</option>
+                  <option value="15:30">3:30 PM</option>
+                  <option value="16:00">4:00 PM</option>
+                  <option value="16:30">4:30 PM</option>
+                  <option value="17:00">5:00 PM</option>
+                  <option value="17:30">5:30 PM</option>
+                  <option value="18:00">6:00 PM</option>
+                  <option value="18:30">6:30 PM</option>
+                  <option value="19:00">7:00 PM</option>
+                </select>
+              </div>
+            </div>
+            {selectedDate === new Date().toISOString().split('T')[0] && (
+              <div className="same-day-note">
+                <strong>📞 Same-Day Request:</strong> For the best chance of getting seen today, we recommend calling us directly at <a href="tel:+15023875462">(502) 387-5462</a>. Same-day bookings include a 30% rush fee.
+              </div>
+            )}
+            <div className="form-row" style={{marginTop:'1rem'}}>
+              <div className="form-group">
                 <label>Backup Date <span style={{fontWeight:400, fontSize:'0.85rem', color:'#64748B'}}>(in case first isn't available)</span></label>
                 <input
                   type="date"
@@ -1920,51 +1989,9 @@ function CheckoutPage() {
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
-            </div>
-            {backupDate && (
-              <div className="form-row" style={{marginTop:'0.75rem'}}>
-                <div className="form-group">
-                  <label>Backup Time</label>
-                  <select value={backupTime} onChange={(e) => setBackupTime(e.target.value)}>
-                    <option value="">Select time</option>
-                    <option value="07:00">7:00 AM</option>
-                    <option value="07:30">7:30 AM</option>
-                    <option value="08:00">8:00 AM</option>
-                    <option value="08:30">8:30 AM</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="09:30">9:30 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="10:30">10:30 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="11:30">11:30 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="12:30">12:30 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="13:30">1:30 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="14:30">2:30 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="15:30">3:30 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="16:30">4:30 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                    <option value="17:30">5:30 PM</option>
-                    <option value="18:00">6:00 PM</option>
-                    <option value="18:30">6:30 PM</option>
-                    <option value="19:00">7:00 PM</option>
-                  </select>
-                </div>
-              </div>
-            )}
-            {selectedDate === new Date().toISOString().split('T')[0] && (
-              <div className="same-day-note">
-                <strong>📞 Same-Day Request:</strong> For the best chance of getting seen today, we recommend calling us directly at <a href="tel:+15023875462">(502) 387-5462</a>. Same-day bookings include a 30% rush fee.
-              </div>
-            )}
-            <div className="form-row" style={{marginTop:'1rem'}}>
               <div className="form-group">
-                <label>Time</label>
-                <select required value={selectedTime} onChange={(e) => setSelectedTime(e.target.value)}>
+                <label>Backup Time</label>
+                <select value={backupTime} onChange={(e) => setBackupTime(e.target.value)}>
                   <option value="">Select time</option>
                   <option value="07:00">7:00 AM</option>
                   <option value="07:30">7:30 AM</option>
