@@ -569,7 +569,8 @@ function StatCard({ icon, label, value, color, onClick }) {
 
 function InboxView({ data, update }) {
   const [filter, setFilter] = useState('new');
-  const [selected, setSelected] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const selected = useMemo(() => selectedId ? data.contacts.find(c => c.id === selectedId) || null : null, [selectedId, data.contacts]);
   // Processing form state
   const [dateOption, setDateOption] = useState('preferred');
   const [altDate, setAltDate] = useState('');
@@ -607,7 +608,7 @@ function InboxView({ data, update }) {
   }, [allItems, filter]);
 
   const openItem = (item) => {
-    setSelected(item);
+    setSelectedId(item.id);
     // Default date option: if preferred has availability signal, use it; else prefer 'preferred'
     const prefAvail = item.dateAvailability?.preferred;
     const backAvail = item.dateAvailability?.backup;
@@ -623,7 +624,7 @@ function InboxView({ data, update }) {
     }
   };
 
-  const closeModal = () => setSelected(null);
+  const closeModal = () => setSelectedId(null);
 
   const ensureClient = (item) => {
     const email = item.email || item.clientEmail || '';
@@ -765,12 +766,12 @@ function InboxView({ data, update }) {
       ));
     }
     setSubmitting(false);
-    setSelected(null);
+    setSelectedId(null);
   };
 
   const archiveItem = (item) => {
     update('contacts', data.contacts.filter(c => c.id !== item.id));
-    setSelected(null);
+    setSelectedId(null);
   };
 
   const FILTERS = [
