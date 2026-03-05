@@ -916,6 +916,37 @@ function InboxView({ data, update }) {
                       {svc.sizeLabel && <div style={{fontSize:'11px', color:'var(--text3)'}}>{svc.sizeLabel}</div>}
                       {svc.isRecurring && <div style={{fontSize:'11px', color:'var(--text3)'}}>{svc.recurringLabel}</div>}
                       {svc.powerWashAreas?.length > 0 && <div style={{fontSize:'11px', color:'var(--text3)'}}>Areas: {svc.powerWashAreas.join(', ')}</div>}
+                      {svc.serviceDetails && (() => {
+                        const d = svc.serviceDetails;
+                        const lines = [];
+                        if (d.area) lines.push(d.area);
+                        if (d.areas?.length) lines.push('Where: ' + d.areas.join(', '));
+                        if (d.size) lines.push('Size: ' + d.size);
+                        if (d.mulchType) lines.push('Mulch: ' + d.mulchType);
+                        if (d.stories) lines.push(d.stories);
+                        if (d.downspout) lines.push('Downspout clearing included');
+                        if (d.condition) lines.push('Condition: ' + d.condition);
+                        if (d.windowCount) lines.push(d.windowCount);
+                        if (d.loadSize) lines.push(d.loadSize);
+                        if (d.description) lines.push(d.description);
+                        if (d.installType) lines.push(d.installType);
+                        if (d.bedCount) lines.push(d.bedCount);
+                        if (d.addons?.length) lines.push('Add-ons: ' + d.addons.join(', '));
+                        if (d.furnitureItems?.length) lines.push(d.furnitureItems.map(f => `${f.qty}x ${f.type}`).join(', '));
+                        if (d.otherDesc) lines.push(d.otherDesc);
+                        if (d.orgAreas?.length) lines.push('Areas: ' + d.orgAreas.map(a => a.qty ? `${a.type} (×${a.qty})` : a.type).join(', '));
+                        if (d.orgType?.length) lines.push('Org type: ' + (Array.isArray(d.orgType) ? d.orgType.join(', ') : d.orgType));
+                        if (d.glowupServices?.length) lines.push('Services: ' + d.glowupServices.join(', '));
+                        if (d.glowupPWAreas?.length) lines.push('PW Areas: ' + d.glowupPWAreas.join(', '));
+                        if (d.ojServices?.length) lines.push('Services: ' + d.ojServices.join(', '));
+                        if (d.movingSize) lines.push('Moving: ' + d.movingSize);
+                        if (d.movingDesc) lines.push(d.movingDesc);
+                        if (d.junkSize) lines.push('Junk: ' + d.junkSize);
+                        if (d.junkDesc) lines.push(d.junkDesc);
+                        if (d.other) lines.push(d.other);
+                        if (!lines.length) return null;
+                        return lines.map((line, idx) => <div key={idx} style={{fontSize:'11px', color:'var(--text3)', marginTop:2}}>{line}</div>);
+                      })()}
                       {svc.isQuote && <div style={{display:'inline-block', marginTop:4, fontSize:'10px', fontWeight:700, color:'#3B82F6', background:'rgba(59,130,246,.15)', padding:'2px 7px', borderRadius:'10px'}}>Needs Quote</div>}
                     </div>
                     <div style={{flexShrink:0}}>

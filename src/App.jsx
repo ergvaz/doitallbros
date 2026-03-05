@@ -120,8 +120,8 @@ const serviceData = {
         recurring: true, 
         isDogWalking: true 
       },
-      { name: "Mulching", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true, materialNote: true },
-      { name: "Gutter Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true },
+      { name: "Mulching", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true, materialNote: true, detailsKey: 'mulching' },
+      { name: "Gutter Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true, detailsKey: 'gutterCleaning' },
       { name: "Power Washing", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, recurring: true, isPowerWash: true }
     ]
   },
@@ -141,7 +141,8 @@ const serviceData = {
           xl: { label: "Extra Large Yard", example: "🏰 Estate-sized grounds", price: 110 }
         },
         relatedServices: ["weedRemoval", "hedgeTrimming", "leafCleanup"],
-        extraOvergrown: true
+        extraOvergrown: true,
+        detailsKey: 'lawnMowing'
       },
       { name: "Weed Removal & Prevention", price: "$45", id: "weedRemoval", materialNote: true },
       { 
@@ -168,8 +169,8 @@ const serviceData = {
         },
         id: "leafCleanup" 
       },
-      { name: "Mulching (beds, trees, walkways)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, materialNote: true, id: "mulching", relatedServices: ["gardenBed", "weedRemoval"] },
-      { name: "Garden Bed Installation", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, materialNote: true, id: "gardenBed" },
+      { name: "Mulching (beds, trees, walkways)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, materialNote: true, id: "mulching", relatedServices: ["gardenBed", "weedRemoval"], detailsKey: 'mulching' },
+      { name: "Garden Bed Installation", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, materialNote: true, id: "gardenBed", detailsKey: 'gardenBed' },
       { name: "Soil Leveling & Patch Repair", price: "$40", materialNote: true },
       { 
         name: "Snow Shoveling & De-icing", 
@@ -191,7 +192,7 @@ const serviceData = {
     color: "#8B5CF6",
     services: [
       { name: "Power Washing (driveways, sidewalks, patios)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, isPowerWash: true },
-      { name: "Furniture Assembly (IKEA, Wayfair, etc.)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
+      { name: "Furniture Assembly (IKEA, Wayfair, etc.)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, detailsKey: 'furnitureAssembly' },
       { name: "Picture Hanging & Wall Mounting", price: "$20 per", perItem: true, materialNote: true },
       { name: "Door Handle & Lock Replacement", price: "$45 per", perItem: true, materialNote: true },
       {
@@ -201,8 +202,8 @@ const serviceData = {
         materialNote: true
       },
       { name: "Smoke Detector Installation", price: "$50 per", perItem: true, materialNote: true },
-      { name: "Gutter Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
-      { name: "Roof Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
+      { name: "Gutter Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, detailsKey: 'gutterCleaning' },
+      { name: "Roof Cleaning", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, detailsKey: 'roofCleaning' },
       { name: "Minor Drywall Patching", price: "$65", materialNote: true },
       {
         name: "Basic Painting & Touch-ups",
@@ -215,7 +216,7 @@ const serviceData = {
         materialNote: true
       },
       { name: "Curtain & Blind Installation", price: "$65 per", perItem: true, materialNote: true },
-      { name: "Window Cleaning (Exterior)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true }
+      { name: "Window Cleaning (Exterior)", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, detailsKey: 'windowCleaning' }
     ]
   },
   movingOrganization: {
@@ -223,10 +224,10 @@ const serviceData = {
     icon: Icons.moving,
     color: "#F59E0B",
     services: [
-      { name: "Junk Removal", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
+      { name: "Junk Removal", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, detailsKey: 'junkRemoval' },
       { name: "Estate Cleanout", price: "$150/hour (3-hour minimum)", hourly: true, hourlyRate: 150, minHours: 3 },
       { name: "Moving Help", price: "$65/hour (3-hour minimum)", hourly: true, hourlyRate: 65, minHours: 3 },
-      { name: "Closet & Storage Organization", price: "Dependent Pricing — Free Quote Included", dependentPricing: true },
+      { name: "Closet & Storage Organization", price: "Dependent Pricing — Free Quote Included", dependentPricing: true, detailsKey: 'storageOrg' },
       { name: "Appliance Cleaning (fridge, oven)", price: "$75 per appliance", perItem: true },
       { name: "Outdoor Trash Bin Cleaning", price: "$40 per bin", perItem: true },
       { name: "Furniture Rearrangement", price: "$60/hour (2-hour minimum)", hourly: true, hourlyRate: 60, minHours: 2 },
@@ -330,12 +331,14 @@ const serviceData = {
         name: "House Glowup",
         price: "Dependent Pricing — Free Quote Included",
         dependentPricing: true,
+        detailsKey: 'houseGlowup',
         description: "Full exterior refresh: pressure washing (driveway, walkways, siding), exterior window cleaning, roof cleaning, and gutter cleaning. Pricing varies by home size."
       },
       {
         name: "Organize & Junk",
         price: "Dependent Pricing — Free Quote Included",
         dependentPricing: true,
+        detailsKey: 'organizeJunk',
         description: "Full area cleanout: junk removal, organization, and cleaning of the space. Tell us the area (garage, basement, room, etc.) and we'll handle the rest."
       }
     ]
@@ -688,6 +691,8 @@ function AddServicePage() {
   const [urgencyDescription, setUrgencyDescription] = useState('');
   const [powerWashAreas, setPowerWashAreas] = useState([]);
   const [powerWashOther, setPowerWashOther] = useState('');
+  const [serviceDetails, setServiceDetails] = useState({});
+  const setDetail = (key, val) => setServiceDetails(prev => ({ ...prev, [key]: val }));
   
   useEffect(() => {
     const path = window.location.pathname;
@@ -797,7 +802,8 @@ function AddServicePage() {
       powerWashAreas: service.isPowerWash ? [
         ...powerWashAreas,
         ...(powerWashAreas.includes('Other') && powerWashOther ? [`Other: ${powerWashOther}`] : [])
-      ].filter(a => a !== 'Other' || !powerWashOther) : null
+      ].filter(a => a !== 'Other' || !powerWashOther) : null,
+      serviceDetails: service.detailsKey ? serviceDetails : null,
     };
 
     addToCart(cartItem);
@@ -836,7 +842,7 @@ function AddServicePage() {
               <h3>What needs power washed?</h3>
               <p style={{color:'#64748B', fontSize:'0.9rem', marginBottom:'1rem'}}>Select all that apply:</p>
               <div className="powerwash-grid">
-                {['Driveway','Sidewalks & Walkways','Patio / Deck','House Siding','Fence','Roof','Garage Floor','Other'].map(area => (
+                {['Driveway','Walkway','Patio','Porch','Siding','Brick','Sidewalk','Other'].map(area => (
                   <label key={area} className={`powerwash-option ${powerWashAreas.includes(area) ? 'active' : ''}`}>
                     <input
                       type="checkbox"
@@ -863,6 +869,371 @@ function AddServicePage() {
               )}
             </div>
           )}
+          {/* ── Lawn Mowing: front/back selection ── */}
+          {service.detailsKey === 'lawnMowing' && (
+            <div className="form-section">
+              <h3>Which area?</h3>
+              <div className="size-grid">
+                {['Front Only', 'Back Only', 'Front & Back'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.area === opt ? 'active' : ''}`}>
+                    <input type="radio" name="lawnArea" value={opt} checked={serviceDetails.area === opt} onChange={() => setDetail('area', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Mulching ── */}
+          {service.detailsKey === 'mulching' && (
+            <div className="form-section">
+              <h3>Where needs mulching?</h3>
+              <div className="powerwash-grid">
+                {['Flower Beds', 'Around Trees', 'Walkways', 'All of the Above'].map(opt => (
+                  <label key={opt} className={`powerwash-option ${(serviceDetails.areas||[]).includes(opt) ? 'active' : ''}`}>
+                    <input type="checkbox" checked={(serviceDetails.areas||[]).includes(opt)} onChange={e => { const cur = serviceDetails.areas||[]; setDetail('areas', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              <h3 style={{marginTop:'1.5rem'}}>Approximate area</h3>
+              <div className="size-grid">
+                {['Small', 'Medium', 'Large'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.size === opt ? 'active' : ''}`}>
+                    <input type="radio" name="mulchSize" value={opt} checked={serviceDetails.size === opt} onChange={() => setDetail('size', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <h3 style={{marginTop:'1.5rem'}}>Type of mulch</h3>
+              <div className="powerwash-grid">
+                {['Brown', 'Black', 'Red', 'Natural'].map(opt => (
+                  <label key={opt} className={`powerwash-option ${serviceDetails.mulchType === opt ? 'active' : ''}`}>
+                    <input type="radio" name="mulchType" checked={serviceDetails.mulchType === opt} onChange={() => setDetail('mulchType', opt)} />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="form-group" style={{marginTop:'1rem'}}>
+                <label>Other details (optional)</label>
+                <input type="text" placeholder="Any additional info..." value={serviceDetails.other||''} onChange={e => setDetail('other', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {/* ── Gutter Cleaning ── */}
+          {service.detailsKey === 'gutterCleaning' && (
+            <div className="form-section">
+              <h3>Number of stories</h3>
+              <div className="size-grid">
+                {['Single Story', 'Two Story', 'Three Story+'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.stories === opt ? 'active' : ''}`}>
+                    <input type="radio" name="gutterStories" checked={serviceDetails.stories === opt} onChange={() => setDetail('stories', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <div style={{marginTop:'1rem'}}>
+                <label className="checkbox-label">
+                  <input type="checkbox" checked={serviceDetails.downspout||false} onChange={e => setDetail('downspout', e.target.checked)} />
+                  <span>Include downspout clearing</span>
+                </label>
+              </div>
+              <div className="form-group" style={{marginTop:'1rem'}}>
+                <label>Other details (optional)</label>
+                <input type="text" placeholder="Any additional info..." value={serviceDetails.other||''} onChange={e => setDetail('other', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {/* ── Furniture Assembly ── */}
+          {service.detailsKey === 'furnitureAssembly' && (
+            <div className="form-section">
+              <h3>What needs assembling?</h3>
+              <p style={{color:'#64748B', fontSize:'0.9rem', marginBottom:'1rem'}}>Select items and set quantity for each:</p>
+              {['Desk', 'Table', 'Couch', 'Chair', 'Bed Frame', 'Dresser', 'Bookshelf', 'Other'].map(type => {
+                const items = serviceDetails.furnitureItems || [];
+                const found = items.find(i => i.type === type);
+                return (
+                  <div key={type} style={{display:'flex', alignItems:'center', gap:'1rem', marginBottom:'0.75rem'}}>
+                    <label className="checkbox-label" style={{flex:1}}>
+                      <input type="checkbox" checked={!!found} onChange={e => { if (e.target.checked) setDetail('furnitureItems', [...items, {type, qty:1}]); else setDetail('furnitureItems', items.filter(i => i.type !== type)); }} />
+                      <span>{type}</span>
+                    </label>
+                    {found && (
+                      <div style={{display:'flex', alignItems:'center', gap:'0.5rem'}}>
+                        <label style={{fontSize:'0.85rem', color:'#64748B'}}>Qty:</label>
+                        <input type="number" min="1" value={found.qty} style={{width:'60px'}} onChange={e => setDetail('furnitureItems', items.map(i => i.type === type ? {...i, qty: parseInt(e.target.value)||1} : i))} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              {(serviceDetails.furnitureItems||[]).some(i => i.type === 'Other') && (
+                <div className="form-group" style={{marginTop:'0.5rem'}}>
+                  <label>Describe the other item(s):</label>
+                  <input type="text" placeholder="e.g., shelving unit, entertainment center..." value={serviceDetails.otherDesc||''} onChange={e => setDetail('otherDesc', e.target.value)} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Garden Bed Installation ── */}
+          {service.detailsKey === 'gardenBed' && (
+            <div className="form-section">
+              <h3>Installation type</h3>
+              <div className="size-grid">
+                {['New Installation', 'Existing Bed Refresh'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.installType === opt ? 'active' : ''}`}>
+                    <input type="radio" name="installType" checked={serviceDetails.installType === opt} onChange={() => setDetail('installType', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <h3 style={{marginTop:'1.5rem'}}>Number of beds</h3>
+              <div className="size-grid">
+                {['Small (1-2 beds)', 'Medium (3-5 beds)', 'Large (6+ beds)'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.bedCount === opt ? 'active' : ''}`}>
+                    <input type="radio" name="bedCount" checked={serviceDetails.bedCount === opt} onChange={() => setDetail('bedCount', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <h3 style={{marginTop:'1.5rem'}}>Add-ons (optional)</h3>
+              <div className="powerwash-grid">
+                {['Add Plants/Flowers', 'Add Mulch', 'Add Edging'].map(opt => (
+                  <label key={opt} className={`powerwash-option ${(serviceDetails.addons||[]).includes(opt) ? 'active' : ''}`}>
+                    <input type="checkbox" checked={(serviceDetails.addons||[]).includes(opt)} onChange={e => { const cur = serviceDetails.addons||[]; setDetail('addons', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="form-group" style={{marginTop:'1rem'}}>
+                <label>Other details (optional)</label>
+                <input type="text" placeholder="Any additional info..." value={serviceDetails.other||''} onChange={e => setDetail('other', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {/* ── Roof Cleaning ── */}
+          {service.detailsKey === 'roofCleaning' && (
+            <div className="form-section">
+              <h3>Number of stories</h3>
+              <div className="size-grid">
+                {['Single Story', 'Two Story', 'Three Story+'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.stories === opt ? 'active' : ''}`}>
+                    <input type="radio" name="roofStories" checked={serviceDetails.stories === opt} onChange={() => setDetail('stories', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <h3 style={{marginTop:'1.5rem'}}>Roof condition</h3>
+              <div className="size-grid">
+                {['Light Buildup (minor staining)', 'Moderate Buildup (visible moss/algae)', 'Heavy Buildup (thick moss/algae coverage)'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.condition === opt ? 'active' : ''}`}>
+                    <input type="radio" name="roofCondition" checked={serviceDetails.condition === opt} onChange={() => setDetail('condition', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Window Cleaning ── */}
+          {service.detailsKey === 'windowCleaning' && (
+            <div className="form-section">
+              <h3>Number of stories</h3>
+              <div className="size-grid">
+                {['Single Story', 'Two Story', 'Three Story+'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.stories === opt ? 'active' : ''}`}>
+                    <input type="radio" name="winStories" checked={serviceDetails.stories === opt} onChange={() => setDetail('stories', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <h3 style={{marginTop:'1.5rem'}}>Number of windows</h3>
+              <div className="size-grid">
+                {['1-5 windows', '6-10 windows', '11-20 windows', '20+ windows'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.windowCount === opt ? 'active' : ''}`}>
+                    <input type="radio" name="windowCount" checked={serviceDetails.windowCount === opt} onChange={() => setDetail('windowCount', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Junk Removal ── */}
+          {service.detailsKey === 'junkRemoval' && (
+            <div className="form-section">
+              <h3>How much junk?</h3>
+              <div className="size-grid">
+                {['Single Item', 'Small Load (few items)', 'Medium Load (partial truck)', 'Large Load (full truck)'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.loadSize === opt ? 'active' : ''}`}>
+                    <input type="radio" name="loadSize" checked={serviceDetails.loadSize === opt} onChange={() => setDetail('loadSize', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <div className="form-group" style={{marginTop:'1.5rem'}}>
+                <label>What are we removing? (optional)</label>
+                <textarea rows="3" placeholder="e.g., old couch, appliances, boxes..." value={serviceDetails.description||''} onChange={e => setDetail('description', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {/* ── Closet & Storage Organization ── */}
+          {service.detailsKey === 'storageOrg' && (
+            <div className="form-section">
+              <h3>What area(s) need organizing?</h3>
+              {[{type:'Closet',hasQty:true},{type:'Garage',hasQty:false},{type:'Basement',hasQty:false},{type:'Storage Unit',hasQty:true},{type:'Room',hasQty:true},{type:'Other',hasQty:false}].map(({type, hasQty}) => {
+                const items = serviceDetails.orgAreas || [];
+                const found = items.find(i => i.type === type);
+                return (
+                  <div key={type} style={{display:'flex', alignItems:'center', gap:'1rem', marginBottom:'0.75rem'}}>
+                    <label className="checkbox-label" style={{flex:1}}>
+                      <input type="checkbox" checked={!!found} onChange={e => { if (e.target.checked) setDetail('orgAreas', [...items, {type, qty: hasQty ? 1 : null}]); else setDetail('orgAreas', items.filter(i => i.type !== type)); }} />
+                      <span>{type}</span>
+                    </label>
+                    {found && hasQty && (
+                      <div style={{display:'flex', alignItems:'center', gap:'0.5rem'}}>
+                        <label style={{fontSize:'0.85rem', color:'#64748B'}}>Qty:</label>
+                        <input type="number" min="1" value={found.qty||1} style={{width:'60px'}} onChange={e => setDetail('orgAreas', items.map(i => i.type === type ? {...i, qty: parseInt(e.target.value)||1} : i))} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <h3 style={{marginTop:'1.5rem'}}>Size</h3>
+              <div className="size-grid">
+                {['Small', 'Medium', 'Large', 'Extra Large'].map(opt => (
+                  <label key={opt} className={`size-option ${serviceDetails.size === opt ? 'active' : ''}`}>
+                    <input type="radio" name="orgSize" checked={serviceDetails.size === opt} onChange={() => setDetail('size', opt)} />
+                    <div className="size-content"><span className="size-label">{opt}</span></div>
+                  </label>
+                ))}
+              </div>
+              <h3 style={{marginTop:'1.5rem'}}>Type of organization</h3>
+              <div className="powerwash-grid">
+                {['Basic Cleanup', 'Full Organization', 'Labeling', 'Other'].map(opt => (
+                  <label key={opt} className={`powerwash-option ${(serviceDetails.orgType||[]).includes(opt) ? 'active' : ''}`}>
+                    <input type="checkbox" checked={(serviceDetails.orgType||[]).includes(opt)} onChange={e => { const cur = serviceDetails.orgType||[]; setDetail('orgType', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              {(serviceDetails.orgType||[]).includes('Other') && (
+                <div className="form-group" style={{marginTop:'0.5rem'}}>
+                  <input type="text" placeholder="Describe..." value={serviceDetails.orgTypeOther||''} onChange={e => setDetail('orgTypeOther', e.target.value)} />
+                </div>
+              )}
+              <div className="form-group" style={{marginTop:'1rem'}}>
+                <label>Additional details (optional)</label>
+                <input type="text" placeholder="Any other info..." value={serviceDetails.other||''} onChange={e => setDetail('other', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {/* ── House Glowup ── */}
+          {service.detailsKey === 'houseGlowup' && (
+            <div className="form-section">
+              <h3>What services do you need?</h3>
+              <div className="powerwash-grid">
+                {['Everything', 'Power Washing', 'Window Washing', 'Gutter Cleaning', 'Roof Cleaning', 'Other'].map(opt => (
+                  <label key={opt} className={`powerwash-option ${(serviceDetails.glowupServices||[]).includes(opt) ? 'active' : ''}`}>
+                    <input type="checkbox" checked={(serviceDetails.glowupServices||[]).includes(opt)} onChange={e => { const cur = serviceDetails.glowupServices||[]; setDetail('glowupServices', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              {(serviceDetails.glowupServices||[]).includes('Power Washing') && !(serviceDetails.glowupServices||[]).includes('Everything') && (
+                <div style={{marginTop:'1.5rem'}}>
+                  <h3>Power washing — what areas?</h3>
+                  <div className="powerwash-grid">
+                    {['Driveway', 'Walkway', 'Patio', 'Porch', 'Siding', 'Brick', 'Sidewalk', 'Other'].map(area => (
+                      <label key={area} className={`powerwash-option ${(serviceDetails.glowupPWAreas||[]).includes(area) ? 'active' : ''}`}>
+                        <input type="checkbox" checked={(serviceDetails.glowupPWAreas||[]).includes(area)} onChange={e => { const cur = serviceDetails.glowupPWAreas||[]; setDetail('glowupPWAreas', e.target.checked ? [...cur, area] : cur.filter(a => a !== area)); }} />
+                        <span>{area}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {(serviceDetails.glowupServices||[]).includes('Other') && (
+                <div className="form-group" style={{marginTop:'1rem'}}>
+                  <label>Describe the other service(s):</label>
+                  <input type="text" placeholder="e.g., deck staining..." value={serviceDetails.glowupOther||''} onChange={e => setDetail('glowupOther', e.target.value)} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Organize & Junk ── */}
+          {service.detailsKey === 'organizeJunk' && (
+            <div className="form-section">
+              <h3>What do you need done?</h3>
+              <div className="powerwash-grid">
+                {['Moving', 'Junk Removal', 'Organization'].map(opt => (
+                  <label key={opt} className={`powerwash-option ${(serviceDetails.ojServices||[]).includes(opt) ? 'active' : ''}`}>
+                    <input type="checkbox" checked={(serviceDetails.ojServices||[]).includes(opt)} onChange={e => { const cur = serviceDetails.ojServices||[]; setDetail('ojServices', e.target.checked ? [...cur, opt] : cur.filter(a => a !== opt)); }} />
+                    <span>{opt}</span>
+                  </label>
+                ))}
+              </div>
+              {(serviceDetails.ojServices||[]).includes('Moving') && (
+                <div style={{marginTop:'1.5rem'}}>
+                  <h3>Moving — how much?</h3>
+                  <div className="size-grid">
+                    {['Small Load', 'Medium Load', 'Large Load', 'Full Home'].map(opt => (
+                      <label key={opt} className={`size-option ${serviceDetails.movingSize === opt ? 'active' : ''}`}>
+                        <input type="radio" name="movingSize" checked={serviceDetails.movingSize === opt} onChange={() => setDetail('movingSize', opt)} />
+                        <div className="size-content"><span className="size-label">{opt}</span></div>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="form-group" style={{marginTop:'1rem'}}>
+                    <label>Additional details (optional)</label>
+                    <textarea rows="2" placeholder="Describe what we're moving..." value={serviceDetails.movingDesc||''} onChange={e => setDetail('movingDesc', e.target.value)} />
+                  </div>
+                </div>
+              )}
+              {(serviceDetails.ojServices||[]).includes('Junk Removal') && (
+                <div style={{marginTop:'1.5rem'}}>
+                  <h3>Junk Removal — how much?</h3>
+                  <div className="size-grid">
+                    {['Single Item', 'Small Load', 'Medium Load', 'Large Load'].map(opt => (
+                      <label key={opt} className={`size-option ${serviceDetails.junkSize === opt ? 'active' : ''}`}>
+                        <input type="radio" name="junkSize" checked={serviceDetails.junkSize === opt} onChange={() => setDetail('junkSize', opt)} />
+                        <div className="size-content"><span className="size-label">{opt}</span></div>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="form-group" style={{marginTop:'1rem'}}>
+                    <label>What are we removing? (optional)</label>
+                    <textarea rows="2" placeholder="e.g., old furniture, appliances..." value={serviceDetails.junkDesc||''} onChange={e => setDetail('junkDesc', e.target.value)} />
+                  </div>
+                </div>
+              )}
+              {(serviceDetails.ojServices||[]).includes('Organization') && (
+                <div style={{marginTop:'1.5rem'}}>
+                  <h3>Organization — what type?</h3>
+                  <div className="size-grid">
+                    {['Basic Cleanup', 'Full Organization', 'Labeling', 'Other'].map(opt => (
+                      <label key={opt} className={`size-option ${serviceDetails.orgType === opt ? 'active' : ''}`}>
+                        <input type="radio" name="orgType" checked={serviceDetails.orgType === opt} onChange={() => setDetail('orgType', opt)} />
+                        <div className="size-content"><span className="size-label">{opt}</span></div>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="form-group" style={{marginTop:'1rem'}}>
+                    <label>Additional details (optional)</label>
+                    <input type="text" placeholder="Any other info..." value={serviceDetails.orgDesc||''} onChange={e => setDetail('orgDesc', e.target.value)} />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {service.description && (
             <div className="service-description-box">
               <p>{service.description}</p>
@@ -1385,6 +1756,7 @@ function CheckoutPage() {
         fixedPrice: isQuote ? null : (item.calculatedPrice || 0),
         sizeLabel,
         powerWashAreas: item.powerWashAreas || null,
+        serviceDetails: item.serviceDetails || null,
         isRecurring: !!item.recurring,
         recurringLabel: item.recurring?.frequency || null,
       };
