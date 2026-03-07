@@ -764,6 +764,27 @@ function InboxView({ data, update }) {
           ? { ...c, processedStatus: ps, savedQuotedPrices: quotedPrices, scheduledDate, scheduledTime }
           : c
       ));
+
+      // Create a pending booking so it appears in the Bookings > Pending tab
+      const { clientId, newClients } = ensureClient(item);
+      const svcName = cartItems.length > 0
+        ? cartItems.map(s => s.serviceName).join(', ')
+        : (item.service_list || item.service || '');
+      const pendingBooking = {
+        id: genId(), webhookId: item.webhookId, clientId,
+        clientName: item.name || item.clientName || '',
+        clientEmail: item.email || item.clientEmail || '',
+        clientPhone: item.phone || item.clientPhone || '',
+        clientAddress: item.address || item.clientAddress || '',
+        service: svcName, date: scheduledDate, time: scheduledTime,
+        price: totalFixed + totalQuoted, status: 'pending', source: 'website',
+        paymentMethod: item.payment_method || item.paymentMethod || 'Cash',
+        notes: item.notes || item.extra_notes || '',
+        isPaid: false, createdAt: new Date().toISOString(),
+        inboxContactId: item.id,
+      };
+      update('bookings', [...data.bookings, pendingBooking]);
+      update('clients', newClients);
     }
     setSubmitting(false);
     setSelectedId(null);
