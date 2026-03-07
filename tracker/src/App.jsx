@@ -741,7 +741,7 @@ function InboxView({ data, update }) {
         ? cartItems.map(s => s.serviceName).join(', ')
         : (item.service_list || item.service || '');
       const newBooking = {
-        id: genId(), webhookId: item.webhookId, clientId,
+        id: genId(), webhookId: item.webhookId, bookingId: item.bookingId || null, clientId,
         clientName: item.name || item.clientName || '',
         clientEmail: item.email || item.clientEmail || '',
         clientPhone: item.phone || item.clientPhone || '',
@@ -771,7 +771,7 @@ function InboxView({ data, update }) {
         ? cartItems.map(s => s.serviceName).join(', ')
         : (item.service_list || item.service || '');
       const pendingBooking = {
-        id: genId(), webhookId: item.webhookId, clientId,
+        id: genId(), webhookId: item.webhookId, bookingId: item.bookingId || null, clientId,
         clientName: item.name || item.clientName || '',
         clientEmail: item.email || item.clientEmail || '',
         clientPhone: item.phone || item.clientPhone || '',
@@ -1410,6 +1410,16 @@ function BookingsView({ data, update }) {
 
   const changeStatus = (id, status) => {
     update('bookings', data.bookings.map(b => b.id === id ? { ...b, status } : b));
+    if (status === 'completed') {
+      const booking = data.bookings.find(b => b.id === id);
+      if (booking?.bookingId) {
+        fetch('https://doitallbros.com/api/referral-complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookingId: booking.bookingId }),
+        }).catch(() => {});
+      }
+    }
   };
 
   const deleteBooking = (id) => {
