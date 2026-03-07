@@ -11,6 +11,7 @@
     "deploy": "npm run build && rsync -avz --delete dist/ your-server:/path/to/deployment/"
   },
   "dependencies": {
+    "@upstash/redis": "^1.36.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.0"

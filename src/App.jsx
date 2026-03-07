@@ -1589,6 +1589,10 @@ function CheckoutPage() {
     address: '',
     notes: ''
   });
+  const [referralCode, setReferralCode] = useState('');
+  const [referralStatus, setReferralStatus] = useState(null); // null | 'valid' | 'invalid'
+  const [referralMessage, setReferralMessage] = useState('');
+  const [referralDiscount, setReferralDiscount] = useState(0);
   
   useEffect(() => {
     if (selectedDate) {
@@ -1817,6 +1821,7 @@ function CheckoutPage() {
       ) : 'No',
       payment_method: paymentMethod,
       extra_notes: formData.notes || '',
+      referralCode: referralStatus === 'valid' ? referralCode.trim().toUpperCase() : null,
       preferred_date: selectedDate,
       preferred_time: selectedTime,
       backup_date: backupDate || null,
@@ -2168,12 +2173,57 @@ function CheckoutPage() {
             </div>
             <div className="form-group">
               <label>Additional Notes (Optional)</label>
-              <textarea 
+              <textarea
                 rows="4"
                 placeholder="Any special instructions..."
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
               />
+            </div>
+            <div className="form-group">
+              <label>Referral Code (Optional)</label>
+              <div style={{display:'flex', gap:'10px'}}>
+                <input
+                  type="text"
+                  placeholder="Enter referral code"
+                  value={referralCode}
+                  onChange={e => { setReferralCode(e.target.value.toUpperCase()); setReferralStatus(null); setReferralMessage(''); setReferralDiscount(0); }}
+                  style={{flex:1, textTransform:'uppercase'}}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={!referralCode.trim() || !formData.email}
+                  onClick={async () => {
+                    try {
+                      const r = await fetch('/api/referral-validate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: referralCode.trim(), email: formData.email, phone: formData.phone }),
+                      });
+                      const data = await r.json();
+                      if (data.valid) {
+                        setReferralStatus('valid');
+                        setReferralDiscount(data.discount);
+                        setReferralMessage(`✓ Code applied! ${data.discount}% off your first visit — referred by ${data.referrerName}`);
+                      } else {
+                        setReferralStatus('invalid');
+                        setReferralMessage(data.error || 'Invalid code');
+                      }
+                    } catch {
+                      setReferralStatus('invalid');
+                      setReferralMessage('Could not validate code. Try again.');
+                    }
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
+              {referralMessage && (
+                <p style={{marginTop:'6px', fontSize:'0.85rem', color: referralStatus === 'valid' ? '#10B981' : '#EF4444', fontWeight:600}}>
+                  {referralMessage}
+                </p>
+              )}
             </div>
           </div>
           
@@ -2217,9 +2267,15 @@ function CheckoutPage() {
                   </div>
                 )}
 
+                {referralStatus === 'valid' && referralDiscount > 0 && (
+                  <div className="price-row discount">
+                    <span>Referral Discount ({referralDiscount}%):</span>
+                    <span>-${(pricing.total * referralDiscount / 100).toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="price-row total">
                   <span>{hasDependentItems ? 'Fixed Items Total:' : 'Total:'}</span>
-                  <span>${pricing.total.toFixed(2)}</span>
+                  <span>${(referralStatus === 'valid' && referralDiscount > 0 ? pricing.total * (1 - referralDiscount / 100) : pricing.total).toFixed(2)}</span>
                 </div>
 
                 {hasDependentItems && (

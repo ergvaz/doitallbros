@@ -874,6 +874,9 @@ function InboxView({ data, update }) {
               ['Address', selected.address || selected.clientAddress],
               ['Received', fmtDate(selected.createdAt?.slice(0,10))],
               ...((selected.notes || selected.extra_notes) ? [['Notes', selected.notes || selected.extra_notes]] : []),
+              ...(selected.referralCode ? [['Ref Code', selected.referralCode]] : []),
+              ...(selected.usedReferralCode ? [['Used Code', selected.usedReferralCode + ' (10% discount applied)']] : []),
+              ...(selected.referralCode ? [['Referrals', `${selected.referralCount || 0} completed · ${selected.referralCreditsEarned || 0} credit(s) earned`]] : []),
             ];
             return (
               <table style={{width:'100%', borderCollapse:'collapse', marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
@@ -1043,6 +1046,29 @@ function InboxView({ data, update }) {
           {/* ── Action buttons ── */}
           <div className="modal-footer">
             <button className="btn btn-ghost btn-danger-ghost" onClick={() => archiveItem(selected)}>{Ic.trash} Remove</button>
+            {selected.usedReferralCode && selected.processedStatus !== 'referral_complete' && (
+              <button
+                className="btn btn-ghost"
+                style={{color:'#F59E0B', borderColor:'#F59E0B'}}
+                onClick={async () => {
+                  try {
+                    await fetch('https://doitallbros.com/api/referral-complete', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ bookingId: selected.bookingId }),
+                    });
+                    update('contacts', data.contacts.map(c => c.id === selected.id ? { ...c, processedStatus: 'referral_complete' } : c));
+                  } catch (e) {
+                    console.error('Referral complete error:', e);
+                  }
+                }}
+              >
+                ⭐ Mark Referral Complete
+              </button>
+            )}
+            {selected.usedReferralCode && selected.processedStatus === 'referral_complete' && (
+              <span style={{fontSize:'12px', color:'#10B981', fontWeight:600}}>✓ Referral credited</span>
+            )}
 
             {selected._type === 'contact' ? (
               <button className="btn btn-primary" onClick={closeModal}>Close</button>
@@ -2515,6 +2541,11 @@ export default function App() {
                   dateAvailability: null,
                   processedStatus: null,
                   status: 'new', source: 'website',
+                  referralCode: item.referralCode || null,
+                  usedReferralCode: item.usedReferralCode || null,
+                  referralCreditsEarned: item.referralCreditsEarned || 0,
+                  referralCount: item.referralCount || 0,
+                  bookingId: item.bookingId || item.id || null,
                   createdAt: item.receivedAt || item.date_submitted || new Date().toISOString(),
                 });
               }
