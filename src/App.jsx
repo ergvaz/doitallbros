@@ -2661,6 +2661,7 @@ function Header() {
         <nav className="nav">
           <Link to="/services/packages" className="nav-link">Packages</Link>
           <Link to="/categories" className="nav-link">Services</Link>
+          <Link to="/referral" className="nav-link">Referrals</Link>
           <Link to="/contact" className="nav-link">Contact</Link>
           <button className="nav-link nav-link-custom" onClick={() => setShowCustomRequest(true)}>Custom Request</button>
           <Link to="/checkout" className="nav-link cart-link">
@@ -2671,6 +2672,118 @@ function Header() {
       </header>
       {showCustomRequest && <CustomRequestModal onClose={() => setShowCustomRequest(false)} />}
     </>
+  );
+}
+
+// ── Referral Page ──────────────────────────────────────────
+function ReferralPage() {
+  const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLookup = async (e) => {
+    e.preventDefault();
+    if (!email.includes('@') || sending) return;
+    setSending(true);
+    setError('');
+    try {
+      const r = await fetch('/api/referral-lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const data = await r.json();
+      await fetch('https://n8n.srv1122720.hstgr.cloud/webhook/4f5f6fa4-0661-4006-8685-357e43bc3501', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          code: data.found ? data.code : null,
+          creditsEarned: data.creditsEarned || 0,
+          totalCompleted: data.totalCompleted || 0,
+          isExisting: data.found,
+          source: 'referral_page',
+        }),
+      });
+      setSent(true);
+    } catch {
+      setError('Something went wrong. Please try again.');
+    }
+    setSending(false);
+  };
+
+  return (
+    <div style={{maxWidth:'780px', margin:'0 auto', padding:'48px 24px'}}>
+      {/* Hero */}
+      <div style={{textAlign:'center', marginBottom:'48px'}}>
+        <div style={{fontSize:'48px', marginBottom:'12px'}}>🎟</div>
+        <h1 style={{fontSize:'2.2rem', fontWeight:800, color:'#1E293B', marginBottom:'12px'}}>Refer a Friend, Both Save</h1>
+        <p style={{fontSize:'1.1rem', color:'#64748B', maxWidth:'520px', margin:'0 auto'}}>Share Do It All Bros with people you know. When they book their first service, you both get a discount — it's that simple.</p>
+      </div>
+
+      {/* How it works */}
+      <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'20px', marginBottom:'48px'}}>
+        {[
+          { icon:'📩', step:'1', title:'Get Your Code', desc:'Every customer gets a unique referral code after their first booking is confirmed.' },
+          { icon:'📣', step:'2', title:'Share It', desc:'Send your code to friends, family, or anyone who could use a reliable handyman.' },
+          { icon:'💸', step:'3', title:'They Save 10%', desc:'Your referral gets 10% off their first service when they enter your code at checkout.' },
+          { icon:'🎉', step:'4', title:'You Save 20%', desc:'Once their first visit is completed, you earn a 20% discount on your next service.' },
+        ].map(({ icon, step, title, desc }) => (
+          <div key={step} style={{background:'#F8FAFC', borderRadius:'16px', padding:'24px', border:'1.5px solid #E2E8F0', textAlign:'center'}}>
+            <div style={{fontSize:'32px', marginBottom:'8px'}}>{icon}</div>
+            <div style={{fontSize:'11px', fontWeight:700, color:'#6366F1', letterSpacing:'.08em', marginBottom:'6px'}}>STEP {step}</div>
+            <div style={{fontWeight:700, color:'#1E293B', marginBottom:'6px'}}>{title}</div>
+            <div style={{fontSize:'13px', color:'#64748B'}}>{desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Terms callout */}
+      <div style={{background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.2)', borderRadius:'12px', padding:'20px 24px', marginBottom:'48px'}}>
+        <h3 style={{fontWeight:700, color:'#6366F1', marginBottom:'10px', fontSize:'1rem'}}>The Fine Print</h3>
+        <ul style={{margin:0, padding:'0 0 0 18px', color:'#475569', fontSize:'14px', lineHeight:'1.8'}}>
+          <li>Your code is not active until your <strong>first visit is confirmed and completed</strong>.</li>
+          <li>Referral discounts apply to the referred person's <strong>first service only</strong>.</li>
+          <li>Your 20% credit applies to your <strong>next scheduled visit</strong> after the referral is completed.</li>
+          <li>Codes cannot be used for self-referral or shared accounts.</li>
+          <li>Do It All Bros reserves the right to void codes used in bad faith.</li>
+        </ul>
+      </div>
+
+      {/* Email lookup */}
+      <div style={{background:'#fff', border:'2px solid #E2E8F0', borderRadius:'16px', padding:'32px', textAlign:'center'}}>
+        <h2 style={{fontWeight:800, color:'#1E293B', marginBottom:'8px', fontSize:'1.4rem'}}>Find Your Referral Code</h2>
+        <p style={{color:'#64748B', fontSize:'14px', marginBottom:'24px'}}>Enter the email you used to book with us and we'll send your code straight to your inbox.</p>
+
+        {sent ? (
+          <div style={{padding:'20px', background:'rgba(16,185,129,.08)', border:'1.5px solid rgba(16,185,129,.3)', borderRadius:'12px', color:'#065F46', fontWeight:600}}>
+            ✓ Check your inbox! We've sent your referral details to <strong>{email}</strong>.
+          </div>
+        ) : (
+          <form onSubmit={handleLookup} style={{display:'flex', gap:'10px', maxWidth:'420px', margin:'0 auto', flexWrap:'wrap', justifyContent:'center'}}>
+            <input
+              type="email"
+              required
+              placeholder="your@email.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              style={{flex:'1', minWidth:'220px', padding:'12px 16px', borderRadius:'10px', border:'1.5px solid #CBD5E1', fontSize:'15px', outline:'none'}}
+            />
+            <button
+              type="submit"
+              disabled={sending}
+              style={{padding:'12px 22px', borderRadius:'10px', background:'#6366F1', color:'#fff', fontWeight:700, fontSize:'15px', border:'none', cursor: sending ? 'default' : 'pointer', opacity: sending ? 0.7 : 1, whiteSpace:'nowrap'}}
+            >
+              {sending ? 'Sending…' : '📧 Email Me My Code'}
+            </button>
+            {error && <div style={{width:'100%', color:'#EF4444', fontSize:'13px'}}>{error}</div>}
+          </form>
+        )}
+
+        <p style={{marginTop:'20px', fontSize:'13px', color:'#94A3B8'}}>Don't have a code yet? <Link to="/checkout" style={{color:'#6366F1', fontWeight:600}}>Book a service</Link> and one will be created for you automatically.</p>
+      </div>
+    </div>
   );
 }
 
@@ -2694,6 +2807,7 @@ function Footer() {
         <div className="footer-section">
           <h4>Quick Links</h4>
           <Link to="/categories">All Services</Link>
+          <Link to="/referral">Referral Program</Link>
           <Link to="/contact">Contact Us</Link>
           <Link to="/legal">Legal</Link>
         </div>
@@ -2731,6 +2845,7 @@ function App() {
               <Route path="/confirmation" element={<ConfirmationPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/legal" element={<LegalPage />} />
+              <Route path="/referral" element={<ReferralPage />} />
             </Routes>
           </main>
           <Footer />
