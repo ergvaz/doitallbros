@@ -1593,6 +1593,7 @@ function CheckoutPage() {
   const [referralStatus, setReferralStatus] = useState(null); // null | 'valid' | 'invalid'
   const [referralMessage, setReferralMessage] = useState('');
   const [referralDiscount, setReferralDiscount] = useState(0);
+  const [existingCode, setExistingCode] = useState(null); // their own code from KV
   
   useEffect(() => {
     if (selectedDate) {
@@ -1601,6 +1602,23 @@ function CheckoutPage() {
       setIsWeekend(day === 0 || day === 6);
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    const email = formData.email.trim();
+    if (!email || !email.includes('@')) { setExistingCode(null); return; }
+    const timer = setTimeout(async () => {
+      try {
+        const r = await fetch('/api/referral-lookup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await r.json();
+        setExistingCode(data.found ? data : null);
+      } catch { setExistingCode(null); }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [formData.email]);
   
   useEffect(() => {
     if (selectedTime) {
@@ -2144,12 +2162,24 @@ function CheckoutPage() {
             <div className="form-row">
               <div className="form-group">
                 <label>Email</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                 />
+                {existingCode && (
+                  <div style={{marginTop:'8px', padding:'10px 14px', background:'rgba(99,102,241,.08)', border:'1.5px solid rgba(99,102,241,.3)', borderRadius:'8px', fontSize:'13px'}}>
+                    <div style={{fontWeight:700, color:'#6366F1', marginBottom:'2px'}}>🎟 Your Referral Code: <span style={{letterSpacing:'.1em'}}>{existingCode.code}</span></div>
+                    <div style={{color:'#64748B', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
+                    {existingCode.totalCompleted > 0 && <div style={{color:'#10B981', fontSize:'12px', marginTop:'4px', fontWeight:600}}>✓ {existingCode.totalCompleted} successful referral{existingCode.totalCompleted !== 1 ? 's' : ''} · {existingCode.creditsEarned} credit{existingCode.creditsEarned !== 1 ? 's' : ''} earned</div>}
+                  </div>
+                )}
+                {formData.email.includes('@') && !existingCode && (
+                  <div style={{marginTop:'8px', padding:'10px 14px', background:'rgba(16,185,129,.06)', border:'1.5px solid rgba(16,185,129,.25)', borderRadius:'8px', fontSize:'12px', color:'#64748B'}}>
+                    🎟 You'll receive your personal referral code in your booking confirmation.
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label>Phone</label>
