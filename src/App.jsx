@@ -2678,15 +2678,19 @@ function Header() {
 // ── Referral Page ──────────────────────────────────────────
 function ReferralPage() {
   const [email, setEmail] = useState('');
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState('');
+  const [looking, setLooking] = useState(false);
+  const [result, setResult] = useState(null); // null | { found, code, creditsEarned, totalCompleted }
+  const [lookupError, setLookupError] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleLookup = async (e) => {
     e.preventDefault();
-    if (!email.includes('@') || sending) return;
-    setSending(true);
-    setError('');
+    if (!email.includes('@') || looking) return;
+    setLooking(true);
+    setLookupError('');
+    setResult(null);
+    setEmailSent(false);
     try {
       const r = await fetch('/api/referral-lookup', {
         method: 'POST',
@@ -2694,23 +2698,32 @@ function ReferralPage() {
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
       const data = await r.json();
+      setResult(data);
+    } catch {
+      setLookupError('Something went wrong. Please try again.');
+    }
+    setLooking(false);
+  };
+
+  const handleEmailCode = async () => {
+    if (emailSending || emailSent || !result) return;
+    setEmailSending(true);
+    try {
       await fetch('https://n8n.srv1122720.hstgr.cloud/webhook/4f5f6fa4-0661-4006-8685-357e43bc3501', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
-          code: data.found ? data.code : null,
-          creditsEarned: data.creditsEarned || 0,
-          totalCompleted: data.totalCompleted || 0,
-          isExisting: data.found,
+          code: result.found ? result.code : null,
+          creditsEarned: result.creditsEarned || 0,
+          totalCompleted: result.totalCompleted || 0,
+          isExisting: result.found,
           source: 'referral_page',
         }),
       });
-      setSent(true);
-    } catch {
-      setError('Something went wrong. Please try again.');
-    }
-    setSending(false);
+      setEmailSent(true);
+    } catch {/* silent */}
+    setEmailSending(false);
   };
 
   return (
@@ -2751,34 +2764,65 @@ function ReferralPage() {
         </ul>
       </div>
 
-      {/* Email lookup */}
+      {/* Lookup card */}
       <div style={{background:'#fff', border:'2px solid #E2E8F0', borderRadius:'16px', padding:'32px', textAlign:'center'}}>
         <h2 style={{fontWeight:800, color:'#1E293B', marginBottom:'8px', fontSize:'1.4rem'}}>Find Your Referral Code</h2>
-        <p style={{color:'#64748B', fontSize:'14px', marginBottom:'24px'}}>Enter the email you used to book with us and we'll send your code straight to your inbox.</p>
+        <p style={{color:'#64748B', fontSize:'14px', marginBottom:'24px'}}>Enter the email you used to book with us to view your code and stats.</p>
 
-        {sent ? (
-          <div style={{padding:'20px', background:'rgba(16,185,129,.08)', border:'1.5px solid rgba(16,185,129,.3)', borderRadius:'12px', color:'#065F46', fontWeight:600}}>
-            ✓ Check your inbox! We've sent your referral details to <strong>{email}</strong>.
+        <form onSubmit={handleLookup} style={{display:'flex', gap:'10px', maxWidth:'440px', margin:'0 auto', flexWrap:'wrap', justifyContent:'center'}}>
+          <input
+            type="email"
+            required
+            placeholder="your@email.com"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setResult(null); setEmailSent(false); }}
+            style={{flex:'1', minWidth:'220px', padding:'12px 16px', borderRadius:'10px', border:'1.5px solid #CBD5E1', fontSize:'15px', outline:'none'}}
+          />
+          <button
+            type="submit"
+            disabled={looking}
+            style={{padding:'12px 22px', borderRadius:'10px', background:'#6366F1', color:'#fff', fontWeight:700, fontSize:'15px', border:'none', cursor: looking ? 'default' : 'pointer', opacity: looking ? 0.7 : 1, whiteSpace:'nowrap'}}
+          >
+            {looking ? 'Looking…' : 'Look Up'}
+          </button>
+          {lookupError && <div style={{width:'100%', color:'#EF4444', fontSize:'13px'}}>{lookupError}</div>}
+        </form>
+
+        {/* Result */}
+        {result && (
+          <div style={{marginTop:'24px', textAlign:'left', maxWidth:'440px', margin:'24px auto 0'}}>
+            {result.found ? (
+              <div style={{padding:'20px 24px', background:'rgba(99,102,241,.07)', border:'1.5px solid rgba(99,102,241,.3)', borderRadius:'12px'}}>
+                <div style={{fontSize:'13px', color:'#6366F1', fontWeight:700, letterSpacing:'.06em', marginBottom:'4px'}}>YOUR REFERRAL CODE</div>
+                <div style={{fontSize:'2rem', fontWeight:900, color:'#1E293B', letterSpacing:'.12em', marginBottom:'12px'}}>{result.code}</div>
+                <div style={{display:'flex', gap:'20px', marginBottom:'14px', flexWrap:'wrap'}}>
+                  <div style={{background:'#F1F5F9', borderRadius:'8px', padding:'10px 16px', flex:'1', minWidth:'100px', textAlign:'center'}}>
+                    <div style={{fontSize:'22px', fontWeight:800, color:'#6366F1'}}>{result.totalCompleted}</div>
+                    <div style={{fontSize:'12px', color:'#64748B'}}>Successful Referrals</div>
+                  </div>
+                  <div style={{background:'#F1F5F9', borderRadius:'8px', padding:'10px 16px', flex:'1', minWidth:'100px', textAlign:'center'}}>
+                    <div style={{fontSize:'22px', fontWeight:800, color:'#10B981'}}>{result.creditsEarned}</div>
+                    <div style={{fontSize:'12px', color:'#64748B'}}>Credits Earned</div>
+                  </div>
+                </div>
+                <div style={{fontSize:'12px', color:'#94A3B8', marginBottom:'14px', fontStyle:'italic'}}>Code becomes active once your first visit is confirmed and completed.</div>
+                <button
+                  onClick={handleEmailCode}
+                  disabled={emailSending || emailSent}
+                  style={{width:'100%', padding:'11px', borderRadius:'10px', border:'1.5px solid #6366F1', background: emailSent ? '#6366F1' : 'transparent', color: emailSent ? '#fff' : '#6366F1', fontWeight:700, fontSize:'14px', cursor: emailSent ? 'default' : 'pointer'}}
+                >
+                  {emailSent ? '✓ Code sent to your inbox!' : emailSending ? 'Sending…' : '📧 Send Me My Code'}
+                </button>
+              </div>
+            ) : (
+              <div style={{padding:'20px 24px', background:'rgba(245,158,11,.07)', border:'1.5px solid rgba(245,158,11,.3)', borderRadius:'12px', textAlign:'center'}}>
+                <div style={{fontSize:'22px', marginBottom:'8px'}}>🤔</div>
+                <div style={{fontWeight:700, color:'#92400E', marginBottom:'6px'}}>No code found for that email.</div>
+                <div style={{fontSize:'13px', color:'#64748B'}}>Make sure you used the same email from your booking. If you haven't booked yet, your code will be created when you do.</div>
+                <Link to="/checkout" style={{display:'inline-block', marginTop:'14px', padding:'10px 20px', borderRadius:'10px', background:'#F59E0B', color:'#fff', fontWeight:700, fontSize:'14px', textDecoration:'none'}}>Book Now</Link>
+              </div>
+            )}
           </div>
-        ) : (
-          <form onSubmit={handleLookup} style={{display:'flex', gap:'10px', maxWidth:'420px', margin:'0 auto', flexWrap:'wrap', justifyContent:'center'}}>
-            <input
-              type="email"
-              required
-              placeholder="your@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              style={{flex:'1', minWidth:'220px', padding:'12px 16px', borderRadius:'10px', border:'1.5px solid #CBD5E1', fontSize:'15px', outline:'none'}}
-            />
-            <button
-              type="submit"
-              disabled={sending}
-              style={{padding:'12px 22px', borderRadius:'10px', background:'#6366F1', color:'#fff', fontWeight:700, fontSize:'15px', border:'none', cursor: sending ? 'default' : 'pointer', opacity: sending ? 0.7 : 1, whiteSpace:'nowrap'}}
-            >
-              {sending ? 'Sending…' : '📧 Email Me My Code'}
-            </button>
-            {error && <div style={{width:'100%', color:'#EF4444', fontSize:'13px'}}>{error}</div>}
-          </form>
         )}
 
         <p style={{marginTop:'20px', fontSize:'13px', color:'#94A3B8'}}>Don't have a code yet? <Link to="/checkout" style={{color:'#6366F1', fontWeight:600}}>Book a service</Link> and one will be created for you automatically.</p>
