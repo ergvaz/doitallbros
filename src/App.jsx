@@ -1595,6 +1595,8 @@ function CheckoutPage() {
   const [referralDiscount, setReferralDiscount] = useState(0);
   const [existingCode, setExistingCode] = useState(null); // their own code from KV
   const [previewCode, setPreviewCode] = useState(null); // generated preview for new customers
+  const [emailCodeSent, setEmailCodeSent] = useState(false);
+  const [emailCodeSending, setEmailCodeSending] = useState(false);
   
   useEffect(() => {
     if (selectedDate) {
@@ -1794,9 +1796,34 @@ function CheckoutPage() {
     return { subtotal, fees, discount, total, itemizedServices };
   };
   
+  const emailMyCode = async () => {
+    const code = existingCode?.code || previewCode;
+    if (!code || !formData.email || emailCodeSending || emailCodeSent) return;
+    setEmailCodeSending(true);
+    try {
+      await fetch('https://n8n.srv1122720.hstgr.cloud/webhook/4f5f6fa4-0661-4006-8685-357e43bc3501', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          isExisting: !!existingCode,
+          creditsEarned: existingCode?.creditsEarned || 0,
+          totalCompleted: existingCode?.totalCompleted || 0,
+        }),
+      });
+      setEmailCodeSent(true);
+    } catch (e) {
+      console.error('Email code error:', e);
+    }
+    setEmailCodeSending(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const pricing = calculateTotalPrice();
     
     // Sum all fees
@@ -2183,7 +2210,12 @@ function CheckoutPage() {
                 />
                 {existingCode && (
                   <div style={{marginTop:'8px', padding:'10px 14px', background:'rgba(99,102,241,.08)', border:'1.5px solid rgba(99,102,241,.3)', borderRadius:'8px', fontSize:'13px'}}>
-                    <div style={{fontWeight:700, color:'#6366F1', marginBottom:'2px'}}>🎟 Your Referral Code: <span style={{letterSpacing:'.1em'}}>{existingCode.code}</span></div>
+                    <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'2px', flexWrap:'wrap'}}>
+                      <div style={{fontWeight:700, color:'#6366F1'}}>🎟 Your Referral Code: <span style={{letterSpacing:'.1em'}}>{existingCode.code}</span></div>
+                      <button type="button" onClick={emailMyCode} disabled={emailCodeSending || emailCodeSent} style={{fontSize:'11px', padding:'3px 10px', borderRadius:'6px', border:'1.5px solid #6366F1', background: emailCodeSent ? '#6366F1' : 'transparent', color: emailCodeSent ? '#fff' : '#6366F1', cursor: emailCodeSent ? 'default' : 'pointer', fontWeight:600, whiteSpace:'nowrap'}}>
+                        {emailCodeSent ? '✓ Sent!' : emailCodeSending ? 'Sending…' : '📧 Email Me My Code'}
+                      </button>
+                    </div>
                     <div style={{color:'#64748B', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
                     <div style={{color:'#94A3B8', fontSize:'11px', marginTop:'3px', fontStyle:'italic'}}>Code becomes active once your visit is confirmed and completed.</div>
                     {existingCode.totalCompleted > 0 && <div style={{color:'#10B981', fontSize:'12px', marginTop:'4px', fontWeight:600}}>✓ {existingCode.totalCompleted} successful referral{existingCode.totalCompleted !== 1 ? 's' : ''} · {existingCode.creditsEarned} credit{existingCode.creditsEarned !== 1 ? 's' : ''} earned</div>}
@@ -2193,7 +2225,12 @@ function CheckoutPage() {
                   <div style={{marginTop:'8px', padding:'10px 14px', background:'rgba(16,185,129,.06)', border:'1.5px solid rgba(16,185,129,.25)', borderRadius:'8px', fontSize:'13px'}}>
                     {previewCode ? (
                       <>
-                        <div style={{fontWeight:700, color:'#10B981', marginBottom:'2px'}}>🎟 Your Referral Code: <span style={{letterSpacing:'.1em'}}>{previewCode}</span></div>
+                        <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'2px', flexWrap:'wrap'}}>
+                          <div style={{fontWeight:700, color:'#10B981'}}>🎟 Your Referral Code: <span style={{letterSpacing:'.1em'}}>{previewCode}</span></div>
+                          <button type="button" onClick={emailMyCode} disabled={emailCodeSending || emailCodeSent || !formData.email} style={{fontSize:'11px', padding:'3px 10px', borderRadius:'6px', border:'1.5px solid #10B981', background: emailCodeSent ? '#10B981' : 'transparent', color: emailCodeSent ? '#fff' : '#10B981', cursor: emailCodeSent ? 'default' : 'pointer', fontWeight:600, whiteSpace:'nowrap'}}>
+                            {emailCodeSent ? '✓ Sent!' : emailCodeSending ? 'Sending…' : '📧 Email Me My Code'}
+                          </button>
+                        </div>
                         <div style={{color:'#64748B', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
                         <div style={{color:'#F59E0B', fontSize:'11px', marginTop:'3px', fontWeight:600}}>⚠ Not active until your first visit is confirmed and completed.</div>
                       </>
