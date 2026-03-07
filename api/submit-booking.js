@@ -41,8 +41,9 @@ export default async function handler(req, res) {
           referralCount = referrerData.totalCompleted || 0;
         }
       } else {
-        // Generate new unique code
-        let code = generateCode(name);
+        // Use suggested code from client if provided and not taken, otherwise generate
+        const suggested = body.suggestedCode ? body.suggestedCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') : null;
+        let code = (suggested && !(await redis.get(`ref:code:${suggested}`))) ? suggested : generateCode(name);
         let attempts = 0;
         while ((await redis.get(`ref:code:${code}`)) && attempts < 10) {
           code = generateCode(name);

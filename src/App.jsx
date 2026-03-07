@@ -1594,6 +1594,7 @@ function CheckoutPage() {
   const [referralMessage, setReferralMessage] = useState('');
   const [referralDiscount, setReferralDiscount] = useState(0);
   const [existingCode, setExistingCode] = useState(null); // their own code from KV
+  const [previewCode, setPreviewCode] = useState(null); // generated preview for new customers
   
   useEffect(() => {
     if (selectedDate) {
@@ -1602,6 +1603,17 @@ function CheckoutPage() {
       setIsWeekend(day === 0 || day === 6);
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    if (existingCode) { setPreviewCode(null); return; }
+    const base = (formData.name || '').trim().split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6);
+    if (!base) { setPreviewCode(null); return; }
+    setPreviewCode(prev => {
+      const prevBase = prev ? prev.replace(/\d+$/, '') : '';
+      if (prevBase === base) return prev; // keep same code if name base unchanged
+      return `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+    });
+  }, [formData.name, existingCode]);
 
   useEffect(() => {
     const email = formData.email.trim();
@@ -1840,6 +1852,7 @@ function CheckoutPage() {
       payment_method: paymentMethod,
       extra_notes: formData.notes || '',
       referralCode: referralStatus === 'valid' ? referralCode.trim().toUpperCase() : null,
+      suggestedCode: !existingCode ? previewCode : null,
       preferred_date: selectedDate,
       preferred_time: selectedTime,
       backup_date: backupDate || null,
@@ -2177,8 +2190,16 @@ function CheckoutPage() {
                   </div>
                 )}
                 {formData.email.includes('@') && !existingCode && (
-                  <div style={{marginTop:'8px', padding:'10px 14px', background:'rgba(16,185,129,.06)', border:'1.5px solid rgba(16,185,129,.25)', borderRadius:'8px', fontSize:'12px', color:'#64748B'}}>
-                    🎟 You'll receive your personal referral code in your booking confirmation. It becomes active once your visit is confirmed and completed.
+                  <div style={{marginTop:'8px', padding:'10px 14px', background:'rgba(16,185,129,.06)', border:'1.5px solid rgba(16,185,129,.25)', borderRadius:'8px', fontSize:'13px'}}>
+                    {previewCode ? (
+                      <>
+                        <div style={{fontWeight:700, color:'#10B981', marginBottom:'2px'}}>🎟 Your Referral Code: <span style={{letterSpacing:'.1em'}}>{previewCode}</span></div>
+                        <div style={{color:'#64748B', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
+                        <div style={{color:'#F59E0B', fontSize:'11px', marginTop:'3px', fontWeight:600}}>⚠ Not active until your first visit is confirmed and completed.</div>
+                      </>
+                    ) : (
+                      <div style={{color:'#64748B'}}>🎟 Enter your name above to preview your referral code. It becomes active after your first completed visit.</div>
+                    )}
                   </div>
                 )}
               </div>
