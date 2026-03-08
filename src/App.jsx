@@ -2628,9 +2628,10 @@ function CustomRequestModal({ onClose }) {
                 {Array.from({length: 96}, (_, i) => {
                   const h = Math.floor(i / 4);
                   const m = (i % 4) * 15;
+                  if (h < 8 || (h === 19 && m > 30) || h > 19) return null;
                   const val = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
                   const ampm = h < 12 ? 'AM' : 'PM';
-                  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                  const h12 = h > 12 ? h - 12 : h;
                   const label = `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
                   return <option key={val} value={val}>{label}</option>;
                 })}
