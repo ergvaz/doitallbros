@@ -2547,7 +2547,7 @@ function LegalPage() {
 function CustomRequestModal({ onClose }) {
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', address: '',
-    date: '', time: '', description: '', materialsNeeded: '', otherNotes: ''
+    date: '', time: '', description: '', materialsNeeded: '', otherNotes: '', paymentMethod: ''
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -2649,6 +2649,24 @@ function CustomRequestModal({ onClose }) {
           <div className="form-group">
             <label>Anything Else Important?</label>
             <textarea rows="2" placeholder="Gate codes, pets, parking, special instructions..." value={formData.otherNotes} onChange={e => setFormData({...formData, otherNotes: e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label>Preferred Payment Method *</label>
+            <div className="payment-method-toggle">
+              {['cash', 'card'].map(method => (
+                <label key={method} className={`payment-method-option ${formData.paymentMethod === method ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="customPaymentMethod"
+                    value={method}
+                    required
+                    checked={formData.paymentMethod === method}
+                    onChange={e => setFormData({...formData, paymentMethod: e.target.value})}
+                  />
+                  <span>{method === 'cash' ? '💵 Cash' : '💳 Card'}</span>
+                </label>
+              ))}
+            </div>
           </div>
           <button type="submit" className="btn btn-primary btn-large" disabled={submitting}>
             {submitting ? 'Submitting...' : 'Submit Request'}
