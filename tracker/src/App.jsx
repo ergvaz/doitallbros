@@ -688,6 +688,8 @@ function InboxView({ data, update }) {
     const payload = isCustom ? {
       type: payloadType,
       alternate_date: isAlt,
+      quote: !!(parseFloat(quotedPrices[0])),
+      submissionId: item.bookingId || item.webhookId || null,
       client: {
         name: item.name || item.clientName || '',
         email: item.email || item.clientEmail || '',
@@ -712,6 +714,7 @@ function InboxView({ data, update }) {
       type: payloadType,
       alternate_date: isAlt,
       quote: hasQuote,
+      submissionId: item.bookingId || item.webhookId || null,
       client: {
         name: item.name || item.clientName || '',
         email: item.email || item.clientEmail || '',
@@ -908,6 +911,7 @@ function InboxView({ data, update }) {
               ['Phone', selected.phone || selected.clientPhone],
               ['Address', selected.address || selected.clientAddress],
               ['Received', fmtDate(selected.createdAt?.slice(0,10))],
+              ...(selected.bookingId ? [['Submission ID', selected.bookingId]] : []),
               ...((selected.notes || selected.extra_notes) ? [['Notes', selected.notes || selected.extra_notes]] : []),
               ...(selected.referralCode ? [['Ref Code', selected.referralCode]] : []),
               ...(selected.usedReferralCode ? [['Used Code', selected.usedReferralCode + ' (10% discount applied)']] : []),
