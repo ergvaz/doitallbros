@@ -2660,14 +2660,62 @@ export default function App() {
                 });
               }
             } else if (type === 'date_confirmation') {
-              // Customer clicked confirm in email — mark matching contact as customer_confirmed
               const idx = contacts.findIndex(c => c.bookingId === item.bookingId || c.webhookId === item.bookingId);
               if (idx !== -1) {
                 contacts[idx] = { ...contacts[idx], customerConfirmed: true, customerConfirmedAt: item.confirmedAt };
               }
             }
           });
-          return { ...prev, contacts };
+
+          // For any date_confirmation items, create confirmed booking + client if not already present
+          const bookings = [...prev.bookings];
+          const clients = [...prev.clients];
+          items.filter(i => i.type === 'date_confirmation').forEach(item => {
+            const contact = contacts.find(c => c.bookingId === item.bookingId || c.webhookId === item.bookingId);
+            if (!contact) return;
+            // Skip if a booking for this contact already exists
+            if (bookings.find(b => b.webhookId === contact.webhookId || b.bookingId === contact.bookingId)) return;
+
+            // Find or create client
+            const email = contact.email || '';
+            const phone = contact.phone || '';
+            let client = clients.find(c => (email && c.email === email) || (phone && c.phone === phone));
+            if (!client) {
+              client = {
+                id: genId(), name: contact.name || '', email, phone,
+                address: contact.address || '', notes: '', tags: ['New'],
+                createdAt: new Date().toISOString(),
+              };
+              clients.push(client);
+            }
+
+            const svcName = contact.description
+              ? `Custom: ${contact.description.slice(0, 60)}`
+              : (contact.service_list || contact.service || 'Custom Request');
+
+            bookings.push({
+              id: genId(),
+              webhookId: contact.webhookId,
+              bookingId: contact.bookingId || null,
+              clientId: client.id,
+              clientName: contact.name || '',
+              clientEmail: email,
+              clientPhone: phone,
+              clientAddress: contact.address || '',
+              service: svcName,
+              date: contact.scheduledDate || contact.date || '',
+              time: contact.scheduledTime || contact.time || '',
+              price: 0,
+              status: 'confirmed',
+              source: 'website',
+              paymentMethod: contact.paymentMethod || contact.payment_method || 'Cash',
+              notes: contact.otherNotes || contact.notes || '',
+              isPaid: false,
+              createdAt: new Date().toISOString(),
+            });
+          });
+
+          return { ...prev, contacts, bookings, clients };
         });
 
         await fetch(`${import.meta.env.BASE_URL}api/pending`, { method: 'DELETE' });
