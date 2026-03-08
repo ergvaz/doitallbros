@@ -708,6 +708,7 @@ function InboxView({ data, update }) {
       materialsNeeded: item.materialsNeeded || '',
       notes: item.otherNotes || item.notes || item.extra_notes || '',
       quotedPrice: parseFloat(quotedPrices[0]) || null,
+      paymentMethod: item.paymentMethod || '',
       submittedAt: item.createdAt,
       processedAt: new Date().toISOString(),
     } : {
@@ -2636,6 +2637,7 @@ export default function App() {
                   description: item.description || '',
                   materialsNeeded: item.materialsNeeded || '',
                   otherNotes: item.otherNotes || '',
+                  paymentMethod: item.paymentMethod || '',
                   dateAvailability: null,
                   processedStatus: null,
                   status: 'new', source: 'website',
