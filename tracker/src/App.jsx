@@ -2763,10 +2763,16 @@ export default function App() {
           const bookings = [...prev.bookings];
           const clients = [...prev.clients];
           items.forEach(({ bookingId, confirmedAt }) => {
-            // Case 1: booking already exists → update status
+            // Case 1: booking already exists → update status + ensure client exists
             const bIdx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
             if (bIdx !== -1) {
               bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed' };
+              const b = bookings[bIdx];
+              const email = b.clientEmail || '';
+              const phone = b.clientPhone || '';
+              if ((email || phone) && !clients.find(c => (email && c.email === email) || (phone && c.phone === phone))) {
+                clients.push({ id: genId(), name: b.clientName || '', email, phone, address: b.clientAddress || '', notes: '', tags: ['New'], createdAt: new Date().toISOString() });
+              }
               return;
             }
             // Case 2: inbox contact exists → create confirmed booking
