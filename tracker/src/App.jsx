@@ -2761,11 +2761,29 @@ export default function App() {
         if (!Array.isArray(items) || items.length === 0) return;
         setData(prev => {
           const bookings = [...prev.bookings];
-          items.forEach(({ bookingId }) => {
-            const idx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
-            if (idx !== -1) bookings[idx] = { ...bookings[idx], status: 'confirmed' };
+          const clients = [...prev.clients];
+          items.forEach(({ bookingId, confirmedAt }) => {
+            // Case 1: booking already exists → update status
+            const bIdx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
+            if (bIdx !== -1) {
+              bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed' };
+              return;
+            }
+            // Case 2: inbox contact exists → create confirmed booking
+            const contact = prev.contacts.find(c => c.webhookId === bookingId || c.bookingId === bookingId);
+            if (contact) {
+              const email = contact.email || '';
+              const phone = contact.phone || '';
+              let client = clients.find(c => (email && c.email === email) || (phone && c.phone === phone));
+              if (!client) {
+                client = { id: genId(), name: contact.name || '', email, phone, address: contact.address || '', notes: '', tags: ['New'], createdAt: new Date().toISOString() };
+                clients.push(client);
+              }
+              const svcName = contact.description ? `Custom: ${contact.description.slice(0, 60)}` : (contact.service_list || contact.service || 'Service');
+              bookings.push({ id: genId(), webhookId: contact.webhookId, bookingId: contact.bookingId || null, clientId: client.id, clientName: contact.name || '', clientEmail: email, clientPhone: phone, clientAddress: contact.address || '', service: svcName, date: contact.scheduledDate || contact.date || '', time: contact.scheduledTime || contact.time || '', price: 0, status: 'confirmed', source: 'website', paymentMethod: contact.paymentMethod || 'Cash', notes: contact.notes || '', isPaid: false, createdAt: confirmedAt });
+            }
           });
-          return { ...prev, bookings };
+          return { ...prev, bookings, clients };
         });
       } catch {}
     };
