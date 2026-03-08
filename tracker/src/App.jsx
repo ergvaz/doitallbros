@@ -678,15 +678,22 @@ function InboxView({ data, update }) {
     const totalQuoted = quotedServicesList.reduce((sum, s) => sum + (s.quotedPrice || 0), 0);
 
     const isConfirmed = action === 'confirm' && !isAlt && !isCustom && !itemHasQuotes(item);
-    let n8nType;
-    if (action === 'decline') n8nType = 'request_declined';
-    else if (isConfirmed) n8nType = 'booking_confirmed';
-    else if (isAlt) n8nType = 'booking_alternative_date';
-    else if (isCustom) n8nType = 'custom_quote_submitted';
-    else n8nType = 'quote_submitted';
+    const hasQuote = quotedServicesList.length > 0;
+
+    let payloadType;
+    if (action === 'decline') payloadType = 'declined';
+    else if (isCustom) payloadType = 'custom_request';
+    else payloadType = 'main';
 
     const payload = {
-      type: n8nType,
+      type: payloadType,
+      ...(payloadType === 'main' && {
+        alternate_date: isAlt,
+        quote: hasQuote,
+      }),
+      ...(payloadType === 'custom_request' && {
+        alternate_date: isAlt,
+      }),
       client: {
         name: item.name || item.clientName || '',
         email: item.email || item.clientEmail || '',
@@ -696,7 +703,6 @@ function InboxView({ data, update }) {
       scheduling: {
         scheduledDate,
         scheduledTime,
-        isAlternativeDate: isAlt,
         originalPreferredDate: item.preferredDate || item.date || '',
         originalPreferredTime: item.preferredTime || item.time || '',
         originalBackupDate: item.backupDate || item.backup_date || null,
@@ -1412,11 +1418,36 @@ function BookingsView({ data, update }) {
     update('bookings', data.bookings.map(b => b.id === id ? { ...b, status } : b));
     if (status === 'completed') {
       const booking = data.bookings.find(b => b.id === id);
-      if (booking?.bookingId) {
-        fetch('https://doitallbros.com/api/referral-complete', {
+      if (booking) {
+        // Referral credit
+        if (booking.bookingId) {
+          fetch('https://doitallbros.com/api/referral-complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bookingId: booking.bookingId }),
+          }).catch(() => {});
+        }
+        // Completion webhook
+        fetch(`${import.meta.env.BASE_URL}api/forward`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bookingId: booking.bookingId }),
+          body: JSON.stringify({
+            type: 'completion',
+            client: {
+              name: booking.clientName || '',
+              email: booking.clientEmail || '',
+              phone: booking.clientPhone || '',
+              address: booking.clientAddress || '',
+            },
+            booking: {
+              service: booking.service || '',
+              date: booking.date || '',
+              time: booking.time || '',
+              price: booking.price || 0,
+              paymentMethod: booking.paymentMethod || '',
+            },
+            completedAt: new Date().toISOString(),
+          }),
         }).catch(() => {});
       }
     }
