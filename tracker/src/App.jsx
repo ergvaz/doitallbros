@@ -2753,9 +2753,27 @@ export default function App() {
       } catch {}
     };
 
+    const pollConfirmations = async () => {
+      try {
+        const res = await fetch('https://doitallbros.com/api/get-confirmations', { method: 'DELETE' });
+        if (!res.ok) return;
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0) return;
+        setData(prev => {
+          const bookings = [...prev.bookings];
+          items.forEach(({ bookingId }) => {
+            const idx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
+            if (idx !== -1) bookings[idx] = { ...bookings[idx], status: 'confirmed' };
+          });
+          return { ...prev, bookings };
+        });
+      } catch {}
+    };
+
     pollPending();
     pollAvailability();
-    const interval = setInterval(() => { pollPending(); pollAvailability(); }, 30000);
+    pollConfirmations();
+    const interval = setInterval(() => { pollPending(); pollAvailability(); pollConfirmations(); }, 30000);
     return () => clearInterval(interval);
   }, [authed]);
 

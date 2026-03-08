@@ -1,3 +1,10 @@
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
+
 export default async function handler(req, res) {
   const { bookingId } = req.query;
 
@@ -5,13 +12,21 @@ export default async function handler(req, res) {
     return res.status(400).send(page('Invalid Link', 'This confirmation link is missing required information.', false));
   }
 
+  const confirmedAt = new Date().toISOString();
+
+  // Store in Redis so tracker can reliably pick it up
+  try {
+    await redis.set(`confirmation:${bookingId}`, { bookingId, confirmedAt }, { ex: 60 * 60 * 24 * 7 });
+  } catch (_) {}
+
+  // Also signal tracker directly (best-effort)
   try {
     const trackerUrl = process.env.TRACKER_WEBHOOK_URL;
     if (trackerUrl) {
       await fetch(`${trackerUrl}/api/incoming`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'date_confirmation', bookingId, confirmedAt: new Date().toISOString() }),
+        body: JSON.stringify({ type: 'date_confirmation', bookingId, confirmedAt }),
       }).catch(() => {});
     }
   } catch (_) {}
