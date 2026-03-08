@@ -2673,8 +2673,12 @@ export default function App() {
           items.filter(i => i.type === 'date_confirmation').forEach(item => {
             const contact = contacts.find(c => c.bookingId === item.bookingId || c.webhookId === item.bookingId);
             if (!contact) return;
-            // Skip if a booking for this contact already exists
-            if (bookings.find(b => b.webhookId === contact.webhookId || b.bookingId === contact.bookingId)) return;
+            // If booking already exists, update its status to confirmed
+            const existingIdx = bookings.findIndex(b => b.webhookId === contact.webhookId || b.bookingId === contact.bookingId);
+            if (existingIdx !== -1) {
+              bookings[existingIdx] = { ...bookings[existingIdx], status: 'confirmed' };
+              return;
+            }
 
             // Find or create client
             const email = contact.email || '';
