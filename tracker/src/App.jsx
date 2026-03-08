@@ -877,6 +877,7 @@ function InboxView({ data, update }) {
                   <div className="inbox-item-tags">
                     {item.processedStatus === 'quote_submitted' && <span className="proc-badge proc-quote">Price Submitted</span>}
                     {item.processedStatus === 'alternative_date' && <span className="proc-badge proc-alt">Alt. Date Suggested</span>}
+                    {item.customerConfirmed && <span className="proc-badge" style={{background:'rgba(16,185,129,.12)',color:'#059669'}}>✓ Customer Confirmed</span>}
                     {hasAvail && (
                       <>
                         {item.dateAvailability?.preferred && availBadge(item.dateAvailability.preferred)}
@@ -913,6 +914,7 @@ function InboxView({ data, update }) {
               ['Address', selected.address || selected.clientAddress],
               ['Received', fmtDate(selected.createdAt?.slice(0,10))],
               ...(selected.bookingId ? [['Submission ID', selected.bookingId]] : []),
+              ...(selected.customerConfirmed ? [['Customer Confirmed', `✓ ${selected.customerConfirmedAt ? new Date(selected.customerConfirmedAt).toLocaleString() : 'Yes'}`]] : []),
               ...((selected.notes || selected.extra_notes) ? [['Notes', selected.notes || selected.extra_notes]] : []),
               ...(selected.referralCode ? [['Ref Code', selected.referralCode]] : []),
               ...(selected.usedReferralCode ? [['Used Code', selected.usedReferralCode + ' (10% discount applied)']] : []),
@@ -2656,6 +2658,12 @@ export default function App() {
                   createdAt: item.receivedAt || new Date().toISOString(),
                   notes: '',
                 });
+              }
+            } else if (type === 'date_confirmation') {
+              // Customer clicked confirm in email — mark matching contact as customer_confirmed
+              const idx = contacts.findIndex(c => c.bookingId === item.bookingId || c.webhookId === item.bookingId);
+              if (idx !== -1) {
+                contacts[idx] = { ...contacts[idx], customerConfirmed: true, customerConfirmedAt: item.confirmedAt };
               }
             }
           });
