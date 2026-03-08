@@ -685,15 +685,9 @@ function InboxView({ data, update }) {
     else if (isCustom) payloadType = 'custom_request';
     else payloadType = 'main';
 
-    const payload = {
+    const payload = isCustom ? {
       type: payloadType,
-      ...(payloadType === 'main' && {
-        alternate_date: isAlt,
-        quote: hasQuote,
-      }),
-      ...(payloadType === 'custom_request' && {
-        alternate_date: isAlt,
-      }),
+      alternate_date: isAlt,
       client: {
         name: item.name || item.clientName || '',
         email: item.email || item.clientEmail || '',
@@ -708,7 +702,31 @@ function InboxView({ data, update }) {
         originalBackupDate: item.backupDate || item.backup_date || null,
         originalBackupTime: item.backupTime || item.backup_time || null,
       },
-      services: isCustom ? null : {
+      description: item.description || '',
+      materialsNeeded: item.materialsNeeded || '',
+      notes: item.otherNotes || item.notes || item.extra_notes || '',
+      quotedPrice: parseFloat(quotedPrices[0]) || null,
+      submittedAt: item.createdAt,
+      processedAt: new Date().toISOString(),
+    } : {
+      type: payloadType,
+      alternate_date: isAlt,
+      quote: hasQuote,
+      client: {
+        name: item.name || item.clientName || '',
+        email: item.email || item.clientEmail || '',
+        phone: item.phone || item.clientPhone || '',
+        address: item.address || item.clientAddress || '',
+      },
+      scheduling: {
+        scheduledDate,
+        scheduledTime,
+        originalPreferredDate: item.preferredDate || item.date || '',
+        originalPreferredTime: item.preferredTime || item.time || '',
+        originalBackupDate: item.backupDate || item.backup_date || null,
+        originalBackupTime: item.backupTime || item.backup_time || null,
+      },
+      services: {
         fixedServices,
         quotedServices: quotedServicesList,
         totalFixed,
@@ -718,18 +736,8 @@ function InboxView({ data, update }) {
         paymentMethod: item.paymentMethod || item.payment_method || 'Cash',
         materialsNeeded: item.materials_needed || 'No',
       },
-      customRequest: isCustom ? {
-        description: item.description || '',
-        materialsNeeded: item.materialsNeeded || '',
-        notes: item.otherNotes || '',
-        quotedPrice: parseFloat(quotedPrices[0]) || null,
-        isDeclined: action === 'decline',
-      } : null,
-      request: {
-        originalSubmissionDate: item.createdAt,
-        notes: item.notes || item.extra_notes || item.otherNotes || '',
-        source: 'website',
-      },
+      notes: item.notes || item.extra_notes || '',
+      submittedAt: item.createdAt,
       processedAt: new Date().toISOString(),
     };
 
