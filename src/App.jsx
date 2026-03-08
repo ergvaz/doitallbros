@@ -2623,7 +2623,18 @@ function CustomRequestModal({ onClose }) {
             </div>
             <div className="form-group">
               <label>Preferred Time *</label>
-              <input type="time" required step="900" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} />
+              <select required value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})}>
+                <option value="">Select a time</option>
+                {Array.from({length: 96}, (_, i) => {
+                  const h = Math.floor(i / 4);
+                  const m = (i % 4) * 15;
+                  const val = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                  const ampm = h < 12 ? 'AM' : 'PM';
+                  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                  const label = `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+                  return <option key={val} value={val}>{label}</option>;
+                })}
+              </select>
             </div>
           </div>
           <div className="form-group">
