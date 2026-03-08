@@ -569,6 +569,8 @@ function StatCard({ icon, label, value, color, onClick }) {
 
 function InboxView({ data, update }) {
   const [filter, setFilter] = useState('new');
+  const [sortBy, setSortBy] = useState('newest');
+  const [searchQ, setSearchQ] = useState('');
   const [selectedId, setSelectedId] = useState(null);
   const selected = useMemo(() => selectedId ? data.contacts.find(c => c.id === selectedId) || null : null, [selectedId, data.contacts]);
   // Processing form state
@@ -596,23 +598,37 @@ function InboxView({ data, update }) {
     + allItems.filter(i => i._type === 'contact' && i.status === 'new').length;
 
   const filtered = useMemo(() => {
-    if (filter === 'new') return allItems.filter(i =>
+    let items = allItems;
+    if (filter === 'new') items = items.filter(i =>
       (i._type === 'contact' && i.status === 'new') ||
       (i._type !== 'contact' && !i.processedStatus)
     );
-    if (filter === 'contacts') return allItems.filter(i => i._type === 'contact');
-    if (filter === 'bookings') return allItems.filter(i => i._type === 'booking');
-    if (filter === 'quotes') return allItems.filter(i => itemHasQuotes(i));
-    if (filter === 'requests') return allItems.filter(i => i._type === 'custom_request');
-    return allItems;
-  }, [allItems, filter]);
+    else if (filter === 'contacts') items = items.filter(i => i._type === 'contact');
+    else if (filter === 'bookings') items = items.filter(i => i._type === 'booking');
+    else if (filter === 'quotes') items = items.filter(i => itemHasQuotes(i));
+    else if (filter === 'requests') items = items.filter(i => i._type === 'custom_request');
+    if (searchQ.trim()) {
+      const q = searchQ.toLowerCase();
+      items = items.filter(i =>
+        (i.name || i.clientName || '').toLowerCase().includes(q) ||
+        (i.email || i.clientEmail || '').toLowerCase().includes(q) ||
+        (i.phone || i.clientPhone || '').replace(/\D/g,'').includes(q.replace(/\D/g,'')) ||
+        (i.service_list || i.service || i.description || '').toLowerCase().includes(q)
+      );
+    }
+    if (sortBy === 'oldest') return [...items].reverse();
+    if (sortBy === 'name') return [...items].sort((a,b) => (a.name||a.clientName||'').localeCompare(b.name||b.clientName||''));
+    return items;
+  }, [allItems, filter, searchQ, sortBy]);
 
   const openItem = (item) => {
     setSelectedId(item.id);
     // Default date option: if preferred has availability signal, use it; else prefer 'preferred'
     const prefAvail = item.dateAvailability?.preferred;
     const backAvail = item.dateAvailability?.backup;
-    if (prefAvail === 'unavailable' && backAvail === 'available') setDateOption('backup');
+    if (prefAvail === 'available') setDateOption('preferred');
+    else if (backAvail === 'available') setDateOption('backup');
+    else if ((item.dateAvailability?.alternatives || []).length > 0) setDateOption('alt_0');
     else setDateOption('preferred');
     setAltDate('');
     setAltTime('');
@@ -648,19 +664,23 @@ function InboxView({ data, update }) {
     if (!selected || submitting) return;
     setSubmitting(true);
     const item = selected;
-    const isAlt = dateOption === 'alternative';
+    const isAlt = dateOption === 'alternative' || dateOption.startsWith('alt_');
     const isCustom = item._type === 'custom_request';
     const cartItems = item.cartItems || [];
+    const altIdx = dateOption.startsWith('alt_') ? parseInt(dateOption.slice(4)) : -1;
+    const altEntry = altIdx >= 0 ? (item.dateAvailability?.alternatives?.[altIdx] || null) : null;
 
     const scheduledDate = dateOption === 'preferred'
       ? (item.preferredDate || item.date || '')
       : dateOption === 'backup'
       ? (item.backupDate || item.backup_date || '')
+      : altEntry ? altEntry.date
       : altDate;
     const scheduledTime = dateOption === 'preferred'
       ? (item.preferredTime || item.time || '')
       : dateOption === 'backup'
       ? (item.backupTime || item.backup_time || '')
+      : altEntry ? altEntry.time
       : altTime;
 
     const fixedServices = cartItems.filter(s => !s.isQuote).map(s => ({
@@ -703,6 +723,7 @@ function InboxView({ data, update }) {
         originalPreferredTime: item.preferredTime || item.time || '',
         originalBackupDate: item.backupDate || item.backup_date || null,
         originalBackupTime: item.backupTime || item.backup_time || null,
+        alternativeDates: dateOption.startsWith('alt_') ? (item.dateAvailability?.alternatives || []) : [],
       },
       description: item.description || '',
       materialsNeeded: item.materialsNeeded || '',
@@ -729,6 +750,7 @@ function InboxView({ data, update }) {
         originalPreferredTime: item.preferredTime || item.time || '',
         originalBackupDate: item.backupDate || item.backup_date || null,
         originalBackupTime: item.backupTime || item.backup_time || null,
+        alternativeDates: dateOption.startsWith('alt_') ? (item.dateAvailability?.alternatives || []) : [],
       },
       services: {
         fixedServices,
@@ -850,6 +872,23 @@ function InboxView({ data, update }) {
         ))}
       </div>
 
+      <div style={{display:'flex', gap:'8px', alignItems:'center', marginBottom:'12px', flexWrap:'wrap'}}>
+        <input
+          type="text"
+          placeholder="Search name, email, phone, service…"
+          value={searchQ}
+          onChange={e => setSearchQ(e.target.value)}
+          style={{flex:'1', minWidth:'180px', padding:'8px 12px', background:'var(--bg2)', border:'1.5px solid var(--border)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}}
+        />
+        <div style={{display:'flex', gap:'4px'}}>
+          {[['newest','Newest'],['oldest','Oldest'],['name','A–Z']].map(([val, label]) => (
+            <button key={val} onClick={() => setSortBy(val)} style={{padding:'7px 11px', borderRadius:'6px', border:'1.5px solid var(--border)', background: sortBy === val ? 'var(--accent)' : 'transparent', color: sortBy === val ? '#fff' : 'var(--text3)', fontSize:'12px', fontWeight:600, cursor:'pointer'}}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {filtered.length === 0 ? (
         <EmptyState icon={Ic.inbox} text="No items here" sub="New bookings and contact forms from your website will appear here." />
       ) : (
@@ -874,11 +913,17 @@ function InboxView({ data, update }) {
                       ? (item.message?.slice(0, 80) || '')
                       : (item.service_list || item.service || 'Service request')}
                   </div>
+                  {(item.preferredDate || item.date) && (
+                    <div style={{fontSize:'12px', color:'var(--text3)', marginTop:'3px'}}>
+                      📅 {fmtDate(item.preferredDate || item.date)}{(item.preferredTime || item.time) ? ` at ${fmtTime(item.preferredTime || item.time)}` : ''}
+                    </div>
+                  )}
                   <div className="inbox-item-tags">
                     {item.processedStatus === 'quote_submitted' && <span className="proc-badge proc-quote">Price Submitted</span>}
                     {item.processedStatus === 'alternative_date' && <span className="proc-badge proc-alt">Alt. Date Suggested</span>}
                     {item.customerConfirmed && <span className="proc-badge" style={{background:'rgba(16,185,129,.12)',color:'#059669'}}>✓ Customer Confirmed</span>}
-                    {hasAvail && (
+                    {(item.dateAvailability?.alternatives || []).length > 0 && <span className="proc-badge" style={{background:'rgba(16,185,129,.1)',color:'#10B981'}}>3 Dates Available</span>}
+                    {hasAvail && !((item.dateAvailability?.alternatives || []).length > 0) && (
                       <>
                         {item.dateAvailability?.preferred && availBadge(item.dateAvailability.preferred)}
                         {item.dateAvailability?.backup && availBadge(item.dateAvailability.backup)}
@@ -1051,23 +1096,57 @@ function InboxView({ data, update }) {
           {/* ── Date selection ── */}
           {selected._type !== 'contact' && (
             <div style={{marginBottom:'20px'}}>
-              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Select Date</div>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Select Date to Send Customer</div>
               <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                {/* Customer-requested dates */}
                 {[
-                  ...(selected.preferredDate || selected.date ? [{key:'preferred', label:'Preferred', date: fmtDate(selected.preferredDate || selected.date), time: fmtTime(selected.preferredTime || selected.time), avail: selected.dateAvailability?.preferred}] : []),
-                  ...(selected.backupDate || selected.backup_date ? [{key:'backup', label:'Backup', date: fmtDate(selected.backupDate || selected.backup_date), time: fmtTime(selected.backupTime || selected.backup_time), avail: selected.dateAvailability?.backup}] : []),
-                  {key:'alternative', label:'Suggest Alternative Date', date:null, time:null, avail:null},
+                  ...(selected.preferredDate || selected.date ? [{key:'preferred', label:'Customer Preferred', date: fmtDate(selected.preferredDate || selected.date), time: fmtTime(selected.preferredTime || selected.time), avail: selected.dateAvailability?.preferred}] : []),
+                  ...(selected.backupDate || selected.backup_date ? [{key:'backup', label:'Customer Backup', date: fmtDate(selected.backupDate || selected.backup_date), time: fmtTime(selected.backupTime || selected.backup_time), avail: selected.dateAvailability?.backup}] : []),
                 ].map(opt => {
                   const active = dateOption === opt.key;
                   return (
                     <div key={opt.key} onClick={() => setDateOption(opt.key)} style={{padding:'12px 14px', background: active ? 'rgba(59,130,246,.07)' : 'var(--bg3)', border:`1.5px solid ${active ? '#3B82F6' : 'var(--border)'}`, borderRadius:'10px', cursor:'pointer'}}>
-                      <div style={{marginBottom: opt.date ? '5px' : 0}}>
+                      <div style={{marginBottom:'4px'}}>
                         <input type="radio" name="dopt" value={opt.key} checked={active} onChange={() => setDateOption(opt.key)} onClick={e => e.stopPropagation()} style={{marginRight:'8px', verticalAlign:'middle', accentColor:'#3B82F6'}} />
                         <span style={{fontSize:'12px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color: active ? '#3B82F6' : 'var(--text3)', verticalAlign:'middle'}}>{opt.label}</span>
                         {opt.avail && <span style={{verticalAlign:'middle', marginLeft:'8px'}}>{availBadge(opt.avail)}</span>}
                       </div>
-                      {opt.date && <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)', paddingLeft:'22px'}}>{opt.date} {opt.time}</div>}
-                      {opt.key === 'alternative' && active && (
+                      <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)', paddingLeft:'22px'}}>{opt.date} {opt.time}</div>
+                    </div>
+                  );
+                })}
+
+                {/* n8n AI-suggested alternatives */}
+                {(selected.dateAvailability?.alternatives || []).length > 0 && (
+                  <>
+                    <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#10B981', marginTop:'4px', paddingLeft:'2px'}}>AI-Suggested Available Dates</div>
+                    {selected.dateAvailability.alternatives.map((alt, i) => {
+                      const key = `alt_${i}`;
+                      const active = dateOption === key;
+                      return (
+                        <div key={key} onClick={() => setDateOption(key)} style={{padding:'12px 14px', background: active ? 'rgba(16,185,129,.07)' : 'var(--bg3)', border:`1.5px solid ${active ? '#10B981' : 'var(--border)'}`, borderRadius:'10px', cursor:'pointer'}}>
+                          <div style={{marginBottom:'4px'}}>
+                            <input type="radio" name="dopt" value={key} checked={active} onChange={() => setDateOption(key)} onClick={e => e.stopPropagation()} style={{marginRight:'8px', verticalAlign:'middle', accentColor:'#10B981'}} />
+                            <span style={{fontSize:'12px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color: active ? '#10B981' : 'var(--text3)', verticalAlign:'middle'}}>Option {i + 1}</span>
+                            <span style={{verticalAlign:'middle', marginLeft:'8px'}}><span className="avail-badge avail-yes">✓ Available</span></span>
+                          </div>
+                          <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)', paddingLeft:'22px'}}>{alt.label || `${fmtDate(alt.date)} at ${fmtTime(alt.time)}`}</div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+
+                {/* Manual date entry */}
+                {(() => {
+                  const active = dateOption === 'alternative';
+                  return (
+                    <div onClick={() => setDateOption('alternative')} style={{padding:'12px 14px', background: active ? 'rgba(59,130,246,.07)' : 'var(--bg3)', border:`1.5px solid ${active ? '#3B82F6' : 'var(--border)'}`, borderRadius:'10px', cursor:'pointer'}}>
+                      <div>
+                        <input type="radio" name="dopt" value="alternative" checked={active} onChange={() => setDateOption('alternative')} onClick={e => e.stopPropagation()} style={{marginRight:'8px', verticalAlign:'middle', accentColor:'#3B82F6'}} />
+                        <span style={{fontSize:'12px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color: active ? '#3B82F6' : 'var(--text3)', verticalAlign:'middle'}}>Enter Different Date</span>
+                      </div>
+                      {active && (
                         <div style={{display:'flex', flexDirection:'row', justifyContent:'flex-start', gap:'8px', flexWrap:'wrap', marginTop:'8px', paddingLeft:'22px'}}>
                           <input type="date" value={altDate} onChange={e => setAltDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}} />
                           <select value={altTime} onChange={e => setAltTime(e.target.value)} style={{padding:'7px 10px', background:'var(--bg2)', border:'1.5px solid var(--border2)', borderRadius:'8px', color:'var(--text1)', fontSize:'13px'}}>
@@ -1080,7 +1159,7 @@ function InboxView({ data, update }) {
                       )}
                     </div>
                   );
-                })}
+                })()}
               </div>
             </div>
           )}
@@ -2743,7 +2822,7 @@ export default function App() {
           ...prev,
           contacts: prev.contacts.map(c => {
             const upd = updates.find(u => u.bookingId === c.webhookId);
-            return upd ? { ...c, dateAvailability: { preferred: upd.preferred, backup: upd.backup } } : c;
+            return upd ? { ...c, dateAvailability: { preferred: upd.preferred, backup: upd.backup, alternatives: upd.alternatives || [] } } : c;
           }),
         }));
 
@@ -2763,10 +2842,10 @@ export default function App() {
           const bookings = [...prev.bookings];
           const clients = [...prev.clients];
           items.forEach(({ bookingId, confirmedAt }) => {
-            // Case 1: booking already exists → update status + ensure client exists
+            // Case 1: booking already exists → update status + date/time + ensure client exists
             const bIdx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
             if (bIdx !== -1) {
-              bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed' };
+              bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed', ...(confirmedDate ? { date: confirmedDate } : {}), ...(confirmedTime ? { time: confirmedTime } : {}) };
               const b = bookings[bIdx];
               const email = b.clientEmail || '';
               const phone = b.clientPhone || '';

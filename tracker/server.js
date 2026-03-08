@@ -124,6 +124,7 @@ app.post('/api/availability', (req, res) => {
       bookingId,
       preferred: mapStatus(da.preferred),
       backup: mapStatus(da.backup),
+      alternatives: Array.isArray(da.alternatives) ? da.alternatives : [],
       updatedAt: new Date().toISOString(),
       applied: false,
     };

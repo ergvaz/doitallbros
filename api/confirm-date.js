@@ -6,7 +6,7 @@ const redis = new Redis({
 });
 
 export default async function handler(req, res) {
-  const { bookingId } = req.query;
+  const { bookingId, date: confirmedDate, time: confirmedTime } = req.query;
 
   if (!bookingId) {
     return res.status(400).send(page('Invalid Link', 'This confirmation link is missing required information.', false));
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   // Store in Redis so tracker can reliably pick it up
   try {
-    await redis.set(`confirmation:${bookingId}`, { bookingId, confirmedAt }, { ex: 60 * 60 * 24 * 7 });
+    await redis.set(`confirmation:${bookingId}`, { bookingId, confirmedAt, confirmedDate: confirmedDate || null, confirmedTime: confirmedTime || null }, { ex: 60 * 60 * 24 * 7 });
   } catch (_) {}
 
   // Also signal tracker directly (best-effort)
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       await fetch(`${trackerUrl}/api/incoming`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'date_confirmation', bookingId, confirmedAt }),
+        body: JSON.stringify({ type: 'date_confirmation', bookingId, confirmedAt, confirmedDate: confirmedDate || null, confirmedTime: confirmedTime || null }),
       }).catch(() => {});
     }
   } catch (_) {}
