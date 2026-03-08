@@ -2623,7 +2623,7 @@ function CustomRequestModal({ onClose }) {
             </div>
             <div className="form-group">
               <label>Preferred Time *</label>
-              <input type="time" required value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} />
+              <input type="time" required step="900" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} />
             </div>
           </div>
           <div className="form-group">
