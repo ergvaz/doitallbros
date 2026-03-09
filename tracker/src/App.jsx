@@ -1109,7 +1109,7 @@ function InboxView({ data, update }) {
                       <div style={{marginBottom:'4px'}}>
                         <input type="radio" name="dopt" value={opt.key} checked={active} onChange={() => setDateOption(opt.key)} onClick={e => e.stopPropagation()} style={{marginRight:'8px', verticalAlign:'middle', accentColor:'#3B82F6'}} />
                         <span style={{fontSize:'12px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color: active ? '#3B82F6' : 'var(--text3)', verticalAlign:'middle'}}>{opt.label}</span>
-                        {opt.avail && <span style={{verticalAlign:'middle', marginLeft:'8px'}}>{availBadge(opt.avail)}</span>}
+                        {(opt.avail || (selected.dateAvailability?.alternatives || []).length > 0) && <span style={{verticalAlign:'middle', marginLeft:'8px'}}>{availBadge(opt.avail || 'unavailable')}</span>}
                       </div>
                       <div style={{fontSize:'14px', fontWeight:600, color:'var(--text1)', paddingLeft:'22px'}}>{opt.date} {opt.time}</div>
                     </div>
@@ -2841,7 +2841,7 @@ export default function App() {
         setData(prev => {
           const bookings = [...prev.bookings];
           const clients = [...prev.clients];
-          items.forEach(({ bookingId, confirmedAt }) => {
+          items.forEach(({ bookingId, confirmedAt, confirmedDate, confirmedTime }) => {
             // Case 1: booking already exists → update status + date/time + ensure client exists
             const bIdx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
             if (bIdx !== -1) {
