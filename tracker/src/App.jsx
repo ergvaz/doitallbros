@@ -1774,12 +1774,18 @@ function KanbanCard({ booking: b, client, onEdit, onStatus, onPaid, onLogRevenue
       {open && (
         <Modal title={`Booking — ${b.clientName}`} onClose={() => setOpen(false)} size="lg">
             <div className="detail-grid">
-              <div className="detail-row"><span className="detail-label">Service</span><span className="detail-value">{b.service}</span></div>
-              <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{fmtDate(b.date)} {fmtTime(b.time)}</span></div>
-              <div className="detail-row"><span className="detail-label">Address</span><span className="detail-value">{b.clientAddress || '—'}</span></div>
-              <div className="detail-row"><span className="detail-label">Price</span><span className="detail-value">{fmtMoneyFull(b.price)}</span></div>
-              <div className="detail-row"><span className="detail-label">Payment</span><span className="detail-value">{b.paymentMethod}</span></div>
+              <div className="detail-row"><span className="detail-label">Service</span><span className="detail-value">{b.service || '—'}</span></div>
+              <div className="detail-row"><span className="detail-label">Status</span><span className="detail-value" style={{textTransform:'capitalize'}}>{b.status || '—'}</span></div>
+              <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{b.date ? `${fmtDate(b.date)}${b.time ? ` at ${fmtTime(b.time)}` : ''}` : '—'}</span></div>
               <div className="detail-row"><span className="detail-label">Phone</span><span className="detail-value">{b.clientPhone || '—'}</span></div>
+              <div className="detail-row"><span className="detail-label">Email</span><span className="detail-value">{b.clientEmail || '—'}</span></div>
+              <div className="detail-row"><span className="detail-label">Address</span><span className="detail-value">{b.clientAddress || '—'}</span></div>
+              <div className="detail-row"><span className="detail-label">Price</span><span className="detail-value">{b.price > 0 ? fmtMoneyFull(b.price) : '—'}</span></div>
+              <div className="detail-row"><span className="detail-label">Payment</span><span className="detail-value">{b.paymentMethod || '—'}</span></div>
+              <div className="detail-row"><span className="detail-label">Paid</span><span className="detail-value">{b.isPaid ? '✓ Yes' : 'No'}</span></div>
+              <div className="detail-row"><span className="detail-label">Source</span><span className="detail-value" style={{textTransform:'capitalize'}}>{b.source || 'Manual'}</span></div>
+              {b.bookingId && <div className="detail-row"><span className="detail-label">Submission ID</span><span className="detail-value" style={{fontSize:'12px',color:'var(--text3)'}}>{b.bookingId}</span></div>}
+              <div className="detail-row"><span className="detail-label">Created</span><span className="detail-value">{b.createdAt ? new Date(b.createdAt).toLocaleString() : '—'}</span></div>
               {b.notes && <div className="detail-row detail-row-full"><span className="detail-label">Notes</span><span className="detail-value">{b.notes}</span></div>}
             </div>
             <div className="kc-status-row">
