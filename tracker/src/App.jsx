@@ -2779,8 +2779,14 @@ export default function App() {
           items.filter(i => i.type === 'date_confirmation').forEach(item => {
             // First: if a booking already exists directly (contact may have been deleted after processing)
             const directBookingIdx = bookings.findIndex(b => b.webhookId === item.bookingId || b.bookingId === item.bookingId);
+            const confirmFields = {
+              status: 'confirmed',
+              ...(item.confirmedDate ? { date: item.confirmedDate } : {}),
+              ...(item.confirmedTime ? { time: item.confirmedTime } : {}),
+              ...(item.confirmedPrice !== undefined && item.confirmedPrice !== null ? { price: item.confirmedPrice } : {}),
+            };
             if (directBookingIdx !== -1) {
-              bookings[directBookingIdx] = { ...bookings[directBookingIdx], status: 'confirmed' };
+              bookings[directBookingIdx] = { ...bookings[directBookingIdx], ...confirmFields };
               return;
             }
             const contact = contacts.find(c => c.bookingId === item.bookingId || c.webhookId === item.bookingId);
@@ -2788,7 +2794,7 @@ export default function App() {
             // If booking exists via contact, update its status
             const existingIdx = bookings.findIndex(b => b.webhookId === contact.webhookId || b.bookingId === contact.bookingId);
             if (existingIdx !== -1) {
-              bookings[existingIdx] = { ...bookings[existingIdx], status: 'confirmed' };
+              bookings[existingIdx] = { ...bookings[existingIdx], ...confirmFields };
               return;
             }
 
