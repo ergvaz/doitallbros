@@ -1508,7 +1508,7 @@ function BookingsView({ data, update }) {
     setShowForm(false);
   };
 
-  const changeStatus = (id, status) => {
+  const changeStatus = async (id, status) => {
     update('bookings', data.bookings.map(b => b.id === id ? { ...b, status } : b));
     if (status === 'completed') {
       const booking = data.bookings.find(b => b.id === id);
@@ -1520,6 +1520,26 @@ function BookingsView({ data, update }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ bookingId: booking.bookingId }),
           }).catch(() => {});
+        }
+        // Create Stripe payment link if paying by card
+        let paymentLink = null;
+        const pm = (booking.paymentMethod || '').toLowerCase();
+        if (pm.includes('stripe') || pm.includes('card')) {
+          try {
+            const resp = await fetch('https://doitallbros.com/api/create-payment-link', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                amount: booking.price || 0,
+                service: booking.service || 'Service',
+                clientName: booking.clientName || '',
+                clientEmail: booking.clientEmail || '',
+                bookingId: booking.id,
+              }),
+            });
+            const linkData = await resp.json();
+            paymentLink = linkData.url || null;
+          } catch (_) {}
         }
         // Completion webhook
         fetch(`${import.meta.env.BASE_URL}api/forward`, {
@@ -1539,6 +1559,7 @@ function BookingsView({ data, update }) {
               time: booking.time || '',
               price: booking.price || 0,
               paymentMethod: booking.paymentMethod || '',
+              paymentLink: paymentLink,
             },
             completedAt: new Date().toISOString(),
           }),
