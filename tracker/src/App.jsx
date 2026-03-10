@@ -2868,11 +2868,11 @@ export default function App() {
         setData(prev => {
           const bookings = [...prev.bookings];
           const clients = [...prev.clients];
-          items.forEach(({ bookingId, confirmedAt, confirmedDate, confirmedTime }) => {
-            // Case 1: booking already exists → update status + date/time + ensure client exists
+          items.forEach(({ bookingId, confirmedAt, confirmedDate, confirmedTime, confirmedPrice }) => {
+            // Case 1: booking already exists → update status + date/time/price + ensure client exists
             const bIdx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
             if (bIdx !== -1) {
-              bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed', ...(confirmedDate ? { date: confirmedDate } : {}), ...(confirmedTime ? { time: confirmedTime } : {}) };
+              bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed', ...(confirmedDate ? { date: confirmedDate } : {}), ...(confirmedTime ? { time: confirmedTime } : {}), ...(confirmedPrice != null ? { price: confirmedPrice } : {}) };
               const b = bookings[bIdx];
               const email = b.clientEmail || '';
               const phone = b.clientPhone || '';

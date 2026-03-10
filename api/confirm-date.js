@@ -6,17 +6,18 @@ const redis = new Redis({
 });
 
 export default async function handler(req, res) {
-  const { bookingId, date: confirmedDate, time: confirmedTime } = req.query;
+  const { bookingId, date: confirmedDate, time: confirmedTime, price: confirmedPrice } = req.query;
 
   if (!bookingId) {
     return res.status(400).send(page('Invalid Link', 'This confirmation link is missing required information.', false));
   }
 
   const confirmedAt = new Date().toISOString();
+  const priceNum = confirmedPrice ? parseFloat(confirmedPrice) : null;
 
   // Store in Redis so tracker can reliably pick it up
   try {
-    await redis.set(`confirmation:${bookingId}`, { bookingId, confirmedAt, confirmedDate: confirmedDate || null, confirmedTime: confirmedTime || null }, { ex: 60 * 60 * 24 * 7 });
+    await redis.set(`confirmation:${bookingId}`, { bookingId, confirmedAt, confirmedDate: confirmedDate || null, confirmedTime: confirmedTime || null, confirmedPrice: priceNum }, { ex: 60 * 60 * 24 * 7 });
   } catch (_) {}
 
   // Also signal tracker directly (best-effort)
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
       await fetch(`${trackerUrl}/api/incoming`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'date_confirmation', bookingId, confirmedAt, confirmedDate: confirmedDate || null, confirmedTime: confirmedTime || null }),
+        body: JSON.stringify({ type: 'date_confirmation', bookingId, confirmedAt, confirmedDate: confirmedDate || null, confirmedTime: confirmedTime || null, confirmedPrice: priceNum }),
       }).catch(() => {});
     }
   } catch (_) {}
