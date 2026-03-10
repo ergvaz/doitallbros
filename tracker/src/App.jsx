@@ -1521,10 +1521,10 @@ function BookingsView({ data, update }) {
             body: JSON.stringify({ bookingId: booking.bookingId }),
           }).catch(() => {});
         }
-        // Create Stripe payment link if paying by card
+        // Create Stripe payment link for any non-cash payment (n8n decides whether to use it)
         let paymentLink = null;
         const pm = (booking.paymentMethod || '').toLowerCase();
-        if (pm.includes('stripe') || pm.includes('card')) {
+        if (!pm.includes('cash') && !pm.includes('venmo') && !pm.includes('zelle') && !pm.includes('check')) {
           try {
             const resp = await fetch('https://doitallbros.com/api/create-payment-link', {
               method: 'POST',
