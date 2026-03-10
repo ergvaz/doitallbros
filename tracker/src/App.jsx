@@ -2872,7 +2872,7 @@ export default function App() {
             // Case 1: booking already exists → update status + date/time/price + ensure client exists
             const bIdx = bookings.findIndex(b => b.webhookId === bookingId || b.bookingId === bookingId);
             if (bIdx !== -1) {
-              bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed', ...(confirmedDate ? { date: confirmedDate } : {}), ...(confirmedTime ? { time: confirmedTime } : {}), ...(confirmedPrice != null ? { price: confirmedPrice } : {}) };
+              bookings[bIdx] = { ...bookings[bIdx], status: 'confirmed', ...(confirmedDate ? { date: confirmedDate } : {}), ...(confirmedTime ? { time: confirmedTime } : {}), ...(confirmedPrice !== undefined && confirmedPrice !== null ? { price: confirmedPrice } : {}) };
               const b = bookings[bIdx];
               const email = b.clientEmail || '';
               const phone = b.clientPhone || '';
