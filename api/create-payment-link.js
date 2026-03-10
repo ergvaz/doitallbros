@@ -1,7 +1,5 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.DAB_STRIPE_SECRET_KEY);
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -11,9 +9,13 @@ export default async function handler(req, res) {
 
   const { amount, service, clientName, clientEmail, bookingId } = req.body || {};
 
-  if (!amount || !service) {
-    return res.status(400).json({ error: 'amount and service are required' });
+  console.log('[create-payment-link] called', { amount, service, bookingId });
+
+  if (!service) {
+    return res.status(400).json({ error: 'service is required' });
   }
+
+  const stripe = new Stripe(process.env.DAB_STRIPE_SECRET_KEY);
 
   try {
     const session = await stripe.checkout.sessions.create({
