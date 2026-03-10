@@ -71,6 +71,8 @@ app.post('/api/incoming', (req, res) => {
           address: item.address || '',
           service_list: item.service_list || item.description || '',
           has_quoted_services: item.has_quoted_services || false,
+          total_amount: item.total_amount || 0,
+          subtotal: item.subtotal || 0,
           preferred_date: item.preferred_date || item.date || item.scheduled_date?.split(' ')[0] || '',
           preferred_time: item.preferred_time || item.time || item.scheduled_date?.split(' ')[1] || '',
           backup_date: item.backup_date || item.backup_date || null,
