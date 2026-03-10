@@ -1526,7 +1526,7 @@ function BookingsView({ data, update }) {
         const pm = (booking.paymentMethod || '').toLowerCase();
         if (!pm.includes('cash') && !pm.includes('venmo') && !pm.includes('zelle') && !pm.includes('check')) {
           try {
-            const resp = await fetch('https://doitallbros.com/api/create-payment-link', {
+            const resp = await fetch('https://www.doitallbros.com/api/create-payment-link', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -2867,7 +2867,7 @@ export default function App() {
 
     const pollConfirmations = async () => {
       try {
-        const res = await fetch('https://doitallbros.com/api/get-confirmations', { method: 'DELETE' });
+        const res = await fetch('https://www.doitallbros.com/api/get-confirmations', { method: 'DELETE' });
         if (!res.ok) return;
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) return;
