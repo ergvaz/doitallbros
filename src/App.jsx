@@ -788,7 +788,7 @@ function AddServicePage() {
       basePrice: service.price,
       selectedSize: service.sizeDependent ? selectedSize : null,
       calculatedPrice,
-      itemQuantity: service.perItem ? itemQuantity : null,
+      itemQuantity: service.perItem ? (Math.max(1, parseInt(itemQuantity) || 1)) : null,
       bulbCount: service.isLightBulb ? bulbCount : null,
       fixtureCount: service.isLightBulb ? fixtureCount : null,
       hours: service.hourly ? hours : null,
@@ -1699,11 +1699,12 @@ function CheckoutPage() {
         itemDescription += ` (${item.dogWalking.duration} min, ${item.dogWalking.dogCount} dogs)`;
       }
       // Per-item pricing
-      else if (item.itemQuantity) {
-        const match = item.basePrice.match(/\$(\d+)/);
+      else if (item.itemQuantity !== null && item.itemQuantity !== undefined) {
+        const qty = (Number.isFinite(item.itemQuantity) && item.itemQuantity > 0) ? item.itemQuantity : 1;
+        const match = (item.basePrice || '').match(/\$(\d+)/);
         if (match) {
-          itemPrice = parseInt(match[1]) * item.itemQuantity;
-          itemDescription += ` (×${item.itemQuantity})`;
+          itemPrice = parseInt(match[1]) * qty;
+          itemDescription += ` (×${qty})`;
         }
       }
       // Fixed/range pricing
@@ -1849,7 +1850,17 @@ function CheckoutPage() {
         serviceName: item.serviceName,
         category: item.category,
         isQuote,
-        fixedPrice: isQuote ? null : (pricing.itemizedServices[i]?.price || item.calculatedPrice || 0),
+        fixedPrice: isQuote ? null : (() => {
+          const computed = pricing.itemizedServices[i]?.price;
+          if (computed) return computed;
+          if (item.calculatedPrice && typeof item.calculatedPrice === 'number') return item.calculatedPrice;
+          if (item.itemQuantity !== null && item.itemQuantity !== undefined) {
+            const qty = (Number.isFinite(item.itemQuantity) && item.itemQuantity > 0) ? item.itemQuantity : 1;
+            const m = (item.basePrice || '').match(/\$(\d+)/);
+            if (m) return parseInt(m[1]) * qty;
+          }
+          return 0;
+        })(),
         sizeLabel,
         powerWashAreas: item.powerWashAreas || null,
         serviceDetails: item.serviceDetails || null,
