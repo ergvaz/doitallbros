@@ -1937,17 +1937,17 @@ function CheckoutPage() {
     }
     let fixedPrice = null;
     if (!isQuote) {
-      const computed = pricing.itemizedServices[i]?.price;
-      if (computed) {
-        fixedPrice = computed;
+      if (svc?.perItem) {
+        // Per-item: compute directly from service definition price string
+        const qty = Math.max(1, parseInt(item.itemQuantity) || 1);
+        const priceStr = svc.price || item.basePrice || '';
+        const m = priceStr.match(/\$(\d+)/);
+        fixedPrice = m ? parseInt(m[1]) * qty : 0;
       } else if (item.calculatedPrice && typeof item.calculatedPrice === 'number') {
         fixedPrice = item.calculatedPrice;
-      } else if (svc?.perItem) {
-        const qty = Math.max(1, parseInt(item.itemQuantity) || 1);
-        const m = (item.basePrice || '').match(/\$(\d+)/);
-        if (m) fixedPrice = parseInt(m[1]) * qty;
       } else {
-        fixedPrice = 0;
+        const computed = pricing.itemizedServices[i]?.price;
+        fixedPrice = (computed && typeof computed === 'number') ? computed : 0;
       }
     }
     return {
