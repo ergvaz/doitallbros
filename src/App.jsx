@@ -1836,7 +1836,7 @@ function CheckoutPage() {
       .map(item => item.serviceName);
     
     // Build structured cart items for the tracker
-    const cartItemsStructured = cart.map(item => {
+    const cartItemsStructured = cart.map((item, i) => {
       const svc = serviceData[item.categoryKey]?.services[item.serviceIndex];
       const isQuote = svc?.dependentPricing || false;
       let sizeLabel = null;
@@ -1847,7 +1847,7 @@ function CheckoutPage() {
         serviceName: item.serviceName,
         category: item.category,
         isQuote,
-        fixedPrice: isQuote ? null : (item.calculatedPrice || 0),
+        fixedPrice: isQuote ? null : (pricing.itemizedServices[i]?.price || item.calculatedPrice || 0),
         sizeLabel,
         powerWashAreas: item.powerWashAreas || null,
         serviceDetails: item.serviceDetails || null,
