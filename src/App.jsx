@@ -1698,9 +1698,9 @@ function CheckoutPage() {
         itemPrice = basePrice + extraDogCost;
         itemDescription += ` (${item.dogWalking.duration} min, ${item.dogWalking.dogCount} dogs)`;
       }
-      // Per-item pricing
-      else if (item.itemQuantity !== null && item.itemQuantity !== undefined) {
-        const qty = (Number.isFinite(item.itemQuantity) && item.itemQuantity > 0) ? item.itemQuantity : 1;
+      // Per-item pricing — detect from service definition, not stored quantity
+      else if (svc?.perItem) {
+        const qty = Math.max(1, parseInt(item.itemQuantity) || 1);
         const match = (item.basePrice || '').match(/\$(\d+)/);
         if (match) {
           itemPrice = parseInt(match[1]) * qty;
@@ -1854,8 +1854,8 @@ function CheckoutPage() {
           const computed = pricing.itemizedServices[i]?.price;
           if (computed) return computed;
           if (item.calculatedPrice && typeof item.calculatedPrice === 'number') return item.calculatedPrice;
-          if (item.itemQuantity !== null && item.itemQuantity !== undefined) {
-            const qty = (Number.isFinite(item.itemQuantity) && item.itemQuantity > 0) ? item.itemQuantity : 1;
+          if (svc?.perItem) {
+            const qty = Math.max(1, parseInt(item.itemQuantity) || 1);
             const m = (item.basePrice || '').match(/\$(\d+)/);
             if (m) return parseInt(m[1]) * qty;
           }
