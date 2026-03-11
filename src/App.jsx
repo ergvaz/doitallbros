@@ -775,7 +775,7 @@ function AddServicePage() {
       const extraDogCost = (dogCount - 1) * 10 * intervals;
       calculatedPrice = basePrice + extraDogCost;
     }
-    // Per-item pricing — compute at add-to-cart time so fixedPrice is always correct
+    // Per-item pricing
     else if (service.perItem) {
       const qty = Math.max(1, parseInt(itemQuantity) || 1);
       const m = (service.price || '').match(/\$(\d+)/);
@@ -784,6 +784,11 @@ function AddServicePage() {
     // Emergency (1.5x multiplier will be applied at checkout)
     else if (service.isEmergency) {
       calculatedPrice = 'emergency'; // Flag for checkout
+    }
+    // Simple fixed or range pricing — parse first dollar amount from price string
+    else if (!service.dependentPricing) {
+      const m = (service.price || '').match(/\$(\d+)/);
+      if (m) calculatedPrice = parseInt(m[1]);
     }
     
     const cartItem = {
@@ -1943,17 +1948,17 @@ function CheckoutPage() {
     }
     let fixedPrice = null;
     if (!isQuote) {
-      if (svc?.perItem) {
-        // Per-item: compute directly from service definition price string
-        const qty = Math.max(1, parseInt(item.itemQuantity) || 1);
-        const priceStr = svc.price || item.basePrice || '';
-        const m = priceStr.match(/\$(\d+)/);
-        fixedPrice = m ? parseInt(m[1]) * qty : 0;
-      } else if (item.calculatedPrice && typeof item.calculatedPrice === 'number') {
-        fixedPrice = item.calculatedPrice;
+      if (typeof item.calculatedPrice === 'number') {
+        // Apply recurring multiplier if applicable
+        if (item.recurring) {
+          let total = item.calculatedPrice * item.recurring.count;
+          if (item.recurring.paymentType === 'one-time') total *= 0.9;
+          fixedPrice = Math.round(total * 100) / 100;
+        } else {
+          fixedPrice = item.calculatedPrice;
+        }
       } else {
-        const computed = pricing.itemizedServices[i]?.price;
-        fixedPrice = (computed && typeof computed === 'number') ? computed : 0;
+        fixedPrice = 0;
       }
     }
     return {
