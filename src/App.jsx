@@ -1948,14 +1948,34 @@ function CheckoutPage() {
     }
     let fixedPrice = null;
     if (!isQuote) {
-      if (typeof item.calculatedPrice === 'number') {
-        // Apply recurring multiplier if applicable
+      let cp = item.calculatedPrice;
+      // Fallback: recompute price from service data if calculatedPrice is missing/null
+      if (typeof cp !== 'number' && svc) {
+        if (svc.sizeDependent && item.selectedSize && svc.sizePricing?.[item.selectedSize]) {
+          cp = svc.sizePricing[item.selectedSize].price;
+        } else if (svc.isLightBulb) {
+          const b = item.bulbCount || 0, f = item.fixtureCount || 0;
+          cp = Math.max(b * 10, 40) + (f * 45);
+        } else if (svc.hourly && item.hours) {
+          cp = svc.hourlyRate * item.hours;
+        } else if (svc.isDogWalking && item.dogWalking) {
+          const intervals = item.dogWalking.duration / 30;
+          cp = svc.basePrice * intervals + (item.dogWalking.dogCount - 1) * 10 * intervals;
+        } else if (svc.perItem && item.itemQuantity) {
+          const m = (svc.price || '').match(/\$(\d+)/);
+          if (m) cp = parseInt(m[1]) * item.itemQuantity;
+        } else if (!svc.dependentPricing && !svc.isEmergency) {
+          const m = (svc.price || '').match(/\$(\d+)/);
+          if (m) cp = parseInt(m[1]);
+        }
+      }
+      if (typeof cp === 'number') {
         if (item.recurring) {
-          let total = item.calculatedPrice * item.recurring.count;
+          let total = cp * item.recurring.count;
           if (item.recurring.paymentType === 'one-time') total *= 0.9;
           fixedPrice = Math.round(total * 100) / 100;
         } else {
-          fixedPrice = item.calculatedPrice;
+          fixedPrice = cp;
         }
       } else {
         fixedPrice = 0;

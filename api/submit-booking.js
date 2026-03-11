@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body;
-    console.log('[submit-booking] cart_items:', JSON.stringify(body.cart_items));
+    console.log('[PRICES]', JSON.stringify((body.cart_items||[]).map(i=>({n:i.serviceName?.slice(0,15),fp:i.fixedPrice,cp:i.calculatedPrice,iq:i.isQuote}))));
     const email = (body.email || body.email_address || '').trim().toLowerCase();
     const phone = (body.phone_number || body.phone || '').replace(/\D/g, '');
     const name = body.customer_name || body.name || '';
