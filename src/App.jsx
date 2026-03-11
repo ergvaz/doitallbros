@@ -775,6 +775,12 @@ function AddServicePage() {
       const extraDogCost = (dogCount - 1) * 10 * intervals;
       calculatedPrice = basePrice + extraDogCost;
     }
+    // Per-item pricing — compute at add-to-cart time so fixedPrice is always correct
+    else if (service.perItem) {
+      const qty = Math.max(1, parseInt(itemQuantity) || 1);
+      const m = (service.price || '').match(/\$(\d+)/);
+      if (m) calculatedPrice = parseInt(m[1]) * qty;
+    }
     // Emergency (1.5x multiplier will be applied at checkout)
     else if (service.isEmergency) {
       calculatedPrice = 'emergency'; // Flag for checkout
