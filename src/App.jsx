@@ -1825,6 +1825,8 @@ function CheckoutPage() {
     e.preventDefault();
 
     const pricing = calculateTotalPrice();
+    console.log('[DAB DEBUG] cart items:', JSON.stringify(cart.map(i => ({name:i.serviceName,basePrice:i.basePrice,itemQuantity:i.itemQuantity,calculatedPrice:i.calculatedPrice}))));
+    console.log('[DAB DEBUG] itemizedServices:', JSON.stringify(pricing.itemizedServices));
     
     // Sum all fees
     const totalFees = pricing.fees.reduce((sum, fee) => sum + fee.amount, 0);
