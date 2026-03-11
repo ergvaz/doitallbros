@@ -1825,49 +1825,15 @@ function CheckoutPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const pricing = calculateTotalPrice();
-    console.log('[DAB DEBUG] cart items:', JSON.stringify(cart.map(i => ({name:i.serviceName,basePrice:i.basePrice,itemQuantity:i.itemQuantity,calculatedPrice:i.calculatedPrice}))));
-    console.log('[DAB DEBUG] itemizedServices:', JSON.stringify(pricing.itemizedServices));
-    
+    // pricing and cartItemsStructured are computed at render time (above)
     // Sum all fees
     const totalFees = pricing.fees.reduce((sum, fee) => sum + fee.amount, 0);
-    
+
     // Convert service list to single comma-separated string
     const serviceList = cart.map(item => item.serviceName).join(', ');
     const dependentServices = cart
       .filter(item => serviceData[item.categoryKey]?.services[item.serviceIndex]?.dependentPricing)
       .map(item => item.serviceName);
-    
-    // Build structured cart items for the tracker
-    const cartItemsStructured = cart.map((item, i) => {
-      const svc = serviceData[item.categoryKey]?.services[item.serviceIndex];
-      const isQuote = svc?.dependentPricing || false;
-      let sizeLabel = null;
-      if (item.selectedSize && svc?.sizePricing) {
-        sizeLabel = svc.sizePricing[item.selectedSize]?.label || item.selectedSize;
-      }
-      return {
-        serviceName: item.serviceName,
-        category: item.category,
-        isQuote,
-        fixedPrice: isQuote ? null : (() => {
-          const computed = pricing.itemizedServices[i]?.price;
-          if (computed) return computed;
-          if (item.calculatedPrice && typeof item.calculatedPrice === 'number') return item.calculatedPrice;
-          if (svc?.perItem) {
-            const qty = Math.max(1, parseInt(item.itemQuantity) || 1);
-            const m = (item.basePrice || '').match(/\$(\d+)/);
-            if (m) return parseInt(m[1]) * qty;
-          }
-          return 0;
-        })(),
-        sizeLabel,
-        powerWashAreas: item.powerWashAreas || null,
-        serviceDetails: item.serviceDetails || null,
-        isRecurring: !!item.recurring,
-        recurringLabel: item.recurring?.frequency || null,
-      };
-    });
 
     // Create structured booking data
     const bookingData = {
@@ -1960,7 +1926,43 @@ function CheckoutPage() {
   });
   
   const pricing = calculateTotalPrice();
-  
+
+  // Compute at render time so fixedPrice matches what the user sees
+  const cartItemsStructured = cart.map((item, i) => {
+    const svc = serviceData[item.categoryKey]?.services[item.serviceIndex];
+    const isQuote = svc?.dependentPricing || false;
+    let sizeLabel = null;
+    if (item.selectedSize && svc?.sizePricing) {
+      sizeLabel = svc.sizePricing[item.selectedSize]?.label || item.selectedSize;
+    }
+    let fixedPrice = null;
+    if (!isQuote) {
+      const computed = pricing.itemizedServices[i]?.price;
+      if (computed) {
+        fixedPrice = computed;
+      } else if (item.calculatedPrice && typeof item.calculatedPrice === 'number') {
+        fixedPrice = item.calculatedPrice;
+      } else if (svc?.perItem) {
+        const qty = Math.max(1, parseInt(item.itemQuantity) || 1);
+        const m = (item.basePrice || '').match(/\$(\d+)/);
+        if (m) fixedPrice = parseInt(m[1]) * qty;
+      } else {
+        fixedPrice = 0;
+      }
+    }
+    return {
+      serviceName: item.serviceName,
+      category: item.category,
+      isQuote,
+      fixedPrice,
+      sizeLabel,
+      powerWashAreas: item.powerWashAreas || null,
+      serviceDetails: item.serviceDetails || null,
+      isRecurring: !!item.recurring,
+      recurringLabel: item.recurring?.frequency || null,
+    };
+  });
+
   return (
     <div className="checkout-page">
       <div className="checkout-container">
