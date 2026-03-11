@@ -1040,7 +1040,7 @@ function InboxView({ data, update }) {
                       {svc.isQuote && <div style={{display:'inline-block', marginTop:4, fontSize:'10px', fontWeight:700, color:'#3B82F6', background:'rgba(59,130,246,.15)', padding:'2px 7px', borderRadius:'10px'}}>Needs Quote</div>}
                     </div>
                     <div style={{flexShrink:0}}>
-                      {(svc.isQuote || !svc.fixedPrice) ? (
+                      {svc.isQuote ? (
                         <input
                           type="number"
                           placeholder="$ Enter quote"
