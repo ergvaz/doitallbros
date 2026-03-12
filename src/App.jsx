@@ -144,17 +144,21 @@ const serviceData = {
         extraOvergrown: true,
         detailsKey: 'lawnMowing'
       },
-      { name: "Weed Removal & Prevention", price: "$45", id: "weedRemoval", materialNote: true },
-      { 
-        name: "Hedge, Bush & Tree Trimming", 
-        price: "$60-$225",
+      {
+        name: "Weed Removal & Prevention",
+        id: "weedRemoval",
+        materialNote: true,
         sizeDependent: true,
         sizePricing: {
-          small: { label: "Small Job", example: "🌿 Few small bushes", price: 60 },
-          medium: { label: "Medium Job", example: "🌳 Several hedges", price: 85 },
-          large: { label: "Large Job", example: "🌲 Multiple large trees", price: 150 },
-          xl: { label: "Extra Large Job", example: "🏞️ Extensive trimming", price: 225 }
-        },
+          small: { label: "Small Bed", example: "🌱 Small flower bed", price: 45 },
+          garden: { label: "Garden", example: "🌿 Full garden area", price: 65 },
+          driveway: { label: "Driveway / Walkway", example: "🚶 Driveway or walkway borders", price: 85 }
+        }
+      },
+      {
+        name: "Hedge, Bush & Tree Trimming",
+        price: "Dependent Pricing — Free Quote Included",
+        dependentPricing: true,
         id: "hedgeTrimming",
         detailsKey: 'hedgeTrimming'
       },
