@@ -2938,6 +2938,11 @@ export default function App() {
               } else if (item.aiSuggestedResponse && !contacts[existingIdx].aiSuggestedResponse) {
                 contacts[existingIdx] = { ...contacts[existingIdx], aiSuggestedResponse: item.aiSuggestedResponse };
               }
+            } else if (type === 'ai_response') {
+              const idx = contacts.findIndex(c => c.contactId === item.contactId || c.webhookId === item.contactId);
+              if (idx !== -1) {
+                contacts[idx] = { ...contacts[idx], aiSuggestedResponse: item.aiSuggestedResponse };
+              }
             } else if (type === 'date_confirmation') {
               const idx = contacts.findIndex(c => c.bookingId === item.bookingId || c.webhookId === item.bookingId);
               if (idx !== -1) {
