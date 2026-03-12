@@ -2478,10 +2478,13 @@ function ContactPage() {
     phone: '',
     message: ''
   });
-  
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setSubmitError('');
+
     try {
       const response = await fetch('/api/submit-contact', {
         method: 'POST',
@@ -2494,17 +2497,35 @@ function ContactPage() {
       });
 
       if (response.ok) {
-        alert('Message sent! We\'ll get back to you soon.');
-        navigate('/');
+        setSubmitted(true);
       } else {
-        alert('Something went wrong. Please try again or call us directly.');
+        setSubmitError('Something went wrong. Please try again or call us directly.');
       }
     } catch (error) {
       console.error('Contact error:', error);
-      alert('Unable to send message. Please call us at (502) 387-5462');
+      setSubmitError('Unable to send message. Please call us at (502) 387-5462');
     }
   };
-  
+
+  if (submitted) {
+    return (
+      <div className="contact-page">
+        <div className="contact-container" style={{ justifyContent: 'center' }}>
+          <div className="contact-success" style={{ textAlign: 'center', padding: '60px 40px' }}>
+            <div style={{ fontSize: '64px', marginBottom: '24px' }}>✅</div>
+            <h2 style={{ marginBottom: '12px' }}>Message Sent!</h2>
+            <p style={{ color: '#666', marginBottom: '32px', fontSize: '1.1rem' }}>
+              Thanks for reaching out, {formData.name}. We'll get back to you soon.
+            </p>
+            <button className="btn btn-primary" onClick={() => navigate('/')}>
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="contact-page">
       <div className="contact-container">
@@ -2513,7 +2534,7 @@ function ContactPage() {
           <p className="contact-description">
             Have a question or need a custom quote? We're here to help.
           </p>
-          
+
           <div className="contact-details">
             <div className="contact-item">
               <span className="contact-icon">📞</span>
@@ -2531,13 +2552,18 @@ function ContactPage() {
             </div>
           </div>
         </div>
-        
+
         <form className="contact-form" onSubmit={handleSubmit}>
           <h3>Send Us a Message</h3>
+          {submitError && (
+            <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem' }}>
+              {submitError}
+            </div>
+          )}
           <div className="form-group">
             <label>Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -2546,8 +2572,8 @@ function ContactPage() {
           <div className="form-row">
             <div className="form-group">
               <label>Email</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -2555,8 +2581,8 @@ function ContactPage() {
             </div>
             <div className="form-group">
               <label>Phone</label>
-              <input 
-                type="tel" 
+              <input
+                type="tel"
                 required
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
@@ -2565,7 +2591,7 @@ function ContactPage() {
           </div>
           <div className="form-group">
             <label>Message</label>
-            <textarea 
+            <textarea
               rows="6"
               required
               placeholder="Tell us how we can help..."
