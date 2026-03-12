@@ -4,7 +4,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #0F172A;
+  --bg:       transparent;
   --bg2:      #1E293B;
   --bg3:      #0F172A;
   --border:   #334155;
@@ -26,7 +26,8 @@ html, body, #root { height: 100%; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
+  background: linear-gradient(135deg, #0F172A 0%, #1a1040 50%, #0F172A 100%);
+  background-attachment: fixed;
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
