@@ -1030,6 +1030,28 @@ function InboxView({ data, update }) {
             </div>
           )}
 
+          {/* ── AI Suggested Response ── */}
+          {selected._type === 'contact' && selected.aiSuggestedResponse && (
+            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+              <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}>
+                <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'#6366F1'}}>AI Suggested Response</div>
+                <span style={{fontSize:'10px', background:'rgba(99,102,241,.12)', color:'#6366F1', padding:'2px 8px', borderRadius:'20px', fontWeight:600}}>Draft</span>
+              </div>
+              <div style={{background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.2)', borderRadius:'10px', padding:'14px 16px'}}>
+                <p style={{color:'var(--text1)', lineHeight:1.7, margin:0, fontSize:'14px', whiteSpace:'pre-wrap'}}>{selected.aiSuggestedResponse}</p>
+              </div>
+              <div style={{fontSize:'11px', color:'var(--text3)', marginTop:'6px'}}>Review before sending. Copy and reply via email or text.</div>
+            </div>
+          )}
+
+          {/* ── AI response pending indicator ── */}
+          {selected._type === 'contact' && !selected.aiSuggestedResponse && (
+            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'8px'}}>AI Suggested Response</div>
+              <div style={{color:'var(--text3)', fontSize:'13px', fontStyle:'italic'}}>Generating... check back in a moment.</div>
+            </div>
+          )}
+
           {/* ── Custom request description ── */}
           {selected._type === 'custom_request' && (
             <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>

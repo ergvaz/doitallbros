@@ -157,6 +157,29 @@ app.delete('/api/availability/:bookingId', (req, res) => {
   res.json({ success: true });
 });
 
+// ── AI suggested response from n8n ──────────────────────────
+// n8n AI agent POSTs here after generating a response to a contact message
+// Body: { contactId, aiResponse }
+app.post('/api/ai-response', (req, res) => {
+  try {
+    const { contactId, aiResponse } = req.body;
+    if (!contactId || !aiResponse) return res.status(400).json({ error: 'contactId and aiResponse required' });
+
+    const queue = readQueue();
+    const idx = queue.findIndex(i => i.contactId === contactId);
+    if (idx === -1) return res.status(404).json({ error: 'Contact not found' });
+
+    queue[idx] = { ...queue[idx], aiSuggestedResponse: aiResponse, aiRespondedAt: new Date().toISOString() };
+    writeQueue(queue);
+
+    console.log(`[tracker] AI response stored for contact ${contactId}`);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[tracker] /api/ai-response error:', err.message);
+    res.status(500).json({ error: 'Failed to store AI response' });
+  }
+});
+
 // ── Forward processed booking to n8n ────────────────────────
 // Frontend calls this when owner confirms/quotes/declines a request
 // Body: the full structured payload to send to n8n
