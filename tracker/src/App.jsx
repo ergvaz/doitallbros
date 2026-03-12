@@ -759,6 +759,7 @@ function InboxView({ data, update }) {
     let payloadType;
     if (action === 'decline') payloadType = 'declined';
     else if (isCustom) payloadType = 'custom_request';
+    else if (item._summerPackage) payloadType = 'summer';
     else payloadType = 'main';
 
     const payload = isCustom ? {
