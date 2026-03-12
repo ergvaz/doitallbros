@@ -572,7 +572,12 @@ function InboxView({ data, update }) {
   const [sortBy, setSortBy] = useState('newest');
   const [searchQ, setSearchQ] = useState('');
   const [selectedId, setSelectedId] = useState(null);
-  const selected = useMemo(() => selectedId ? data.contacts.find(c => c.id === selectedId) || null : null, [selectedId, data.contacts]);
+  const selected = useMemo(() => {
+    if (!selectedId) return null;
+    const c = data.contacts.find(c => c.id === selectedId);
+    if (!c) return null;
+    return { ...c, _type: c._type || (c.subtype === 'custom_request' ? 'custom_request' : 'contact') };
+  }, [selectedId, data.contacts]);
   // Processing form state
   const [dateOption, setDateOption] = useState('preferred');
   const [altDate, setAltDate] = useState('');
@@ -1032,29 +1037,31 @@ function InboxView({ data, update }) {
             </div>
           )}
 
-          {/* ── Reply section (always shown for contact + custom request) ── */}
+          {/* ── Reply section ── */}
           {(selected._type === 'contact' || selected._type === 'custom_request') && (
             <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
               <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>
-                Reply {selected.processedStatus === 'replied' && <span style={{color:'#10B981', marginLeft:'8px'}}>✓ Sent</span>}
+                Your Reply{selected.processedStatus === 'replied' ? <span style={{color:'#10B981', marginLeft:'8px', fontWeight:600}}>✓ Sent</span> : null}
               </div>
-
-              {selected.aiSuggestedResponse && (
-                <div style={{marginBottom:'10px'}}>
-                  <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'6px'}}>
-                    <span style={{fontSize:'11px', color:'#6366F1', fontWeight:600}}>AI Suggested</span>
-                    <button type="button" onClick={() => setOwnerResponse(selected.aiSuggestedResponse)} style={{fontSize:'11px', padding:'3px 10px', borderRadius:'6px', border:'1.5px solid #6366F1', background:'transparent', color:'#6366F1', cursor:'pointer', fontWeight:600}}>Use This</button>
+              {selected.aiSuggestedResponse ? (
+                <div style={{marginBottom:'10px', padding:'12px 14px', background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.25)', borderRadius:'8px'}}>
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px'}}>
+                    <span style={{fontSize:'11px', fontWeight:700, color:'#6366F1'}}>AI SUGGESTED RESPONSE</span>
+                    <button
+                      type="button"
+                      style={{fontSize:'12px', padding:'4px 12px', borderRadius:'6px', border:'1.5px solid #6366F1', background:'#6366F1', color:'#fff', cursor:'pointer', fontWeight:600}}
+                      onClick={() => setOwnerResponse(selected.aiSuggestedResponse)}
+                    >Use This</button>
                   </div>
-                  <div style={{background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.18)', borderRadius:'8px', padding:'12px 14px', fontSize:'13px', color:'var(--text2)', lineHeight:1.6, whiteSpace:'pre-wrap'}}>{selected.aiSuggestedResponse}</div>
+                  <div style={{fontSize:'13px', color:'var(--text2)', lineHeight:1.6, whiteSpace:'pre-wrap'}}>{selected.aiSuggestedResponse}</div>
                 </div>
-              )}
-
+              ) : null}
               <textarea
-                rows={5}
+                rows={6}
                 value={ownerResponse}
                 onChange={e => setOwnerResponse(e.target.value)}
-                placeholder={selected.aiSuggestedResponse ? 'Edit the AI response above or type your own...' : 'Type your response to the customer...'}
-                style={{width:'100%', padding:'12px 14px', borderRadius:'10px', border:'1.5px solid var(--border)', background:'var(--bg2)', color:'var(--text1)', fontSize:'14px', lineHeight:1.6, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box'}}
+                placeholder="Type your response to the customer here..."
+                style={{display:'block', width:'100%', padding:'12px 14px', borderRadius:'8px', border:'1.5px solid var(--border)', background:'var(--bg2)', color:'var(--text1)', fontSize:'14px', lineHeight:1.6, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box'}}
               />
             </div>
           )}
