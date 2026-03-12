@@ -444,6 +444,7 @@ function SummerPage() {
   const [promoCode, setPromoCode] = useState('');
   const [promoStatus, setPromoStatus] = useState(null);
   const [promoMessage, setPromoMessage] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const basePrice = PRICING[service][size];
@@ -457,6 +458,7 @@ function SummerPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!preferredDay) { alert('Please select your preferred day of the week.'); return; }
+    if (!paymentMethod) { alert('Please select a payment method.'); return; }
     setSubmitting(true);
     const serviceName = service === 'basic' ? 'Basic Lawn Care' : 'Advanced Lawn Care';
     const bookingData = {
@@ -482,7 +484,7 @@ function SummerPage() {
         isRecurring: true,
         recurringLabel: frequency,
       }],
-      payment_method: paymentType === 'one-time' ? 'one-time upfront' : 'per-visit',
+      payment_method: paymentMethod,
       extra_notes: `Summer package. Frequency: ${frequency}. Preferred day: ${preferredDay}. Payment: ${paymentType}.${formData.notes ? ` Notes: ${formData.notes}` : ''}`,
       preferred_date: preferredDay,
       preferred_time: '',
@@ -594,6 +596,18 @@ function SummerPage() {
             {DAYS.map(day=>(
               <div key={day} onClick={()=>setPreferredDay(day)} style={{...sel(preferredDay===day),textAlign:'center',fontWeight:600,fontSize:'13px',color:preferredDay===day?'#166534':'#374151',padding:'10px'}}>
                 {day}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Payment Method */}
+        <div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Payment Method <span style={{color:'#ef4444'}}>*</span></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+            {[['card','💳 Card'],['cash','💵 Cash'],['zelle','🏦 Zelle'],['venmo','📱 Venmo']].map(([val,label])=>(
+              <div key={val} onClick={()=>setPaymentMethod(val)} style={{...sel(paymentMethod===val),textAlign:'center',fontWeight:600,fontSize:'14px',color:paymentMethod===val?'#166534':'#374151',padding:'12px'}}>
+                {label}
               </div>
             ))}
           </div>

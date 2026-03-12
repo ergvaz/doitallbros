@@ -11,8 +11,12 @@ const STORE_KEY = 'dab_tracker_v1';
 const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
+const DAY_NAMES = new Set(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']);
+const isDayName = (d) => DAY_NAMES.has(d);
+
 const fmtDate = (d) => {
   if (!d) return '—';
+  if (isDayName(d)) return d; // day-of-week string (summer bookings)
   return new Date(d.length === 10 ? d + 'T12:00:00' : d).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   });
