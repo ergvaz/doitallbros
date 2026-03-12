@@ -2510,17 +2510,15 @@ function ContactPage() {
   if (submitted) {
     return (
       <div className="contact-page">
-        <div className="contact-container" style={{ justifyContent: 'center' }}>
-          <div className="contact-success" style={{ textAlign: 'center', padding: '60px 40px' }}>
-            <div style={{ fontSize: '64px', marginBottom: '24px' }}>✅</div>
-            <h2 style={{ marginBottom: '12px' }}>Message Sent!</h2>
-            <p style={{ color: '#666', marginBottom: '32px', fontSize: '1.1rem' }}>
-              Thanks for reaching out, {formData.name}. We'll get back to you soon.
-            </p>
-            <button className="btn btn-primary" onClick={() => navigate('/')}>
-              Back to Home
-            </button>
-          </div>
+        <div className="contact-success-page">
+          <div className="contact-success-icon">✓</div>
+          <h2 className="contact-success-title">Message Sent!</h2>
+          <p className="contact-success-body">
+            Thanks for reaching out, {formData.name}.<br />We'll get back to you soon.
+          </p>
+          <button className="btn btn-primary" onClick={() => navigate('/')}>
+            Back to Home
+          </button>
         </div>
       </div>
     );
