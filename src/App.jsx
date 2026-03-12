@@ -605,7 +605,7 @@ function SummerPage() {
         <div>
           <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Payment Method <span style={{color:'#ef4444'}}>*</span></div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            {[['card','💳 Card'],['cash','💵 Cash'],['zelle','🏦 Zelle'],['venmo','📱 Venmo']].map(([val,label])=>(
+            {[['card','💳 Card'],['cash','💵 Cash'],['cashapp','💚 Cash App'],['venmo','📱 Venmo'],['apple_cash','🍎 Apple Cash']].map(([val,label])=>(
               <div key={val} onClick={()=>setPaymentMethod(val)} style={{...sel(paymentMethod===val),textAlign:'center',fontWeight:600,fontSize:'14px',color:paymentMethod===val?'#166534':'#374151',padding:'12px'}}>
                 {label}
               </div>
