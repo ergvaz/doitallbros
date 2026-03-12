@@ -585,7 +585,7 @@ function InboxView({ data, update }) {
   const [quotedPrices, setQuotedPrices] = useState({});
   const [unable, setUnable] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [ownerResponse, setOwnerResponse] = useState('');
+  const [replyText, setReplyText] = useState('');
 
   const itemHasQuotes = (item) => {
     if (!item) return false;
@@ -640,7 +640,7 @@ function InboxView({ data, update }) {
     setAltTime('');
     setQuotedPrices({});
     setUnable(false);
-    setOwnerResponse('');
+    setReplyText('');
     // Mark contact-type items as read
     if (item._type === 'contact' && item.status === 'new') {
       update('contacts', data.contacts.map(c => c.id === item.id ? { ...c, status: 'read' } : c));
@@ -1037,34 +1037,17 @@ function InboxView({ data, update }) {
             </div>
           )}
 
-          {/* ── Reply section ── */}
-          {(selected._type === 'contact' || selected._type === 'custom_request') && (
-            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
-              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>
-                Your Reply{selected.processedStatus === 'replied' ? <span style={{color:'#10B981', marginLeft:'8px', fontWeight:600}}>✓ Sent</span> : null}
-              </div>
-              {selected.aiSuggestedResponse ? (
-                <div style={{marginBottom:'10px', padding:'12px 14px', background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.25)', borderRadius:'8px'}}>
-                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px'}}>
-                    <span style={{fontSize:'11px', fontWeight:700, color:'#6366F1'}}>AI SUGGESTED RESPONSE</span>
-                    <button
-                      type="button"
-                      style={{fontSize:'12px', padding:'4px 12px', borderRadius:'6px', border:'1.5px solid #6366F1', background:'#6366F1', color:'#fff', cursor:'pointer', fontWeight:600}}
-                      onClick={() => setOwnerResponse(selected.aiSuggestedResponse)}
-                    >Use This</button>
-                  </div>
-                  <div style={{fontSize:'13px', color:'var(--text2)', lineHeight:1.6, whiteSpace:'pre-wrap'}}>{selected.aiSuggestedResponse}</div>
-                </div>
-              ) : null}
-              <textarea
-                rows={6}
-                value={ownerResponse}
-                onChange={e => setOwnerResponse(e.target.value)}
-                placeholder="Type your response to the customer here..."
-                style={{display:'block', width:'100%', padding:'12px 14px', borderRadius:'8px', border:'1.5px solid var(--border)', background:'var(--bg2)', color:'var(--text1)', fontSize:'14px', lineHeight:1.6, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box'}}
-              />
-            </div>
-          )}
+          {/* ── Reply box ── */}
+          <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+            <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'8px'}}>Your Reply</div>
+            <textarea
+              rows={5}
+              value={replyText}
+              onChange={e => setReplyText(e.target.value)}
+              placeholder="Type your reply to the customer..."
+              style={{display:'block', width:'100%', padding:'12px', borderRadius:'8px', border:'1.5px solid var(--border)', background:'var(--bg2)', color:'var(--text1)', fontSize:'14px', lineHeight:1.6, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box'}}
+            />
+          </div>
 
           {/* ── Custom request description ── */}
           {selected._type === 'custom_request' && (
@@ -1278,7 +1261,7 @@ function InboxView({ data, update }) {
                 <button className="btn btn-ghost" onClick={closeModal}>Close</button>
                 <button
                   className="btn btn-primary"
-                  disabled={submitting || !ownerResponse.trim()}
+                  disabled={submitting || !replyText.trim()}
                   onClick={async () => {
                     setSubmitting(true);
                     try {
@@ -1289,18 +1272,16 @@ function InboxView({ data, update }) {
                           contactId: selected.contactId,
                           clientName: selected.name || '',
                           clientEmail: selected.email || '',
-                          clientPhone: selected.phone || '',
-                          message: selected.message || '',
-                          ownerResponse,
+                          replyText,
                         }),
                       });
                       update('contacts', data.contacts.map(c => c.id === selected.id ? { ...c, processedStatus: 'replied', status: 'read' } : c));
                       closeModal();
-                    } catch (e) { console.error('Send reply error:', e); }
+                    } catch (e) { console.error(e); }
                     setSubmitting(false);
                   }}
                 >
-                  {submitting ? 'Sending…' : 'Send Response'}
+                  {submitting ? 'Sending…' : 'Send Reply'}
                 </button>
               </>
             ) : selected._type === 'custom_request' ? (
@@ -1308,35 +1289,6 @@ function InboxView({ data, update }) {
                 <button className="btn btn-ghost" disabled={submitting} onClick={() => setUnable(u => !u)}>
                   {unable ? '↩ Back to Quote' : '✗ Unable to Accommodate'}
                 </button>
-                {ownerResponse.trim() && (
-                  <button
-                    className="btn btn-ghost"
-                    disabled={submitting}
-                    onClick={async () => {
-                      setSubmitting(true);
-                      try {
-                        await fetch(`${import.meta.env.BASE_URL}api/contact-reply`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            contactId: selected.contactId,
-                            clientName: selected.name || '',
-                            clientEmail: selected.email || '',
-                            clientPhone: selected.phone || '',
-                            message: selected.description || '',
-                            ownerResponse,
-                          }),
-                        });
-                        update('contacts', data.contacts.map(c => c.id === selected.id ? { ...c, processedStatus: 'replied', status: 'read' } : c));
-                        closeModal();
-                      } catch (e) { console.error('Send reply error:', e); }
-                      setSubmitting(false);
-                    }}
-                    style={{color:'#6366F1', borderColor:'#6366F1'}}
-                  >
-                    Send Response
-                  </button>
-                )}
                 <button
                   className="btn btn-primary"
                   disabled={submitting || (!unable && dateOption === 'alternative' && (!altDate || !altTime))}
