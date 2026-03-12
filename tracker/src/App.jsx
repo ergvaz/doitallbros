@@ -636,7 +636,6 @@ function InboxView({ data, update }) {
     setQuotedPrices({});
     setUnable(false);
     setOwnerResponse('');
-    setResponseMode('ai');
     // Mark contact-type items as read
     if (item._type === 'contact' && item.status === 'new') {
       update('contacts', data.contacts.map(c => c.id === item.id ? { ...c, status: 'read' } : c));
@@ -1302,7 +1301,7 @@ function InboxView({ data, update }) {
                 <button className="btn btn-ghost" disabled={submitting} onClick={() => setUnable(u => !u)}>
                   {unable ? '↩ Back to Quote' : '✗ Unable to Accommodate'}
                 </button>
-                {finalResponse.trim() && (
+                {ownerResponse.trim() && (
                   <button
                     className="btn btn-ghost"
                     disabled={submitting}
@@ -1318,7 +1317,7 @@ function InboxView({ data, update }) {
                             clientEmail: selected.email || '',
                             clientPhone: selected.phone || '',
                             message: selected.description || '',
-                            ownerResponse: finalResponse,
+                            ownerResponse,
                           }),
                         });
                         update('contacts', data.contacts.map(c => c.id === selected.id ? { ...c, processedStatus: 'replied', status: 'read' } : c));
