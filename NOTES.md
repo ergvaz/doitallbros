@@ -97,59 +97,46 @@ No email system prompt changes needed.
 
 - URL: `https://n8n.srv1122720.hstgr.cloud/dab`
 - Password: `doitallbrothers2026`
-- Express.js server (`tracker/server.js`) on port **3002**, PM2 + Nginx
+- Express.js server (`tracker/server.js`) runs inside a **Docker container**
 - React app in `tracker/src/App.jsx` (~2100+ lines)
 - All client data in localStorage (`dab_tracker_v1`)
 - Incoming webhook queue in `pending.json` on disk
 - Polls `/api/pending` every 30 seconds
 
-### VPS Paths & PM2
+### Docker Setup (CRITICAL)
 
-- PM2 process name: `dab-tracker` (id varies — use name not id)
-- Script path: `/var/www/doitallbros/tracker/server.js`
-- Root: `/var/www/doitallbros/tracker/`
-- Port: **3002** (NOT 3001 — port 3001 is taken by vantpath-tracker, a separate project)
-- Error log: `/root/.pm2/logs/dab-tracker-error.log`
-- Out log: `/root/.pm2/logs/dab-tracker-out.log`
-- Node: 18.19.1
+The tracker runs via Docker Compose at `/root/docker-compose.yml`. Traefik is the reverse proxy — it routes `n8n.srv1122720.hstgr.cloud/dab` to the `dab-tracker` container and strips the `/dab` prefix before passing to Express. The container builds from `/var/www/doitallbros/tracker`.
 
-**CRITICAL — always start/restart with PORT=3002:**
+**PM2 and nginx are irrelevant for the tracker — do not use them to deploy.**
+
+**Rebuild and redeploy after any tracker code change:**
 ```bash
-PORT=3002 pm2 restart dab-tracker
-```
-If dab-tracker crashes with EADDRINUSE on port 3001, it means PORT env var wasn't set. Always use PORT=3002.
-
-**If PM2 process needs to be recreated from scratch:**
-```bash
-pm2 delete dab-tracker && cd /var/www/doitallbros/tracker && PORT=3002 pm2 start server.js --name dab-tracker
-```
-
-**Rebuild and restart after any tracker code change:**
-```bash
-cd /var/www/doitallbros/tracker && git pull origin main && npm run build && PORT=3002 pm2 restart dab-tracker
+cd /var/www/doitallbros/tracker && git pull origin main && cd /root && docker compose up -d --build dab-tracker
 ```
 
 **View live logs:**
 ```bash
-pm2 logs dab-tracker
+docker logs root-dab-tracker-1 --tail 50
 ```
 
-**Check what port processes are on:**
+**Check running containers:**
 ```bash
-lsof -i :3001 -i :3002
+docker ps
 ```
 
-### VPS Port Map
-| Port | Process | Notes |
-|---|---|---|
-| 3001 | vantpath-tracker | Separate project, do NOT kill |
-| 3002 | dab-tracker | DoItAllBros tracker |
+### Docker Compose Services
+| Service | Purpose |
+|---|---|
+| `traefik` | Reverse proxy + SSL (routes all subdomains) |
+| `n8n` | n8n automation at `n8n.srv1122720.hstgr.cloud` |
+| `tracker` | vantpath-tracker at `/tracker` path — separate project, do not touch |
+| `dab-tracker` | DoItAllBros tracker at `/dab` path |
 
-### Nginx Config (dab-tracker)
-- File: `/etc/nginx/sites-enabled/dab-tracker`
-- Server name: `tracker.srv1122720.hstgr.cloud`
-- Proxies to: `localhost:3002`
-- `n8n.srv1122720.hstgr.cloud/dab` is routed by Hostinger's own proxy (not nginx) — do not try to configure this through nginx
+### n8n HTTP Nodes — Tracker API URLs
+All n8n HTTP nodes calling the tracker must use:
+```
+https://n8n.srv1122720.hstgr.cloud/dab/api/<endpoint>
+```
 
 ### n8n HTTP Nodes — Tracker API URLs
 All n8n HTTP nodes calling the tracker must use:
@@ -261,15 +248,17 @@ Then in the tracker, when the owner sets quoted prices:
 ## Bug History
 
 ### Bug: n8n HTTP node 404 on `/api/ai-response`
-**Root cause:** Two separate issues compounded:
-1. Port conflict — dab-tracker was failing to bind to port 3001 (taken by `vantpath-tracker`, a separate project on the same VPS). PM2 was crashing and restarting, sometimes landing on port 3002, sometimes not running at all. Nginx for `tracker.srv1122720.hstgr.cloud` proxies to port 3002. **Always start dab-tracker with `PORT=3002`.**
-2. The `/api/ai-response` endpoint existed in server.js but couldn't be reached reliably from n8n. **Fix:** Removed the separate endpoint entirely. n8n now POSTs to `/api/incoming` with `type: 'ai_response'`, which is the same endpoint all other webhooks use and is known to work. The tracker handles this type in its poll loop to update the contact's `aiSuggestedResponse`.
+**Fix:** Removed the separate endpoint. n8n now POSTs to `/api/incoming` with `type: 'ai_response'`, which is the same endpoint all other webhooks use. The tracker handles this type in its poll loop to update the contact's `aiSuggestedResponse`.
 
-**Key lessons:**
-- Always check `lsof -i :3001 -i :3002` before debugging routing issues
-- Always use `PORT=3002 pm2 restart dab-tracker` — never plain `pm2 restart`
-- When an endpoint is unreachable from n8n, use `/api/incoming` with a custom `type` field instead of adding new endpoints
-- The `n8n.srv1122720.hstgr.cloud/dab` URL is managed by Hostinger's proxy, not nginx. Do not try to configure it through nginx.
+### Bug: Tracker changes not appearing after rebuild (wasted many sessions)
+**Root cause:** The tracker runs inside a Docker container managed by Docker Compose at `/root/docker-compose.yml`. Traefik routes `n8n.srv1122720.hstgr.cloud/dab` to the container. Running `npm run build` or PM2 commands at `/var/www/doitallbros/tracker/` rebuilds the files on disk but the Docker container keeps serving its own internal copy.
+
+**Fix:** Always rebuild with:
+```bash
+cd /var/www/doitallbros/tracker && git pull origin main && cd /root && docker compose up -d --build dab-tracker
+```
+
+**Key lesson:** When a site is served via Docker, rebuilding on the host filesystem does nothing. You must rebuild the Docker image.
 
 ---
 
