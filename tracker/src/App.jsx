@@ -2922,9 +2922,11 @@ export default function App() {
                 });
               }
             } else if (type === 'contact') {
-              if (!contacts.find(c => c.webhookId === item.id)) {
+              const existingIdx = contacts.findIndex(c => c.webhookId === item.id);
+              if (existingIdx === -1) {
                 contacts.push({
                   id: genId(), webhookId: item.id, _type: 'contact',
+                  contactId: item.contactId || item.id || '',
                   name: item.name || item.contactName || '',
                   email: item.email || item.contactEmail || '',
                   phone: item.phone || item.contactPhone || '',
@@ -2933,6 +2935,8 @@ export default function App() {
                   createdAt: item.receivedAt || new Date().toISOString(),
                   notes: '',
                 });
+              } else if (item.aiSuggestedResponse && !contacts[existingIdx].aiSuggestedResponse) {
+                contacts[existingIdx] = { ...contacts[existingIdx], aiSuggestedResponse: item.aiSuggestedResponse };
               }
             } else if (type === 'date_confirmation') {
               const idx = contacts.findIndex(c => c.bookingId === item.bookingId || c.webhookId === item.bookingId);
