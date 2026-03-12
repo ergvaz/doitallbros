@@ -2176,6 +2176,24 @@ body {
   .powerwash-grid { grid-template-columns: 1fr 1fr; }
 }
 
+/* Summer banner */
+.summer-banner {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #fff;
+  text-align: center;
+  padding: 12px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.summer-banner:hover { opacity: 0.92; }
+.summer-banner-cta {
+  display: inline-block;
+  margin-left: 8px;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
 /* Packages CTA on homepage */
 .packages-cta-section { background: linear-gradient(135deg, #EEF2FF, #F5F3FF); }
 .packages-cta-inner {

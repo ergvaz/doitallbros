@@ -375,12 +375,139 @@ function CartProvider({ children }) {
   );
 }
 
+// Summer Lawn Care Modal
+function SummerLawnModal({ onClose }) {
+  const { addToCart } = React.useContext(CartContext);
+  const navigate = useNavigate();
+  const [service, setService] = useState('basic');
+  const [size, setSize] = useState('medium');
+  const [frequency, setFrequency] = useState('biweekly');
+  const [paymentType, setPaymentType] = useState('per-job');
+
+  const pricing = {
+    basic:    { small: 45, medium: 60, large: 80, xl: 110 },
+    advanced: { small: 85, medium: 110, large: 140, xl: 175 },
+  };
+  const sizeLabels = { small: 'Small Yard', medium: 'Medium Yard', large: 'Large Yard', xl: 'Extra Large Yard' };
+  const basePrice = pricing[service][size];
+  const jobCount = paymentType === 'one-time' ? (frequency === 'weekly' ? 9 : 5) : null;
+  const oneTimeTotal = jobCount ? Math.round(basePrice * jobCount * 0.9 * 100) / 100 : null;
+
+  const handleAdd = () => {
+    const serviceName = service === 'basic' ? 'Basic Lawn Care' : 'Advanced Lawn Care';
+    addToCart({
+      serviceName: `${serviceName} — Summer Package`,
+      category: 'Recurring Cleaning & Lawn Care',
+      categoryKey: 'recurring',
+      serviceIndex: 0,
+      basePrice: `$${basePrice}`,
+      calculatedPrice: basePrice,
+      selectedSize: size,
+      recurring: paymentType === 'one-time' ? { count: jobCount, paymentType: 'one-time' } : null,
+      _summerFrequency: frequency,
+      _summerPayment: paymentType,
+    });
+    onClose();
+    navigate('/checkout');
+  };
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}} onClick={onClose}>
+      <div style={{background:'#fff',borderRadius:'16px',maxWidth:'480px',width:'100%',overflow:'hidden',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}} onClick={e=>e.stopPropagation()}>
+        <div style={{background:'linear-gradient(135deg,#166534,#15803d)',padding:'28px 32px',color:'#fff'}}>
+          <div style={{fontSize:'28px',marginBottom:'6px'}}>🌿</div>
+          <h2 style={{margin:0,fontSize:'22px',fontWeight:700}}>Summer Lawn Care</h2>
+          <p style={{margin:'6px 0 0',opacity:0.85,fontSize:'14px'}}>Full season coverage — set it and forget it</p>
+        </div>
+        <div style={{padding:'28px 32px',display:'flex',flexDirection:'column',gap:'20px'}}>
+          {/* Service */}
+          <div>
+            <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'8px'}}>Service Level</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+              {[['basic','Basic','Mowing + edging'],['advanced','Advanced','Mowing, edging, weeds & bushes']].map(([val,label,desc])=>(
+                <div key={val} onClick={()=>setService(val)} style={{padding:'12px',borderRadius:'10px',border:`2px solid ${service===val?'#16a34a':'#e5e7eb'}`,background:service===val?'#f0fdf4':'#fff',cursor:'pointer'}}>
+                  <div style={{fontWeight:700,color:service===val?'#166534':'#111'}}>{label}</div>
+                  <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>{desc}</div>
+                  <div style={{fontWeight:700,color:'#16a34a',marginTop:'4px'}}>${pricing[val][size]}/visit</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Size */}
+          <div>
+            <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'8px'}}>Yard Size</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+              {Object.entries(sizeLabels).map(([val,label])=>(
+                <div key={val} onClick={()=>setSize(val)} style={{padding:'10px 12px',borderRadius:'8px',border:`2px solid ${size===val?'#16a34a':'#e5e7eb'}`,background:size===val?'#f0fdf4':'#fff',cursor:'pointer',textAlign:'center',fontWeight:600,fontSize:'13px',color:size===val?'#166534':'#374151'}}>
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Frequency */}
+          <div>
+            <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'8px'}}>Frequency</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+              {[['weekly','Weekly','Every week'],['biweekly','Biweekly','Every 2 weeks']].map(([val,label,desc])=>(
+                <div key={val} onClick={()=>setFrequency(val)} style={{padding:'10px 12px',borderRadius:'8px',border:`2px solid ${frequency===val?'#16a34a':'#e5e7eb'}`,background:frequency===val?'#f0fdf4':'#fff',cursor:'pointer',textAlign:'center'}}>
+                  <div style={{fontWeight:700,fontSize:'13px',color:frequency===val?'#166534':'#374151'}}>{label}</div>
+                  <div style={{fontSize:'12px',color:'#6b7280'}}>{desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Payment */}
+          <div>
+            <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'8px'}}>Payment</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+              <div onClick={()=>setPaymentType('per-job')} style={{padding:'12px',borderRadius:'8px',border:`2px solid ${paymentType==='per-job'?'#16a34a':'#e5e7eb'}`,background:paymentType==='per-job'?'#f0fdf4':'#fff',cursor:'pointer'}}>
+                <div style={{fontWeight:700,fontSize:'13px',color:paymentType==='per-job'?'#166534':'#374151'}}>Per Visit</div>
+                <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Billed each visit</div>
+                <div style={{fontWeight:700,color:'#16a34a',marginTop:'4px'}}>${basePrice}/visit</div>
+              </div>
+              <div onClick={()=>setPaymentType('one-time')} style={{padding:'12px',borderRadius:'8px',border:`2px solid ${paymentType==='one-time'?'#16a34a':'#e5e7eb'}`,background:paymentType==='one-time'?'#f0fdf4':'#fff',cursor:'pointer',position:'relative'}}>
+                <div style={{position:'absolute',top:'-1px',right:'8px',background:'#16a34a',color:'#fff',fontSize:'10px',fontWeight:700,padding:'2px 7px',borderRadius:'0 0 6px 6px'}}>SAVE 10%</div>
+                <div style={{fontWeight:700,fontSize:'13px',color:paymentType==='one-time'?'#166534':'#374151'}}>One-Time</div>
+                <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Pay upfront, save 10%</div>
+                <div style={{fontWeight:700,color:'#16a34a',marginTop:'4px'}}>${Math.round(basePrice*(frequency==='weekly'?9:5)*0.9)}</div>
+              </div>
+            </div>
+          </div>
+          {/* Summary */}
+          <div style={{background:'#f9fafb',borderRadius:'10px',padding:'14px 16px',border:'1px solid #e5e7eb'}}>
+            {paymentType==='one-time' ? (
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span style={{color:'#374151',fontSize:'14px'}}>{frequency==='weekly'?'9':'5'} visits · 10% off · one-time</span>
+                <span style={{fontWeight:800,fontSize:'18px',color:'#166534'}}>${oneTimeTotal?.toFixed(2)}</span>
+              </div>
+            ) : (
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span style={{color:'#374151',fontSize:'14px'}}>{frequency==='weekly'?'Weekly':'Biweekly'} · billed per visit</span>
+                <span style={{fontWeight:800,fontSize:'18px',color:'#166534'}}>${basePrice}/visit</span>
+              </div>
+            )}
+          </div>
+          <div style={{display:'flex',gap:'10px'}}>
+            <button onClick={onClose} style={{flex:1,padding:'12px',borderRadius:'8px',border:'1.5px solid #e5e7eb',background:'#fff',cursor:'pointer',fontWeight:600,color:'#6b7280'}}>Cancel</button>
+            <button onClick={handleAdd} style={{flex:2,padding:'12px',borderRadius:'8px',border:'none',background:'#16a34a',color:'#fff',cursor:'pointer',fontWeight:700,fontSize:'15px'}}>Add to Cart →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Homepage Component
 function HomePage() {
   const navigate = useNavigate();
+  const [showSummerModal, setShowSummerModal] = useState(false);
 
   return (
     <div className="homepage">
+      {showSummerModal && <SummerLawnModal onClose={() => setShowSummerModal(false)} />}
+      <div className="summer-banner" onClick={() => setShowSummerModal(true)}>
+        🌿 <strong>Summer Lawn Care Packages</strong> — Lock in the whole season for 10% off! Weekly or biweekly. <span className="summer-banner-cta">See Packages →</span>
+      </div>
       <div className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
@@ -1612,6 +1739,9 @@ function CheckoutPage() {
   const [previewCode, setPreviewCode] = useState(null); // generated preview for new customers
   const [emailCodeSent, setEmailCodeSent] = useState(false);
   const [emailCodeSending, setEmailCodeSending] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoStatus, setPromoStatus] = useState(null);
+  const [promoMessage, setPromoMessage] = useState('');
   
   useEffect(() => {
     if (selectedDate) {
@@ -1763,11 +1893,13 @@ function CheckoutPage() {
         itemDescription += ` (Recurring ×${totalJobs})`;
       }
       
+      const isLawnCare = item.categoryKey === 'landscaping' || item.categoryKey === 'recurring';
       itemizedServices.push({
         description: itemDescription,
-        price: itemPrice
+        price: itemPrice,
+        isLawnCare,
       });
-      
+
       subtotal += itemPrice;
     });
     
@@ -1809,7 +1941,8 @@ function CheckoutPage() {
       total += 45;
     }
     
-    return { subtotal, fees, discount, total, itemizedServices };
+    const lawnCareSubtotal = itemizedServices.filter(s => s.isLawnCare).reduce((sum, s) => sum + s.price, 0);
+    return { subtotal, fees, discount, total, itemizedServices, lawnCareSubtotal };
   };
   
   const emailMyCode = async () => {
@@ -2365,8 +2498,47 @@ function CheckoutPage() {
                 </p>
               )}
             </div>
+            <div className="form-group">
+              <label>Discount Code (Optional)</label>
+              <div style={{display:'flex', gap:'10px'}}>
+                <input
+                  type="text"
+                  placeholder="Enter discount code"
+                  value={promoCode}
+                  onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoStatus(null); setPromoMessage(''); }}
+                  style={{flex:1, textTransform:'uppercase'}}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={!promoCode.trim()}
+                  onClick={() => {
+                    const code = promoCode.trim().toUpperCase();
+                    if (code === 'SNOW') {
+                      if (pricing.lawnCareSubtotal > 0) {
+                        setPromoStatus('valid');
+                        setPromoMessage('✓ SNOW applied — 10% off all lawn care services!');
+                      } else {
+                        setPromoStatus('invalid');
+                        setPromoMessage('SNOW is only valid on lawn care services. Add a lawn care service to your cart.');
+                      }
+                    } else {
+                      setPromoStatus('invalid');
+                      setPromoMessage('Invalid discount code.');
+                    }
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
+              {promoMessage && (
+                <p style={{marginTop:'6px', fontSize:'0.85rem', color: promoStatus === 'valid' ? '#10B981' : '#EF4444', fontWeight:600}}>
+                  {promoMessage}
+                </p>
+              )}
+            </div>
           </div>
-          
+
           <div className="pricing-summary">
             <h3>Services</h3>
             {pricing.itemizedServices.map((service, i) => (
@@ -2407,16 +2579,29 @@ function CheckoutPage() {
                   </div>
                 )}
 
+                {promoStatus === 'valid' && (
+                  <div className="price-row discount">
+                    <span>Discount Code SNOW (10% off lawn care):</span>
+                    <span>-${(pricing.lawnCareSubtotal * 0.10).toFixed(2)}</span>
+                  </div>
+                )}
                 {referralStatus === 'valid' && referralDiscount > 0 && (
                   <div className="price-row discount">
                     <span>Referral Discount ({referralDiscount}%):</span>
                     <span>-${(pricing.total * referralDiscount / 100).toFixed(2)}</span>
                   </div>
                 )}
-                <div className="price-row total">
-                  <span>{hasDependentItems ? 'Fixed Items Total:' : 'Total:'}</span>
-                  <span>${(referralStatus === 'valid' && referralDiscount > 0 ? pricing.total * (1 - referralDiscount / 100) : pricing.total).toFixed(2)}</span>
-                </div>
+                {(() => {
+                  let finalTotal = pricing.total;
+                  if (promoStatus === 'valid') finalTotal -= pricing.lawnCareSubtotal * 0.10;
+                  if (referralStatus === 'valid' && referralDiscount > 0) finalTotal *= (1 - referralDiscount / 100);
+                  return (
+                    <div className="price-row total">
+                      <span>{hasDependentItems ? 'Fixed Items Total:' : 'Total:'}</span>
+                      <span>${finalTotal.toFixed(2)}</span>
+                    </div>
+                  );
+                })()}
 
                 {hasDependentItems && (
                   <div className="dependent-pricing-note" style={{marginTop:'0.75rem'}}>
