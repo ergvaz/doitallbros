@@ -137,12 +137,6 @@ All n8n HTTP nodes calling the tracker must use:
 ```
 https://n8n.srv1122720.hstgr.cloud/dab/api/<endpoint>
 ```
-
-### n8n HTTP Nodes — Tracker API URLs
-All n8n HTTP nodes calling the tracker must use:
-```
-https://n8n.srv1122720.hstgr.cloud/dab/api/<endpoint>
-```
 **Do NOT use localhost or tracker.srv1122720.hstgr.cloud from n8n** — only the public URL works reliably from n8n workflows.
 
 ### Tracker Sections
