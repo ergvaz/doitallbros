@@ -581,8 +581,6 @@ function InboxView({ data, update }) {
   const [unable, setUnable] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [ownerResponse, setOwnerResponse] = useState('');
-  const [responseMode, setResponseMode] = useState('ai'); // 'ai' | 'custom'
-  const finalResponse = responseMode === 'ai' ? (selected?.aiSuggestedResponse || '') : ownerResponse;
 
   const itemHasQuotes = (item) => {
     if (!item) return false;
@@ -1035,63 +1033,30 @@ function InboxView({ data, update }) {
             </div>
           )}
 
-          {/* ── AI Suggested Response ── */}
-          {/* ── Response section (contact + custom request) ── */}
-          {(selected._type === 'contact' || selected._type === 'custom_request') && selected.processedStatus !== 'replied' && (
+          {/* ── Reply section (always shown for contact + custom request) ── */}
+          {(selected._type === 'contact' || selected._type === 'custom_request') && (
             <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
-              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Reply</div>
-
-              {/* Mode toggle */}
-              <div style={{display:'flex', gap:'8px', marginBottom:'14px'}}>
-                <button
-                  type="button"
-                  onClick={() => { setResponseMode('ai'); setOwnerResponse(selected.aiSuggestedResponse || ''); }}
-                  style={{flex:1, padding:'8px 12px', borderRadius:'8px', fontSize:'12px', fontWeight:600, cursor:'pointer', transition:'all .15s',
-                    border: responseMode === 'ai' ? '2px solid #6366F1' : '2px solid var(--border)',
-                    background: responseMode === 'ai' ? 'rgba(99,102,241,.1)' : 'var(--bg2)',
-                    color: responseMode === 'ai' ? '#6366F1' : 'var(--text3)'}}
-                >
-                  ✦ Use AI Response
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setResponseMode('custom'); setOwnerResponse(''); }}
-                  style={{flex:1, padding:'8px 12px', borderRadius:'8px', fontSize:'12px', fontWeight:600, cursor:'pointer', transition:'all .15s',
-                    border: responseMode === 'custom' ? '2px solid #6366F1' : '2px solid var(--border)',
-                    background: responseMode === 'custom' ? 'rgba(99,102,241,.1)' : 'var(--bg2)',
-                    color: responseMode === 'custom' ? '#6366F1' : 'var(--text3)'}}
-                >
-                  ✏ Write My Own
-                </button>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>
+                Reply {selected.processedStatus === 'replied' && <span style={{color:'#10B981', marginLeft:'8px'}}>✓ Sent</span>}
               </div>
 
-              {/* AI mode */}
-              {responseMode === 'ai' && (
-                selected.aiSuggestedResponse ? (
-                  <div style={{background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.2)', borderRadius:'10px', padding:'14px 16px'}}>
-                    <p style={{color:'var(--text1)', lineHeight:1.7, margin:0, fontSize:'14px', whiteSpace:'pre-wrap'}}>{selected.aiSuggestedResponse}</p>
+              {selected.aiSuggestedResponse && (
+                <div style={{marginBottom:'10px'}}>
+                  <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'6px'}}>
+                    <span style={{fontSize:'11px', color:'#6366F1', fontWeight:600}}>AI Suggested</span>
+                    <button type="button" onClick={() => setOwnerResponse(selected.aiSuggestedResponse)} style={{fontSize:'11px', padding:'3px 10px', borderRadius:'6px', border:'1.5px solid #6366F1', background:'transparent', color:'#6366F1', cursor:'pointer', fontWeight:600}}>Use This</button>
                   </div>
-                ) : (
-                  <div style={{color:'var(--text3)', fontSize:'13px', fontStyle:'italic', padding:'10px 0'}}>AI response is still generating — check back in a moment.</div>
-                )
+                  <div style={{background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.18)', borderRadius:'8px', padding:'12px 14px', fontSize:'13px', color:'var(--text2)', lineHeight:1.6, whiteSpace:'pre-wrap'}}>{selected.aiSuggestedResponse}</div>
+                </div>
               )}
 
-              {/* Custom mode */}
-              {responseMode === 'custom' && (
-                <textarea
-                  rows={6}
-                  value={ownerResponse}
-                  onChange={e => setOwnerResponse(e.target.value)}
-                  placeholder="Type your response to the customer..."
-                  style={{width:'100%', padding:'12px 14px', borderRadius:'10px', border:'1.5px solid var(--border)', background:'var(--bg2)', color:'var(--text1)', fontSize:'14px', lineHeight:1.6, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box'}}
-                />
-              )}
-            </div>
-          )}
-
-          {selected._type === 'contact' && selected.processedStatus === 'replied' && (
-            <div style={{marginBottom:'20px', padding:'12px 16px', background:'rgba(16,185,129,.08)', border:'1.5px solid rgba(16,185,129,.3)', borderRadius:'8px'}}>
-              <div style={{fontSize:'13px', color:'#10B981', fontWeight:600}}>✓ Response sent</div>
+              <textarea
+                rows={5}
+                value={ownerResponse}
+                onChange={e => setOwnerResponse(e.target.value)}
+                placeholder={selected.aiSuggestedResponse ? 'Edit the AI response above or type your own...' : 'Type your response to the customer...'}
+                style={{width:'100%', padding:'12px 14px', borderRadius:'10px', border:'1.5px solid var(--border)', background:'var(--bg2)', color:'var(--text1)', fontSize:'14px', lineHeight:1.6, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box'}}
+              />
             </div>
           )}
 
@@ -1303,12 +1268,11 @@ function InboxView({ data, update }) {
             )}
 
             {selected._type === 'contact' ? (
-              selected.processedStatus === 'replied' ? (
+              <>
                 <button className="btn btn-ghost" onClick={closeModal}>Close</button>
-              ) : (
                 <button
                   className="btn btn-primary"
-                  disabled={submitting || !finalResponse.trim()}
+                  disabled={submitting || !ownerResponse.trim()}
                   onClick={async () => {
                     setSubmitting(true);
                     try {
@@ -1321,7 +1285,7 @@ function InboxView({ data, update }) {
                           clientEmail: selected.email || '',
                           clientPhone: selected.phone || '',
                           message: selected.message || '',
-                          ownerResponse: finalResponse,
+                          ownerResponse,
                         }),
                       });
                       update('contacts', data.contacts.map(c => c.id === selected.id ? { ...c, processedStatus: 'replied', status: 'read' } : c));
@@ -1332,7 +1296,7 @@ function InboxView({ data, update }) {
                 >
                   {submitting ? 'Sending…' : 'Send Response'}
                 </button>
-              )
+              </>
             ) : selected._type === 'custom_request' ? (
               <>
                 <button className="btn btn-ghost" disabled={submitting} onClick={() => setUnable(u => !u)}>
