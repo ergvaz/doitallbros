@@ -13,6 +13,8 @@ const AVAIL_FILE = path.join(__dirname, 'availability.json');
 const N8N_INTAKE_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/5ebf6849-cf49-4f63-a335-811104ada728';
 // n8n confirmation webhook — receives confirmed/quoted/declined actions from tracker owner
 const N8N_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/9937e869-76b6-4b62-891f-6cbb4d00ab24';
+// n8n contact webhook — receives contact/custom request replies from tracker owner
+const N8N_CONTACT_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/ee98ccfc-81d0-45e6-a4be-ea52d4cc46f9';
 
 app.use(express.json());
 
@@ -177,6 +179,28 @@ app.post('/api/ai-response', (req, res) => {
   } catch (err) {
     console.error('[tracker] /api/ai-response error:', err.message);
     res.status(500).json({ error: 'Failed to store AI response' });
+  }
+});
+
+// ── Owner reply to contact/custom request → n8n ─────────────
+// Tracker owner submits their response; type: 'second' tells n8n to send the email
+app.post('/api/contact-reply', async (req, res) => {
+  try {
+    const response = await fetch(N8N_CONTACT_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...req.body, type: 'second' }),
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      console.error('[tracker] n8n contact reply failed:', response.status, text);
+      return res.status(502).json({ error: 'n8n webhook failed' });
+    }
+    console.log(`[tracker] Contact reply forwarded to n8n for ${req.body.contactId}`);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[tracker] /api/contact-reply error:', err.message);
+    res.status(500).json({ error: 'Failed to send reply' });
   }
 });
 

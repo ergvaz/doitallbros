@@ -8,7 +8,6 @@ export default async function handler(req, res) {
 
   try {
     const contactId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const payload = { ...req.body, contactId, type: 'contact' };
 
     // Forward to tracker first so the item exists before n8n responds
     const trackerUrl = process.env.TRACKER_WEBHOOK_URL;
@@ -16,15 +15,15 @@ export default async function handler(req, res) {
       await fetch(`${trackerUrl}/api/incoming`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ ...req.body, contactId, type: 'contact' })
       }).catch(e => console.warn('Tracker webhook failed:', e.message));
     }
 
-    // Forward to n8n webhook (includes contactId so AI response can be routed back)
+    // Forward to n8n with type: 'first' so workflow knows this is the initial message
     const response = await fetch('https://n8n.srv1122720.hstgr.cloud/webhook/ee98ccfc-81d0-45e6-a4be-ea52d4cc46f9', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ ...req.body, contactId, type: 'first' })
     });
 
     if (!response.ok) {
