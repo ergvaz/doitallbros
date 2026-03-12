@@ -447,7 +447,7 @@ function SummerPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const basePrice = PRICING[service][size];
-  const jobCount = paymentType === 'one-time' ? (frequency === 'weekly' ? 9 : 5) : null;
+  const jobCount = frequency === 'weekly' ? 9 : 5;
   const rawTotal = paymentType === 'one-time' ? Math.round(basePrice * jobCount * 0.9 * 100) / 100 : basePrice;
   const promoDiscount = promoStatus === 'valid' ? rawTotal * 0.10 : 0;
   const afterPromo = rawTotal - promoDiscount;
@@ -575,14 +575,14 @@ function SummerPage() {
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
             <div onClick={()=>setPaymentType('per-job')} style={sel(paymentType==='per-job')}>
               <div style={{fontWeight:700,fontSize:'14px',color:paymentType==='per-job'?'#166534':'#374151'}}>Per Visit</div>
-              <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Billed after each visit</div>
+              <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Billed after each visit · {jobCount} visits</div>
               <div style={{fontWeight:700,color:'#16a34a',marginTop:'6px'}}>${basePrice}/visit</div>
             </div>
             <div onClick={()=>setPaymentType('one-time')} style={{...sel(paymentType==='one-time'),position:'relative'}}>
               <div style={{position:'absolute',top:'-1px',right:'10px',background:'#16a34a',color:'#fff',fontSize:'10px',fontWeight:700,padding:'2px 8px',borderRadius:'0 0 6px 6px'}}>SAVE 10%</div>
               <div style={{fontWeight:700,fontSize:'14px',color:paymentType==='one-time'?'#166534':'#374151'}}>One-Time</div>
-              <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Pay upfront, save 10%</div>
-              <div style={{fontWeight:700,color:'#16a34a',marginTop:'6px'}}>${Math.round(basePrice*(frequency==='weekly'?9:5)*0.9)} total</div>
+              <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Pay upfront, save 10% · {jobCount} visits</div>
+              <div style={{fontWeight:700,color:'#16a34a',marginTop:'6px'}}>${Math.round(basePrice*jobCount*0.9)} total</div>
             </div>
           </div>
         </div>
@@ -684,7 +684,7 @@ function SummerPage() {
         <div style={{background:'#f9fafb',border:'1.5px solid #e5e7eb',borderRadius:'12px',padding:'18px 20px',display:'flex',flexDirection:'column',gap:'8px'}}>
           <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'4px'}}>Price Summary</div>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:'14px',color:'#374151'}}>
-            <span>{service==='basic'?'Basic':'Advanced'} Lawn Care · {SIZE_LABELS[size]} · {frequency}{paymentType==='one-time'?` × ${jobCount} visits`:''}</span>
+            <span>{service==='basic'?'Basic':'Advanced'} Lawn Care · {SIZE_LABELS[size]} · {jobCount} visits ({frequency})</span>
             <span style={{fontWeight:600}}>{paymentType==='one-time'?`$${(basePrice*jobCount).toFixed(2)}`:`$${basePrice}/visit`}</span>
           </div>
           {paymentType==='one-time'&&(
@@ -706,9 +706,14 @@ function SummerPage() {
             </div>
           )}
           <div style={{borderTop:'1px solid #e5e7eb',paddingTop:'10px',marginTop:'4px',display:'flex',justifyContent:'space-between',fontWeight:800,fontSize:'18px',color:'#111'}}>
-            <span>{paymentType==='one-time'?'Total Due':'Per Visit'}</span>
+            <span>{paymentType==='one-time'?'Total Due':'Total Due Per Visit'}</span>
             <span style={{color:'#16a34a'}}>${finalTotal.toFixed(2)}{paymentType!=='one-time'&&'/visit'}</span>
           </div>
+          {paymentType!=='one-time'&&(
+            <div style={{fontSize:'12px',color:'#9ca3af',textAlign:'right',marginTop:'-4px'}}>
+              Est. season total: ${(finalTotal*jobCount).toFixed(2)} ({jobCount} visits)
+            </div>
+          )}
         </div>
 
         <button
