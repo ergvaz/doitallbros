@@ -436,7 +436,7 @@ function SummerPage() {
   const [frequency, setFrequency] = useState('biweekly');
   const [paymentType, setPaymentType] = useState('per-job');
   const [preferredDay, setPreferredDay] = useState('');
-  const [formData, setFormData] = useState({ name:'', email:'', phone:'', address:'' });
+  const [formData, setFormData] = useState({ name:'', email:'', phone:'', address:'', notes:'' });
   const [referralCode, setReferralCode] = useState('');
   const [referralStatus, setReferralStatus] = useState(null);
   const [referralMessage, setReferralMessage] = useState('');
@@ -483,7 +483,7 @@ function SummerPage() {
         recurringLabel: frequency,
       }],
       payment_method: paymentType === 'one-time' ? 'one-time upfront' : 'per-visit',
-      extra_notes: `Summer package. Frequency: ${frequency}. Preferred day: ${preferredDay}. Payment: ${paymentType}.`,
+      extra_notes: `Summer package. Frequency: ${frequency}. Preferred day: ${preferredDay}. Payment: ${paymentType}.${formData.notes ? ` Notes: ${formData.notes}` : ''}`,
       preferred_date: preferredDay,
       preferred_time: '',
       backup_date: null,
@@ -615,6 +615,16 @@ function SummerPage() {
               />
             </div>
           ))}
+          <div>
+            <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#374151',marginBottom:'6px'}}>Additional Notes <span style={{fontWeight:400,color:'#9ca3af'}}>(Optional)</span></label>
+            <textarea
+              rows={3}
+              value={formData.notes}
+              onChange={e=>setFormData(p=>({...p,notes:e.target.value}))}
+              placeholder="Gate code, specific areas to focus on, pets in yard, etc."
+              style={{width:'100%',boxSizing:'border-box',padding:'11px 14px',border:'1.5px solid #d1d5db',borderRadius:'8px',fontSize:'15px',resize:'vertical',fontFamily:'inherit'}}
+            />
+          </div>
         </div>
 
         {/* Referral Code */}

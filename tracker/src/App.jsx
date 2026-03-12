@@ -610,7 +610,8 @@ function InboxView({ data, update }) {
       (i._type !== 'contact' && !i.processedStatus)
     );
     else if (filter === 'contacts') items = items.filter(i => i._type === 'contact');
-    else if (filter === 'bookings') items = items.filter(i => i._type === 'booking');
+    else if (filter === 'bookings') items = items.filter(i => i._type === 'booking' && !i._summerPackage);
+    else if (filter === 'summer') items = items.filter(i => i._summerPackage);
     else if (filter === 'quotes') items = items.filter(i => itemHasQuotes(i));
     else if (filter === 'requests') items = items.filter(i => i._type === 'custom_request');
     if (searchQ.trim()) {
@@ -892,6 +893,7 @@ function InboxView({ data, update }) {
     { id: 'new',      label: 'New'             },
     { id: 'all',      label: 'All'             },
     { id: 'bookings', label: 'Bookings'        },
+    { id: 'summer',   label: 'Summer'          },
     { id: 'quotes',   label: 'Quotes'          },
     { id: 'contacts', label: 'Contacts'        },
     { id: 'requests', label: 'Custom Requests' },
@@ -952,8 +954,8 @@ function InboxView({ data, update }) {
             return (
               <div key={item.id} className={clsx('inbox-item', isNew && 'inbox-item-new')} onClick={() => openItem(item)}>
                 <div className="inbox-item-left">
-                  <span className={clsx('type-badge', item._type === 'custom_request' ? 'type-request' : item._type === 'contact' ? 'type-contact' : 'type-booking')}>
-                    {item._type === 'custom_request' ? 'Custom' : item._type === 'contact' ? 'Contact' : itemHasQuotes(item) ? 'Quote' : 'Booking'}
+                  <span className={clsx('type-badge', item._type === 'custom_request' ? 'type-request' : item._type === 'contact' ? 'type-contact' : item._summerPackage ? 'type-summer' : 'type-booking')}>
+                    {item._type === 'custom_request' ? 'Custom' : item._type === 'contact' ? 'Contact' : item._summerPackage ? 'Summer' : itemHasQuotes(item) ? 'Quote' : 'Booking'}
                   </span>
                   {isNew && <span className="new-dot" />}
                 </div>
@@ -968,7 +970,7 @@ function InboxView({ data, update }) {
                   </div>
                   {(item.preferredDate || item.date) && (
                     <div style={{fontSize:'12px', color:'var(--text3)', marginTop:'3px'}}>
-                      📅 {fmtDate(item.preferredDate || item.date)}{(item.preferredTime || item.time) ? ` at ${fmtTime(item.preferredTime || item.time)}` : ''}
+                      📅 {item._summerPackage ? (item.preferredDate || item.date) : fmtDate(item.preferredDate || item.date)}{!item._summerPackage && (item.preferredTime || item.time) ? ` at ${fmtTime(item.preferredTime || item.time)}` : ''}
                     </div>
                   )}
                   <div className="inbox-item-tags">
@@ -1176,7 +1178,7 @@ function InboxView({ data, update }) {
               <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
                 {/* Customer-requested dates */}
                 {[
-                  ...(selected.preferredDate || selected.date ? [{key:'preferred', label:'Customer Preferred', date: fmtDate(selected.preferredDate || selected.date), time: fmtTime(selected.preferredTime || selected.time), avail: selected.dateAvailability?.preferred}] : []),
+                  ...(selected.preferredDate || selected.date ? [{key:'preferred', label:'Customer Preferred', date: selected._summerPackage ? (selected.preferredDate || selected.date) : fmtDate(selected.preferredDate || selected.date), time: selected._summerPackage ? '' : fmtTime(selected.preferredTime || selected.time), avail: selected.dateAvailability?.preferred}] : []),
                   ...(selected.backupDate || selected.backup_date ? [{key:'backup', label:'Customer Backup', date: fmtDate(selected.backupDate || selected.backup_date), time: fmtTime(selected.backupTime || selected.backup_time), avail: selected.dateAvailability?.backup}] : []),
                 ].map(opt => {
                   const active = dateOption === opt.key;
@@ -2831,6 +2833,7 @@ export default function App() {
                   referralCreditsEarned: item.referralCreditsEarned || 0,
                   referralCount: item.referralCount || 0,
                   bookingId: item.bookingId || item.id || null,
+                  _summerPackage: item._summerPackage || false,
                   createdAt: item.receivedAt || item.date_submitted || new Date().toISOString(),
                 });
               }
