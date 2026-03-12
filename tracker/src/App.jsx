@@ -1041,6 +1041,15 @@ function InboxView({ data, update }) {
           {selected._type === 'contact' && (
             <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
               <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Your Reply</div>
+              {selected.aiSuggestedResponse && (
+                <div style={{marginBottom:'10px', padding:'10px 14px', background:'var(--bg2)', border:'1.5px solid var(--border)', borderRadius:'8px'}}>
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px'}}>
+                    <span style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', color:'var(--text3)'}}>AI Suggested</span>
+                    <button type="button" onClick={() => setReplyText(selected.aiSuggestedResponse)} style={{fontSize:'12px', padding:'3px 10px', borderRadius:'6px', border:'1.5px solid #3B82F6', background:'transparent', color:'#3B82F6', cursor:'pointer', fontWeight:600}}>Use This</button>
+                  </div>
+                  <p style={{margin:0, fontSize:'13px', color:'var(--text2)', lineHeight:1.6, whiteSpace:'pre-wrap'}}>{selected.aiSuggestedResponse}</p>
+                </div>
+              )}
               <textarea
                 rows={5}
                 placeholder="Type your reply to the customer..."
