@@ -696,6 +696,50 @@ function InboxView({ data, update }) {
       .filter(Boolean);
     const totalFixed = fixedServices.reduce((sum, s) => sum + (s.price || 0), 0);
     const totalQuoted = quotedServicesList.reduce((sum, s) => sum + (s.quotedPrice || 0), 0);
+    const fullSubtotal = totalFixed + totalQuoted;
+
+    // Recompute fees based on CONFIRMED date/time + full subtotal (fixed + quoted)
+    const confirmedDateObj = scheduledDate ? new Date(`${scheduledDate}T12:00:00`) : null;
+    const confirmedDow = confirmedDateObj ? confirmedDateObj.getDay() : -1;
+    const confirmedIsWeekend = confirmedDow === 0 || confirmedDow === 6;
+    const confirmedHour = parseInt((scheduledTime || '00:00').split(':')[0], 10);
+    const confirmedIsAfter5pm = confirmedHour >= 17;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const confirmedIsSameDay = scheduledDate === todayStr;
+    const needsMaterials = (item.materials_needed || 'No') !== 'No';
+
+    const computedFees = [];
+    let feesTotal = 0;
+    if (confirmedIsWeekend) {
+      const amt = Math.round(fullSubtotal * 0.10 * 100) / 100;
+      computedFees.push({ label: 'Weekend (10%)', amount: amt });
+      feesTotal += amt;
+    }
+    if (confirmedIsAfter5pm) {
+      const amt = Math.round(fullSubtotal * 0.20 * 100) / 100;
+      computedFees.push({ label: 'After 5pm (20%)', amount: amt });
+      feesTotal += amt;
+    }
+    if (confirmedIsSameDay) {
+      const amt = Math.round(fullSubtotal * 0.30 * 100) / 100;
+      computedFees.push({ label: 'Same-Day (30%)', amount: amt });
+      feesTotal += amt;
+    }
+    if (needsMaterials) {
+      computedFees.push({ label: 'Material Procurement', amount: 45 });
+      feesTotal += 45;
+    }
+
+    // Recompute discounts on full subtotal
+    let discountTotal = 0;
+    if (cartItems.length >= 3) {
+      discountTotal += Math.round(fullSubtotal * 0.10 * 100) / 100;
+    }
+    const referralRate = parseFloat(item.referral_discount_rate) || 0;
+    if (referralRate > 0) {
+      discountTotal += Math.round((fullSubtotal + feesTotal) * (referralRate / 100) * 100) / 100;
+    }
+    const finalTotal = Math.round((fullSubtotal + feesTotal - discountTotal) * 100) / 100;
 
     const isConfirmed = action === 'confirm' && !isAlt && !isCustom && !itemHasQuotes(item);
     const hasQuote = quotedServicesList.length > 0;
@@ -757,8 +801,10 @@ function InboxView({ data, update }) {
         quotedServices: quotedServicesList,
         totalFixed,
         totalQuoted,
-        totalCombined: totalFixed + totalQuoted,
-        fees: item.fees || 0,
+        totalCombined: finalTotal,
+        fees: feesTotal,
+        feeBreakdown: computedFees,
+        discount: discountTotal,
         paymentMethod: item.paymentMethod || item.payment_method || 'Cash',
         materialsNeeded: item.materials_needed || 'No',
       },
@@ -787,7 +833,7 @@ function InboxView({ data, update }) {
         clientPhone: item.phone || item.clientPhone || '',
         clientAddress: item.address || item.clientAddress || '',
         service: svcName, date: scheduledDate, time: scheduledTime,
-        price: totalFixed, status: 'confirmed', source: 'website',
+        price: finalTotal, status: 'confirmed', source: 'website',
         paymentMethod: item.payment_method || item.paymentMethod || 'Cash',
         notes: item.notes || item.extra_notes || '',
         isPaid: false, createdAt: new Date().toISOString(),
@@ -817,7 +863,7 @@ function InboxView({ data, update }) {
         clientPhone: item.phone || item.clientPhone || '',
         clientAddress: item.address || item.clientAddress || '',
         service: svcName, date: scheduledDate, time: scheduledTime,
-        price: totalFixed + totalQuoted, status: 'pending', source: 'website',
+        price: finalTotal, status: 'pending', source: 'website',
         paymentMethod: item.payment_method || item.paymentMethod || 'Cash',
         notes: item.notes || item.extra_notes || '',
         isPaid: false, createdAt: new Date().toISOString(),

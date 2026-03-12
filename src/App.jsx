@@ -1873,6 +1873,7 @@ function CheckoutPage() {
       payment_method: paymentMethod,
       extra_notes: formData.notes || '',
       referralCode: referralStatus === 'valid' ? referralCode.trim().toUpperCase() : null,
+      referral_discount_rate: referralStatus === 'valid' && referralDiscount > 0 ? referralDiscount : 0,
       suggestedCode: !existingCode ? previewCode : null,
       preferred_date: selectedDate,
       preferred_time: selectedTime,
