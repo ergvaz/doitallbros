@@ -1037,17 +1037,19 @@ function InboxView({ data, update }) {
             </div>
           )}
 
-          {/* ── Reply box ── */}
-          <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
-            <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'8px'}}>Your Reply</div>
-            <textarea
-              rows={5}
-              value={replyText}
-              onChange={e => setReplyText(e.target.value)}
-              placeholder="Type your reply to the customer..."
-              style={{display:'block', width:'100%', padding:'12px', borderRadius:'8px', border:'1.5px solid var(--border)', background:'var(--bg2)', color:'var(--text1)', fontSize:'14px', lineHeight:1.6, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box'}}
-            />
-          </div>
+          {/* ── Contact reply ── */}
+          {selected._type === 'contact' && (
+            <div style={{marginBottom:'20px', paddingBottom:'20px', borderBottom:'1px solid var(--border)'}}>
+              <div style={{fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--text3)', marginBottom:'10px'}}>Your Reply</div>
+              <textarea
+                rows={5}
+                placeholder="Type your reply to the customer..."
+                value={replyText}
+                onChange={e => setReplyText(e.target.value)}
+                style={{padding:'10px 14px', background:'var(--bg2)', border:'1.5px solid #3B82F6', borderRadius:'8px', color:'var(--text1)', fontSize:'14px', width:'100%', boxSizing:'border-box', fontFamily:'inherit', resize:'vertical'}}
+              />
+            </div>
+          )}
 
           {/* ── Custom request description ── */}
           {selected._type === 'custom_request' && (
