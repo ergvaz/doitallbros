@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
+import './HomepageNew.css';
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -746,187 +747,275 @@ function SummerPage() {
 function HomePage() {
   const navigate = useNavigate();
   const [showSummerPopup, setShowSummerPopup] = useState(() => !sessionStorage.getItem('summerPopupDismissed'));
+  const [openFaq, setOpenFaq] = useState(null);
 
   const dismissPopup = () => {
     sessionStorage.setItem('summerPopupDismissed', '1');
     setShowSummerPopup(false);
   };
 
+  // Scroll-triggered reveal
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.08, rootMargin: '0px 0px -50px 0px' }
+    );
+    document.querySelectorAll('.hp-reveal').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // 3-D card tilt on mouse move
+  const tilt = (e) => {
+    const card = e.currentTarget;
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top)  / r.height - 0.5;
+    card.style.transform = `perspective(900px) rotateX(${-y * 10}deg) rotateY(${x * 10}deg) translateZ(10px)`;
+  };
+  const resetTilt = (e) => { e.currentTarget.style.transform = ''; };
+
+  const faqs = [
+    { q: 'How much does lawn mowing cost in Louisville?', a: 'Basic lawn mowing starts at $45 for small yards, $60 for medium yards, $80 for large yards, and $110 for extra-large yards. Advanced lawn care with additional services starts at $85.' },
+    { q: 'Do you offer same-day or emergency services?',  a: 'Yes. We offer same-day and emergency services in Louisville, KY. Same-day bookings include a 30% rush fee. Call (502) 387-5462 to check availability.' },
+    { q: 'How much does junk removal cost?',              a: 'Junk removal starts at $150 for small loads and goes up based on volume. A full truck load is approximately $450+. We haul away furniture, appliances, yard debris, and general clutter.' },
+    { q: 'What payment methods do you accept?',           a: 'We accept cash, Venmo, Cash App, and Zelle. Payment is due after the service is completed.' },
+    { q: 'Do you serve areas outside Louisville?',        a: 'We primarily serve Louisville and Jefferson County, KY. Contact us to check if we cover your specific location.' },
+    { q: 'How do I book a service?',                      a: 'Click "Schedule a Service" on our website to select your services, preferred date, and time. You can also call us at (502) 387-5462.' },
+  ];
+
+  const svcDescriptions = {
+    recurring:       'Lawn care, power washing, gutters, mulching & dog walking on a recurring schedule.',
+    landscaping:     'Lawn mowing, weed removal, hedge trimming, garden beds & snow removal.',
+    homeMaintenance: 'Power washing, furniture assembly, fixtures, locks & general handyman tasks.',
+    moving:          'Local moving help, junk hauling, furniture rearranging & donation runs.',
+    tech:            'TV mounting, WiFi setup, smart home install & device troubleshooting.',
+    pet:             'Dog walking, yard cleanup & outdoor pet area maintenance.',
+    business:        'Office assembly, tech setup, light commercial cleaning & maintenance.',
+    emergency:       'Urgent same-day services in Louisville — available 7 days a week.',
+  };
+
+  const services = Object.entries(serviceData)
+    .filter(([, cat]) => !cat.isPackages)
+    .map(([key, cat]) => ({ key, ...cat }));
+
+  const areas = [
+    'Louisville (all neighborhoods)', 'Jeffersontown', 'St. Matthews', 'Shively',
+    'Pleasure Ridge Park', 'Valley Station', 'Middletown', 'Okolona', 'Lyndon', 'Prospect',
+  ];
+
   return (
-    <div className="homepage">
+    <div className="hp">
       {showSummerPopup && <SummerPopup onClose={dismissPopup} />}
-      <div className="summer-banner" onClick={() => navigate('/summer')}>
-        🌿 <strong>Summer Lawn Care Packages</strong> — Lock in the whole season for 10% off! Weekly or biweekly. <span className="summer-banner-cta">See Packages →</span>
-      </div>
-      <div className="hero">
-        <div className="hero-content">
-          <h1 className="hero-title">
-            <span className="title-main">Do It All Bros</span>
-            <span className="title-sub">Louisville's Local Service Pros</span>
+
+      {/* ─── HERO ─── */}
+      <section className="hp-hero">
+        <div className="hp-hero-bg" aria-hidden="true">
+          <div className="hp-orb hp-orb-1" />
+          <div className="hp-orb hp-orb-2" />
+          <div className="hp-orb hp-orb-3" />
+          <div className="hp-grid" />
+          <div className="hp-scanline" />
+        </div>
+
+        <div className="hp-hero-inner">
+          <div className="hp-eyebrow">
+            <span className="hp-eyebrow-dot" />
+            Louisville, KY &nbsp;·&nbsp; Local Service Pros
+          </div>
+          <h1 className="hp-headline">
+            <span className="hp-headline-line1">Do It All</span>
+            <span className="hp-headline-line2">Bros</span>
           </h1>
-          <p className="hero-description">
-            From lawn care to tech help, we handle the jobs you don't have time for.
-            Professional service, local roots, fair prices.
+          <p className="hp-subhead">
+            From lawn care to tech help — we handle the jobs you don't have time for.
+            Professional, local, and priced fairly.
           </p>
-          <div className="hero-cta">
-            <button className="btn btn-primary" onClick={() => navigate('/categories')}>
+          <div className="hp-actions">
+            <button className="hp-btn hp-btn-primary" onClick={() => navigate('/categories')}>
               Schedule a Service
             </button>
-            <button className="btn btn-secondary" onClick={() => navigate('/contact')}>
+            <button className="hp-btn hp-btn-ghost" onClick={() => navigate('/contact')}>
               Contact Us
             </button>
           </div>
         </div>
-        <div className="hero-features">
-          <div className="feature-card">
-            <span className="feature-icon">⚡</span>
-            <h3>Fast Response</h3>
-            <p>Same-day service available</p>
+
+        <div className="hp-badges">
+          <div className="hp-badge">⚡ Same-day available</div>
+          <div className="hp-badge">✓ Local &amp; trusted</div>
+          <div className="hp-badge">💰 Transparent pricing</div>
+        </div>
+
+        <div className="hp-scroll-hint" aria-hidden="true">
+          <div className="hp-scroll-hint-line" />
+        </div>
+      </section>
+
+      {/* ─── STATS BAR ─── */}
+      <div className="hp-stats">
+        {[
+          { num: '8',   label: 'Service Categories' },
+          { num: '50+', label: 'Services Available'  },
+          { num: '7',   label: 'Days a Week'         },
+          { num: '$0',  label: 'Booking Fee'         },
+        ].map(({ num, label }, i) => (
+          <div key={label} className={`hp-stat hp-reveal hp-reveal-d${i + 1}`}>
+            <div className="hp-stat-num">{num}</div>
+            <div className="hp-stat-label">{label}</div>
           </div>
-          <div className="feature-card">
-            <span className="feature-icon">✓</span>
-            <h3>Local & Trusted</h3>
-            <p>Serving Louisville, KY</p>
+        ))}
+      </div>
+
+      {/* ─── SUMMER BANNER ─── */}
+      <div className="hp-summer" onClick={() => navigate('/summer')}>
+        🌿 <strong>Summer Lawn Care Packages</strong> — Lock in the whole season for 10% off! Weekly or biweekly.
+        <span className="hp-summer-cta">See Packages →</span>
+      </div>
+
+      {/* ─── SERVICES GRID ─── */}
+      <div className="hp-services-wrap">
+        <div className="hp-section">
+          <div className="hp-reveal">
+            <div className="hp-section-label">What We Do</div>
+            <h2 className="hp-section-title">8 Categories of Service</h2>
+            <p className="hp-section-body">
+              Everything your home or business needs — handled by local pros who show up on time.
+            </p>
           </div>
-          <div className="feature-card">
-            <span className="feature-icon">💰</span>
-            <h3>Fair Pricing</h3>
-            <p>Transparent rates, no surprises</p>
+          <div className="hp-services-grid">
+            {services.map((cat, i) => (
+              <div
+                key={cat.key}
+                className={`hp-svc hp-reveal hp-reveal-d${(i % 4) + 1}`}
+                style={{ '--svc-color': cat.color }}
+                onClick={() => navigate(`/services/${cat.key}`)}
+                onMouseMove={tilt}
+                onMouseLeave={resetTilt}
+              >
+                <div className="hp-svc-icon">{cat.icon}</div>
+                <div className="hp-svc-title">{cat.title}</div>
+                <div className="hp-svc-desc">{svcDescriptions[cat.key]}</div>
+                <div className="hp-svc-link">View Services →</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+            <button className="hp-btn hp-btn-primary" onClick={() => navigate('/categories')}>
+              Browse All Services
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Popular Packages CTA */}
-      <section className="home-section packages-cta-section">
-        <div className="home-section-inner packages-cta-inner">
-          <div className="packages-cta-text">
-            <h2>Popular Packages</h2>
-            <p>Our most-booked service bundles — great value for common needs. From lawn care to full exterior refreshes.</p>
-          </div>
-          <button className="btn btn-primary packages-cta-btn" onClick={() => navigate('/services/packages')}>
-            View Popular Packages →
-          </button>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="home-section about-section">
-        <div className="home-section-inner">
-          <h2>About Do It All Bros</h2>
-          <p>
-            Do It All Bros is a locally owned and operated service company based in Louisville, Kentucky. We handle a wide range of home, lawn, and business tasks so you don't have to. Whether you need your lawn mowed, junk hauled away, furniture assembled, or a TV mounted, our team shows up on time and gets the job done right. We serve homeowners, renters, and small businesses across Louisville and Jefferson County. Our pricing is transparent — you see the cost before you book.
-          </p>
-        </div>
-      </section>
-
-      {/* Services Overview */}
-      <section className="home-section services-overview-section">
-        <div className="home-section-inner">
-          <h2>Our Services in Louisville, KY</h2>
-          <p className="section-intro">We offer 8 categories of services to cover everything your home or business needs.</p>
-          <div className="services-overview-grid">
-            <div className="service-overview-card" onClick={() => navigate('/services/recurring')}>
-              <h3>Recurring Services</h3>
-              <p>Scheduled lawn care, gutter cleaning, power washing, mulching, and dog walking. Starting at $25.</p>
-              <span className="overview-link">View Services →</span>
+      {/* ─── PACKAGES CTA ─── */}
+      <div className="hp-pkg-cta-wrap">
+        <div className="hp-section">
+          <div className="hp-pkg-cta hp-reveal">
+            <div className="hp-pkg-cta-text">
+              <div className="hp-section-label">Most Popular</div>
+              <div className="hp-pkg-cta-title">Popular Packages</div>
+              <div className="hp-pkg-cta-sub">
+                Our most-booked service bundles — great value for common needs.
+                From lawn care to full exterior refreshes.
+              </div>
             </div>
-            <div className="service-overview-card" onClick={() => navigate('/services/landscaping')}>
-              <h3>Landscaping & Lawn Care</h3>
-              <p>Lawn mowing, weed removal, hedge trimming, leaf cleanup, garden beds, and snow removal in Louisville. Starting at $45.</p>
-              <span className="overview-link">View Services →</span>
-            </div>
-            <div className="service-overview-card" onClick={() => navigate('/services/homeMaintenance')}>
-              <h3>Home Maintenance & Handyman</h3>
-              <p>Power washing, furniture assembly, picture hanging, door locks, light fixtures, smoke detectors, and more. Starting at $20.</p>
-              <span className="overview-link">View Services →</span>
-            </div>
-            <div className="service-overview-card" onClick={() => navigate('/services/moving')}>
-              <h3>Moving, Organization & Junk Removal</h3>
-              <p>Local moving help, junk hauling, furniture rearranging, packing assistance, and donation drop-offs. Starting at $50.</p>
-              <span className="overview-link">View Services →</span>
-            </div>
-            <div className="service-overview-card" onClick={() => navigate('/services/tech')}>
-              <h3>Tech Help & Smart Home</h3>
-              <p>TV mounting, WiFi setup, device troubleshooting, smart home installation, and printer setup. Starting at $40.</p>
-              <span className="overview-link">View Services →</span>
-            </div>
-            <div className="service-overview-card" onClick={() => navigate('/services/pet')}>
-              <h3>Pet & Outdoor Care</h3>
-              <p>Dog walking, yard cleanup, and outdoor pet area maintenance. Dog walking from $25/30 min.</p>
-              <span className="overview-link">View Services →</span>
-            </div>
-            <div className="service-overview-card" onClick={() => navigate('/services/business')}>
-              <h3>Small Business Services</h3>
-              <p>Office furniture assembly, tech setup, light commercial cleaning, and general business maintenance. Starting at $50.</p>
-              <span className="overview-link">View Services →</span>
-            </div>
-            <div className="service-overview-card" onClick={() => navigate('/services/emergency')}>
-              <h3>Emergency & Same-Day Help</h3>
-              <p>Urgent services available same day in Louisville. Available 7 days a week with priority scheduling.</p>
-              <span className="overview-link">View Services →</span>
+            <div className="hp-pkg-cta-btn">
+              <button className="hp-btn hp-btn-primary" onClick={() => navigate('/services/packages')}>
+                View Packages →
+              </button>
             </div>
           </div>
-          <div style={{textAlign: 'center', marginTop: '2rem'}}>
-            <button className="btn btn-primary" onClick={() => navigate('/categories')}>Browse All Services</button>
+        </div>
+      </div>
+
+      {/* ─── ABOUT ─── */}
+      <div className="hp-about">
+        <div className="hp-about-inner hp-reveal">
+          <div>
+            <span className="hp-section-label" style={{ color: '#10B981' }}>About Us</span>
+            <h2 className="hp-section-title">Louisville's<br />Local Pros</h2>
+            <p className="hp-section-body" style={{ marginBottom: '0' }}>
+              Do It All Bros is a locally owned service company based in Louisville, KY.
+              We handle a wide range of home, lawn, and business tasks so you don't have to —
+              and you see the price before you book.
+            </p>
+            <div className="hp-about-features">
+              {[
+                'Show up on time, every time',
+                'Transparent pricing before you book',
+                'Serving all of Louisville & Jefferson County',
+                'Available 7 days a week',
+              ].map(f => (
+                <div className="hp-about-feat" key={f}>
+                  <div className="hp-about-feat-dot" />
+                  {f}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="hp-stats-card">
+              {[
+                { num: '8',   label: 'Service Categories'  },
+                { num: '50+', label: 'Available Services'   },
+                { num: '$0',  label: 'Booking Fee — Ever'  },
+                { num: '7',   label: 'Days a Week'         },
+              ].map(({ num, label }) => (
+                <div className="hp-stats-card-item" key={label}>
+                  <div className="hp-stats-card-num">{num}</div>
+                  <div className="hp-stats-card-label">{label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Service Area */}
-      <section className="home-section area-section">
-        <div className="home-section-inner">
-          <h2>Service Area — Louisville, KY & Surrounding Communities</h2>
-          <p>
-            We provide services throughout Louisville and Jefferson County, Kentucky, including:
-          </p>
-          <ul className="area-list">
-            <li>Louisville (all neighborhoods)</li>
-            <li>Jeffersontown</li>
-            <li>St. Matthews</li>
-            <li>Shively</li>
-            <li>Pleasure Ridge Park</li>
-            <li>Valley Station</li>
-            <li>Middletown</li>
-            <li>Okolona</li>
-            <li>Lyndon</li>
-            <li>Prospect</li>
+      {/* ─── SERVICE AREA ─── */}
+      <div className="hp-area">
+        <div className="hp-area-inner hp-reveal">
+          <div className="hp-section-label">Coverage</div>
+          <h2 className="hp-section-title">We Serve Louisville &amp; Surrounding Areas</h2>
+          <ul className="hp-area-chips">
+            {areas.map(a => <li className="hp-area-chip" key={a}>{a}</li>)}
           </ul>
-          <p>Not sure if we cover your area? <Link to="/contact">Contact us</Link> and we'll let you know.</p>
+          <p className="hp-area-note">
+            Not sure if we cover your area?{' '}
+            <Link to="/contact">Contact us</Link> and we'll let you know.
+          </p>
         </div>
-      </section>
+      </div>
 
-      {/* FAQ Section */}
-      <section className="home-section faq-section">
-        <div className="home-section-inner">
-          <h2>Frequently Asked Questions</h2>
-          <div className="faq-list">
-            <div className="faq-item">
-              <h3>How much does lawn mowing cost in Louisville?</h3>
-              <p>Basic lawn mowing starts at $45 for small yards, $60 for medium yards, $80 for large yards, and $110 for extra-large yards. Advanced lawn care with additional services starts at $95.</p>
-            </div>
-            <div className="faq-item">
-              <h3>Do you offer same-day or emergency services?</h3>
-              <p>Yes. We offer same-day and emergency services in Louisville, KY. Same-day bookings include a 30% rush fee. Call (502) 387-5462 to check availability.</p>
-            </div>
-            <div className="faq-item">
-              <h3>How much does junk removal cost?</h3>
-              <p>Junk removal starts at $150 for small loads and goes up based on volume. A full truck load is approximately $450+. We haul away furniture, appliances, yard debris, and general clutter.</p>
-            </div>
-            <div className="faq-item">
-              <h3>What payment methods do you accept?</h3>
-              <p>We accept cash, Venmo, Cash App, and Zelle. Payment is due after the service is completed.</p>
-            </div>
-            <div className="faq-item">
-              <h3>Do you serve areas outside Louisville?</h3>
-              <p>We primarily serve Louisville and Jefferson County, KY. Contact us to check if we cover your specific location.</p>
-            </div>
-            <div className="faq-item">
-              <h3>How do I book a service?</h3>
-              <p>Click "Book Now" on our website to select your services, preferred date, and time. You can also call us at (502) 387-5462 or use our contact form.</p>
-            </div>
+      {/* ─── FAQ ─── */}
+      <div className="hp-faq">
+        <div className="hp-faq-inner">
+          <div className="hp-reveal">
+            <div className="hp-section-label">FAQ</div>
+            <h2 className="hp-section-title">Common Questions</h2>
+            <p className="hp-section-body">Everything you need to know before booking.</p>
+            <button className="hp-btn hp-btn-primary" onClick={() => navigate('/contact')}>
+              Ask a Question
+            </button>
+          </div>
+          <div className="hp-faq-list hp-reveal hp-reveal-d1">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className={`hp-faq-item${openFaq === i ? ' open' : ''}`}
+              >
+                <button
+                  className="hp-faq-q"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  {faq.q}
+                  <span className="hp-faq-icon">+</span>
+                </button>
+                <div className="hp-faq-a">{faq.a}</div>
+              </div>
+            ))}
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
