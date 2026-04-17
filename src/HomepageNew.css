@@ -165,7 +165,7 @@
 
 .hp-subhead {
   font-size: clamp(1rem, 2vw, 1.3rem);
-  color: #64748B;
+  color: #94A3B8;
   max-width: 540px;
   margin: 0 auto 3rem;
   line-height: 1.8;
@@ -331,7 +331,7 @@
 .hp-stat-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #475569;
+  color: #94A3B8;
   text-transform: uppercase;
   letter-spacing: 0.09em;
 }
@@ -389,7 +389,7 @@
 
 .hp-section-body {
   font-size: 1.05rem;
-  color: #475569;
+  color: #94A3B8;
   max-width: 480px;
   line-height: 1.78;
   margin-bottom: 3rem;
@@ -460,7 +460,7 @@
 
 .hp-svc-desc {
   font-size: 0.85rem;
-  color: #475569;
+  color: #94A3B8;
   line-height: 1.65;
   margin-bottom: 1.25rem;
   flex: 1;
@@ -530,7 +530,7 @@
 
 .hp-pkg-cta-sub {
   font-size: 1rem;
-  color: #64748B;
+  color: #94A3B8;
   max-width: 420px;
   line-height: 1.65;
 }
@@ -604,7 +604,7 @@
 
 .hp-stats-card-label {
   font-size: 0.85rem;
-  color: #475569;
+  color: #94A3B8;
   font-weight: 500;
 }
 
@@ -648,7 +648,7 @@
 
 .hp-area-note {
   font-size: 0.9rem;
-  color: #475569;
+  color: #94A3B8;
 }
 
 .hp-area-note a {
@@ -732,7 +732,7 @@
   transition: max-height 0.38s ease, padding 0.38s ease;
   padding: 0 1.5rem;
   font-size: 0.875rem;
-  color: #475569;
+  color: #94A3B8;
   line-height: 1.78;
 }
 

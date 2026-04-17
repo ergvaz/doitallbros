@@ -35,7 +35,7 @@ body {
 }
 
 .nav-link {
-  color: #64748B;
+  color: #94A3B8;
 }
 
 .nav-link:hover {
@@ -121,7 +121,7 @@ body {
 }
 
 .category-count {
-  color: #475569;
+  color: #94A3B8;
 }
 
 /* Packages featured card — keep gradient, just deepen shadow */
@@ -199,7 +199,7 @@ body {
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #334155;
+  color: #64748B;
 }
 
 .form-group input:focus,
@@ -261,12 +261,12 @@ body {
 }
 
 .size-label { color: #CBD5E1; }
-.size-example { color: #475569; }
+.size-example { color: #94A3B8; }
 .size-price { color: #818CF8; }
 
 .option-title { color: #E2E8F0; }
 .option-price { color: #818CF8; }
-.option-detail { color: #475569; }
+.option-detail { color: #94A3B8; }
 
 /* Payment method select */
 .payment-method-option {
@@ -305,7 +305,7 @@ body {
 }
 
 /* Materials */
-.materials-note { color: #64748B; }
+.materials-note { color: #94A3B8; }
 
 .materials-dropdown {
   background: rgba(255,255,255,0.03);
@@ -374,14 +374,14 @@ body {
 .pricing-note {
   background: rgba(99,102,241,0.07);
   border-left-color: #6366F1;
-  color: #64748B;
+  color: #94A3B8;
 }
 
 /* Price preview */
 .price-preview {
   background: rgba(99,102,241,0.07);
   border-left-color: #6366F1;
-  color: #64748B;
+  color: #94A3B8;
 }
 
 .price-preview strong { color: #818CF8; }
@@ -393,7 +393,7 @@ body {
 }
 
 .cart-item-info h3 { color: #F1F5F9; }
-.cart-item-info p  { color: #475569; }
+.cart-item-info p  { color: #94A3B8; }
 
 /* ─── Suggested add-ons ─── */
 .suggested-addons {
@@ -416,11 +416,11 @@ body {
 .addon-card h4 { color: #E2E8F0; }
 
 /* ─── Empty cart ─── */
-.empty-cart h2 { color: #475569; }
+.empty-cart h2 { color: #94A3B8; }
 
 /* ─── Booking note / misc text ─── */
-.booking-note { color: #475569; }
-.materials-note { color: #475569; }
+.booking-note { color: #94A3B8; }
+.materials-note { color: #94A3B8; }
 
 /* ─── Warnings & notices ─── */
 .material-warning {
@@ -449,7 +449,7 @@ body {
 }
 
 .dependent-pricing-notice strong { color: #818CF8; }
-.dependent-pricing-notice p { color: #64748B; }
+.dependent-pricing-notice p { color: #94A3B8; }
 
 .dependent-pricing-note {
   background: rgba(139,92,246,0.08);
@@ -477,12 +477,12 @@ body {
   border-left-color: #10B981;
 }
 
-.service-description-box p { color: #64748B; }
+.service-description-box p { color: #94A3B8; }
 
 /* Close service btn */
 .close-service-btn {
   border-color: rgba(255,255,255,0.12);
-  color: #64748B;
+  color: #94A3B8;
 }
 
 .close-service-btn:hover {
@@ -493,7 +493,7 @@ body {
 /* Item detail badge */
 .item-detail {
   background: rgba(255,255,255,0.04);
-  color: #64748B;
+  color: #94A3B8;
 }
 
 .item-price { color: #818CF8; }
@@ -514,8 +514,8 @@ body {
 }
 
 .confirmation-container h1 { color: #F1F5F9; }
-.confirmation-message { color: #64748B; }
-.confirmation-note { color: #475569; }
+.confirmation-message { color: #94A3B8; }
+.confirmation-note { color: #94A3B8; }
 
 /* ─── Contact page ─── */
 .contact-page { background: #060B18; }
@@ -526,7 +526,7 @@ body {
 }
 
 .contact-info h1 { color: #F1F5F9; }
-.contact-description { color: #64748B; }
+.contact-description { color: #94A3B8; }
 
 .contact-item {
   background: rgba(255,255,255,0.03);
@@ -537,10 +537,10 @@ body {
 }
 
 .contact-item h4 { color: #E2E8F0; }
-.contact-item p  { color: #475569; }
+.contact-item p  { color: #94A3B8; }
 
 .contact-success-title { color: #F1F5F9; }
-.contact-success-body  { color: #64748B; }
+.contact-success-body  { color: #94A3B8; }
 
 /* ─── Legal page ─── */
 .legal-page { background: #060B18; }
@@ -555,7 +555,7 @@ body {
 .legal-container h3 { color: #E2E8F0; }
 
 .legal-container p,
-.legal-container li { color: #64748B; }
+.legal-container li { color: #94A3B8; }
 
 /* ─── Modal (Custom Request) ─── */
 .modal-overlay {
@@ -568,7 +568,7 @@ body {
 }
 
 .modal-box h2 { color: #F1F5F9; }
-.modal-box p  { color: #64748B; }
+.modal-box p  { color: #94A3B8; }
 
 .modal-close {
   background: rgba(255,255,255,0.06);
@@ -589,14 +589,14 @@ body {
 }
 
 .footer-section h4 { color: #E2E8F0; }
-.footer-section p  { color: #475569; }
-.footer-section a  { color: #475569; }
+.footer-section p  { color: #94A3B8; }
+.footer-section a  { color: #94A3B8; }
 
 .footer-section a:hover {
   color: #818CF8;
 }
 
-.footer-bottom { color: #334155; }
+.footer-bottom { color: #64748B; }
 
 /* ─── Summer page (light inline styles can't be overridden here, ─── */
 /* but we can set the page container background)                      */
@@ -624,7 +624,7 @@ body {
 }
 
 .feature-card h3 { color: #E2E8F0; }
-.feature-card p  { color: #64748B; }
+.feature-card p  { color: #94A3B8; }
 
 /* ─── SEO home sections (legacy — kept for safety) ─── */
 .home-section {
@@ -636,7 +636,7 @@ body {
 }
 
 .home-section h2 { color: #E2E8F0; }
-.home-section p  { color: #64748B; }
+.home-section p  { color: #94A3B8; }
 .home-section a  { color: #818CF8; }
 
 .service-overview-card {
@@ -650,7 +650,7 @@ body {
 }
 
 .service-overview-card h3 { color: #E2E8F0; }
-.service-overview-card p  { color: #64748B; }
+.service-overview-card p  { color: #94A3B8; }
 
 .area-list li {
   background: rgba(255,255,255,0.025);
@@ -664,4 +664,45 @@ body {
 }
 
 .faq-item h3 { color: #E2E8F0; }
-.faq-item p  { color: #475569; }
+.faq-item p  { color: #94A3B8; }
+
+/* ─── App.css hardcoded overrides not caught by class selectors above ─── */
+.hero-description,
+.title-sub,
+.section-intro,
+.packages-cta-text p,
+.category-count,
+.service-count,
+.contact-description,
+.pricing-note,
+.booking-note,
+.materials-note,
+.size-example,
+.option-detail,
+.item-detail,
+.cart-item-info p,
+.confirmation-message,
+.confirmation-note,
+.contact-success-body,
+.contact-item p,
+.close-service-btn,
+.same-day-note a,
+.dependent-pricing-notice p,
+.service-description-box p,
+.home-section p,
+.home-section a,
+.service-overview-card p,
+.faq-item p,
+.legal-container p,
+.legal-container li,
+.modal-box p {
+  color: #94A3B8;
+}
+
+/* Form labels need to be clearly readable */
+.form-group label,
+.materials-dropdown > label,
+.size-label,
+.option-title {
+  color: #CBD5E1;
+}
