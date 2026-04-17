@@ -1,0 +1,667 @@
+/* ============================================================
+   GLOBAL DARK THEME — overrides App.css for all pages
+   Matches the spatial dark design from HomepageNew.css
+   Layout, structure, and functionality untouched.
+   ============================================================ */
+
+/* ─── Root variables ─── */
+:root {
+  --bg-dark:   #060B18;
+  --bg-card:   #0D1526;
+  --bg-light:  #060B18;
+  --text-dark: #E2E8F0;
+  --text-light: #F1F5F9;
+  --text-medium: #94A3B8;
+
+  --shadow-sm: 0 2px 8px  rgba(0,0,0,0.35);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.45);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.55);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.65);
+}
+
+/* ─── Body ─── */
+body {
+  background: #060B18;
+  color: #E2E8F0;
+}
+
+/* ─── Header / Nav ─── */
+.header {
+  background: rgba(6, 11, 24, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.nav-link {
+  color: #64748B;
+}
+
+.nav-link:hover {
+  color: #E2E8F0;
+  background: rgba(255,255,255,0.04);
+}
+
+.nav-link::before {
+  background: #6366F1;
+}
+
+.nav-link-primary {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: white;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+}
+
+.nav-link-primary:hover {
+  color: white;
+  box-shadow: 0 6px 24px rgba(99,102,241,0.5);
+}
+
+.cart-link {
+  background: rgba(255,255,255,0.05);
+  color: #CBD5E1;
+  border: 2px solid rgba(255,255,255,0.1);
+}
+
+.cart-link:hover {
+  background: #6366F1;
+  border-color: #6366F1;
+  color: white;
+}
+
+.nav-link-custom {
+  background: none;
+  border-color: rgba(99,102,241,0.35);
+  color: #818CF8;
+}
+
+.nav-link-custom:hover {
+  background: rgba(99,102,241,0.12);
+  color: #A5B4FC;
+}
+
+/* ─── Page header banners (categories, services) ─── */
+.page-header {
+  background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.12) 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.back-btn {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.12);
+  color: #94A3B8;
+}
+
+.back-btn:hover {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.4);
+  color: #A5B4FC;
+  transform: translateX(-3px);
+}
+
+/* ─── Categories page ─── */
+.categories-page {
+  background: #060B18;
+}
+
+.category-card {
+  background: rgba(255,255,255,0.028);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.category-card:hover {
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(255,255,255,0.14);
+  box-shadow: 0 20px 56px rgba(0,0,0,0.5);
+}
+
+.category-title {
+  color: #E2E8F0;
+}
+
+.category-count {
+  color: #475569;
+}
+
+/* Packages featured card — keep gradient, just deepen shadow */
+.packages-featured-card {
+  box-shadow: 0 8px 40px rgba(99,102,241,0.25);
+}
+
+.packages-featured-card:hover {
+  box-shadow: 0 16px 56px rgba(99,102,241,0.38);
+}
+
+/* ─── Services page ─── */
+.services-page {
+  background: #060B18;
+}
+
+.service-card {
+  background: rgba(255,255,255,0.028);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.service-card:hover {
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(255,255,255,0.14);
+  box-shadow: 0 20px 56px rgba(0,0,0,0.5);
+}
+
+.service-name {
+  color: #E2E8F0;
+}
+
+/* ─── Cart summary bar ─── */
+/* already gradient indigo — no change needed */
+
+/* ─── Checkout / Add-service / Booking pages ─── */
+.checkout-page,
+.add-service-page {
+  background: #060B18;
+}
+
+.booking-header {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.booking-header-top h1 {
+  color: #F1F5F9;
+}
+
+.service-config,
+.checkout-form,
+.contact-form {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.service-config h3,
+.checkout-form h3,
+.form-section h3 {
+  color: #E2E8F0;
+}
+
+/* Forms */
+.form-group label {
+  color: #94A3B8;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  color: #F1F5F9;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #334155;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  background: rgba(255,255,255,0.07);
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.18);
+}
+
+/* Select dropdown option text */
+.form-group select option {
+  background: #0D1526;
+  color: #E2E8F0;
+}
+
+/* Toggles */
+.toggle-btn {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  color: #CBD5E1;
+}
+
+.toggle-btn.active {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-color: #6366F1;
+  color: white;
+}
+
+.toggle-btn:hover:not(.active) {
+  border-color: rgba(99,102,241,0.4);
+  color: #A5B4FC;
+  transform: translateY(-2px);
+}
+
+/* Radio / size options */
+.radio-option,
+.size-option,
+.payment-option {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  color: #CBD5E1;
+}
+
+.radio-option.active,
+.size-option.active,
+.payment-option.active {
+  background: rgba(99,102,241,0.1);
+  border-color: rgba(99,102,241,0.45);
+  color: #A5B4FC;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.25);
+}
+
+.radio-option:hover,
+.size-option:hover,
+.payment-option:hover {
+  border-color: rgba(99,102,241,0.35);
+  transform: translateY(-2px);
+}
+
+.size-label { color: #CBD5E1; }
+.size-example { color: #475569; }
+.size-price { color: #818CF8; }
+
+.option-title { color: #E2E8F0; }
+.option-price { color: #818CF8; }
+.option-detail { color: #475569; }
+
+/* Payment method select */
+.payment-method-option {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  color: #CBD5E1;
+  font-weight: 600;
+}
+
+.payment-method-option.active {
+  background: rgba(99,102,241,0.1);
+  border-color: rgba(99,102,241,0.45);
+  color: #A5B4FC;
+}
+
+.payment-method-option:hover {
+  border-color: rgba(99,102,241,0.35);
+  transform: translateY(-2px);
+}
+
+/* Powerwash options */
+.powerwash-option {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.1);
+  color: #94A3B8;
+}
+
+.powerwash-option.active {
+  background: rgba(99,102,241,0.1);
+  border-color: rgba(99,102,241,0.45);
+  color: #818CF8;
+}
+
+.powerwash-option:hover {
+  border-color: rgba(99,102,241,0.3);
+}
+
+/* Materials */
+.materials-note { color: #64748B; }
+
+.materials-dropdown {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.materials-dropdown > label { color: #CBD5E1; }
+
+.material-option {
+  background: rgba(255,255,255,0.035);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.material-option:hover {
+  background: rgba(99,102,241,0.08);
+  border-color: rgba(99,102,241,0.25);
+}
+
+.material-option span { color: #CBD5E1; }
+
+/* Checkbox */
+.checkbox-label {
+  background: rgba(255,255,255,0.03);
+  color: #CBD5E1;
+}
+
+.checkbox-label:hover {
+  border-color: rgba(99,102,241,0.3);
+  background: rgba(255,255,255,0.05);
+}
+
+/* Urgency input */
+.urgency-input {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  color: #F1F5F9;
+}
+
+.urgency-input:focus {
+  background: rgba(255,255,255,0.07);
+  border-color: #EF4444;
+}
+
+/* Pricing summaries */
+.pricing-summary,
+.pricing-breakdown {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.pricing-summary h3 { color: #E2E8F0; }
+
+.price-row {
+  border-bottom-color: rgba(255,255,255,0.06);
+  color: #CBD5E1;
+}
+
+.price-row.fee   { color: #F59E0B; }
+.price-row.discount { color: #10B981; }
+.price-row.total {
+  color: #818CF8;
+  border-top-color: rgba(99,102,241,0.35);
+}
+
+/* Pricing note */
+.pricing-note {
+  background: rgba(99,102,241,0.07);
+  border-left-color: #6366F1;
+  color: #64748B;
+}
+
+/* Price preview */
+.price-preview {
+  background: rgba(99,102,241,0.07);
+  border-left-color: #6366F1;
+  color: #64748B;
+}
+
+.price-preview strong { color: #818CF8; }
+
+/* ─── Cart items ─── */
+.cart-item {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.cart-item-info h3 { color: #F1F5F9; }
+.cart-item-info p  { color: #475569; }
+
+/* ─── Suggested add-ons ─── */
+.suggested-addons {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.suggested-addons h3 { color: #E2E8F0; }
+
+.addon-card {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.addon-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(99,102,241,0.3);
+}
+
+.addon-card h4 { color: #E2E8F0; }
+
+/* ─── Empty cart ─── */
+.empty-cart h2 { color: #475569; }
+
+/* ─── Booking note / misc text ─── */
+.booking-note { color: #475569; }
+.materials-note { color: #475569; }
+
+/* ─── Warnings & notices ─── */
+.material-warning {
+  background: rgba(245,158,11,0.08);
+  border-left-color: #F59E0B;
+  color: #FCD34D;
+}
+
+.emergency-warning {
+  background: rgba(239,68,68,0.08);
+  border-left-color: #EF4444;
+  color: #FCA5A5;
+}
+
+.same-day-note {
+  background: rgba(245,158,11,0.08);
+  border-color: rgba(245,158,11,0.2);
+  color: #FCD34D;
+}
+
+.same-day-note a { color: #F59E0B; }
+
+.dependent-pricing-notice {
+  background: rgba(99,102,241,0.08);
+  border-color: rgba(99,102,241,0.2);
+}
+
+.dependent-pricing-notice strong { color: #818CF8; }
+.dependent-pricing-notice p { color: #64748B; }
+
+.dependent-pricing-note {
+  background: rgba(139,92,246,0.08);
+  border-color: rgba(139,92,246,0.2);
+  color: #C4B5FD;
+}
+
+.quote-notice {
+  background: rgba(99,102,241,0.08);
+  border-color: rgba(99,102,241,0.2);
+}
+
+.quote-notice strong { color: #818CF8; }
+
+.tbd-total-notice {
+  background: rgba(139,92,246,0.07);
+  border-color: rgba(139,92,246,0.2);
+}
+
+.tbd-total-notice p { color: #94A3B8; }
+
+/* Service description box */
+.service-description-box {
+  background: rgba(255,255,255,0.025);
+  border-left-color: #10B981;
+}
+
+.service-description-box p { color: #64748B; }
+
+/* Close service btn */
+.close-service-btn {
+  border-color: rgba(255,255,255,0.12);
+  color: #64748B;
+}
+
+.close-service-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: #94A3B8;
+}
+
+/* Item detail badge */
+.item-detail {
+  background: rgba(255,255,255,0.04);
+  color: #64748B;
+}
+
+.item-price { color: #818CF8; }
+
+/* Material note small */
+.material-note-sm {
+  background: rgba(245,158,11,0.08);
+  color: #F59E0B;
+}
+
+/* ─── Confirmation page ─── */
+.confirmation-page { background: #060B18; }
+
+.confirmation-container {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(99,102,241,0.3);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+}
+
+.confirmation-container h1 { color: #F1F5F9; }
+.confirmation-message { color: #64748B; }
+.confirmation-note { color: #475569; }
+
+/* ─── Contact page ─── */
+.contact-page { background: #060B18; }
+
+.contact-info {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.contact-info h1 { color: #F1F5F9; }
+.contact-description { color: #64748B; }
+
+.contact-item {
+  background: rgba(255,255,255,0.03);
+}
+
+.contact-item:hover {
+  background: rgba(99,102,241,0.08);
+}
+
+.contact-item h4 { color: #E2E8F0; }
+.contact-item p  { color: #475569; }
+
+.contact-success-title { color: #F1F5F9; }
+.contact-success-body  { color: #64748B; }
+
+/* ─── Legal page ─── */
+.legal-page { background: #060B18; }
+
+.legal-container {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.legal-container h1,
+.legal-container h2,
+.legal-container h3 { color: #E2E8F0; }
+
+.legal-container p,
+.legal-container li { color: #64748B; }
+
+/* ─── Modal (Custom Request) ─── */
+.modal-overlay {
+  background: rgba(0,0,0,0.72);
+}
+
+.modal-box {
+  background: #0D1526;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.modal-box h2 { color: #F1F5F9; }
+.modal-box p  { color: #64748B; }
+
+.modal-close {
+  background: rgba(255,255,255,0.06);
+  color: #94A3B8;
+}
+
+.modal-close:hover {
+  background: rgba(255,255,255,0.1);
+  color: #E2E8F0;
+}
+
+/* Custom request form inputs (inherits .form-group overrides above) */
+
+/* ─── Footer ─── */
+.footer {
+  background: rgba(6,11,24,0.95);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.footer-section h4 { color: #E2E8F0; }
+.footer-section p  { color: #475569; }
+.footer-section a  { color: #475569; }
+
+.footer-section a:hover {
+  color: #818CF8;
+}
+
+.footer-bottom { color: #334155; }
+
+/* ─── Summer page (light inline styles can't be overridden here, ─── */
+/* but we can set the page container background)                      */
+.summer-page-wrap,
+[class*="summer"] > div:first-child {
+  background: #060B18;
+}
+
+/* ─── Referral page inline style overrides (as much as CSS allows) ─── */
+/* Inline styles take precedence, but we can set the page bg */
+.referral-page-wrap { background: #060B18; }
+
+/* ─── Loading state ─── */
+.loading { color: #6366F1; }
+
+/* ─── Feature cards (homepage legacy — not shown in new hp, but kept) ─── */
+.feature-card {
+  background: rgba(255,255,255,0.028);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.feature-card:hover {
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(99,102,241,0.4);
+}
+
+.feature-card h3 { color: #E2E8F0; }
+.feature-card p  { color: #64748B; }
+
+/* ─── SEO home sections (legacy — kept for safety) ─── */
+.home-section {
+  border-top-color: rgba(255,255,255,0.06);
+}
+
+.home-section:nth-child(even) {
+  background: rgba(255,255,255,0.015);
+}
+
+.home-section h2 { color: #E2E8F0; }
+.home-section p  { color: #64748B; }
+.home-section a  { color: #818CF8; }
+
+.service-overview-card {
+  background: rgba(255,255,255,0.028);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.service-overview-card:hover {
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(99,102,241,0.3);
+}
+
+.service-overview-card h3 { color: #E2E8F0; }
+.service-overview-card p  { color: #64748B; }
+
+.area-list li {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+  color: #94A3B8;
+}
+
+.faq-item {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.07);
+}
+
+.faq-item h3 { color: #E2E8F0; }
+.faq-item p  { color: #475569; }
