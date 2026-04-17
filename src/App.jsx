@@ -3361,8 +3361,8 @@ function ReferralPage() {
       {/* Hero */}
       <div style={{textAlign:'center', marginBottom:'48px'}}>
         <div style={{fontSize:'48px', marginBottom:'12px'}}>🎟</div>
-        <h1 style={{fontSize:'2.2rem', fontWeight:800, color:'#1E293B', marginBottom:'12px'}}>Refer a Friend, Both Save</h1>
-        <p style={{fontSize:'1.1rem', color:'#64748B', maxWidth:'520px', margin:'0 auto'}}>Share Do It All Bros with people you know. When they book their first service, you both get a discount — it's that simple.</p>
+        <h1 style={{fontSize:'2.2rem', fontWeight:800, color:'#F1F5F9', marginBottom:'12px'}}>Refer a Friend, Both Save</h1>
+        <p style={{fontSize:'1.1rem', color:'#94A3B8', maxWidth:'520px', margin:'0 auto'}}>Share Do It All Bros with people you know. When they book their first service, you both get a discount — it's that simple.</p>
       </div>
 
       {/* How it works */}
@@ -3373,31 +3373,31 @@ function ReferralPage() {
           { icon:'💸', step:'3', title:'They Save 10%', desc:'Your referral gets 10% off their first service when they enter your code at checkout.' },
           { icon:'🎉', step:'4', title:'You Save 20%', desc:'Once their first visit is completed, you earn a 20% discount on your next service.' },
         ].map(({ icon, step, title, desc }) => (
-          <div key={step} style={{background:'#F8FAFC', borderRadius:'16px', padding:'24px', border:'1.5px solid #E2E8F0', textAlign:'center'}}>
+          <div key={step} style={{background:'rgba(255,255,255,0.04)', borderRadius:'16px', padding:'24px', border:'1.5px solid rgba(255,255,255,0.09)', textAlign:'center'}}>
             <div style={{fontSize:'32px', marginBottom:'8px'}}>{icon}</div>
-            <div style={{fontSize:'11px', fontWeight:700, color:'#6366F1', letterSpacing:'.08em', marginBottom:'6px'}}>STEP {step}</div>
-            <div style={{fontWeight:700, color:'#1E293B', marginBottom:'6px'}}>{title}</div>
-            <div style={{fontSize:'13px', color:'#64748B'}}>{desc}</div>
+            <div style={{fontSize:'11px', fontWeight:700, color:'#818CF8', letterSpacing:'.08em', marginBottom:'6px'}}>STEP {step}</div>
+            <div style={{fontWeight:700, color:'#E2E8F0', marginBottom:'6px'}}>{title}</div>
+            <div style={{fontSize:'13px', color:'#94A3B8'}}>{desc}</div>
           </div>
         ))}
       </div>
 
       {/* Terms callout */}
-      <div style={{background:'rgba(99,102,241,.06)', border:'1.5px solid rgba(99,102,241,.2)', borderRadius:'12px', padding:'20px 24px', marginBottom:'48px'}}>
-        <h3 style={{fontWeight:700, color:'#6366F1', marginBottom:'10px', fontSize:'1rem'}}>The Fine Print</h3>
-        <ul style={{margin:0, padding:'0 0 0 18px', color:'#475569', fontSize:'14px', lineHeight:'1.8'}}>
-          <li>Your code is not active until your <strong>first visit is confirmed and completed</strong>.</li>
-          <li>Referral discounts apply to the referred person's <strong>first service only</strong>.</li>
-          <li>Your 20% credit applies to your <strong>next scheduled visit</strong> after the referral is completed.</li>
+      <div style={{background:'rgba(99,102,241,.08)', border:'1.5px solid rgba(99,102,241,.22)', borderRadius:'12px', padding:'20px 24px', marginBottom:'48px'}}>
+        <h3 style={{fontWeight:700, color:'#818CF8', marginBottom:'10px', fontSize:'1rem'}}>The Fine Print</h3>
+        <ul style={{margin:0, padding:'0 0 0 18px', color:'#94A3B8', fontSize:'14px', lineHeight:'1.8'}}>
+          <li>Your code is not active until your <strong style={{color:'#CBD5E1'}}>first visit is confirmed and completed</strong>.</li>
+          <li>Referral discounts apply to the referred person's <strong style={{color:'#CBD5E1'}}>first service only</strong>.</li>
+          <li>Your 20% credit applies to your <strong style={{color:'#CBD5E1'}}>next scheduled visit</strong> after the referral is completed.</li>
           <li>Codes cannot be used for self-referral or shared accounts.</li>
           <li>Do It All Bros reserves the right to void codes used in bad faith.</li>
         </ul>
       </div>
 
       {/* Lookup card */}
-      <div style={{background:'#fff', border:'2px solid #E2E8F0', borderRadius:'16px', padding:'32px', textAlign:'center'}}>
-        <h2 style={{fontWeight:800, color:'#1E293B', marginBottom:'8px', fontSize:'1.4rem'}}>Find Your Referral Code</h2>
-        <p style={{color:'#64748B', fontSize:'14px', marginBottom:'24px'}}>Enter the email you used to book with us to view your code and stats.</p>
+      <div style={{background:'rgba(255,255,255,0.025)', border:'1.5px solid rgba(255,255,255,0.09)', borderRadius:'16px', padding:'32px', textAlign:'center'}}>
+        <h2 style={{fontWeight:800, color:'#F1F5F9', marginBottom:'8px', fontSize:'1.4rem'}}>Find Your Referral Code</h2>
+        <p style={{color:'#94A3B8', fontSize:'14px', marginBottom:'24px'}}>Enter the email you used to book with us to view your code and stats.</p>
 
         <form onSubmit={handleLookup} style={{display:'flex', gap:'10px', maxWidth:'440px', margin:'0 auto', flexWrap:'wrap', justifyContent:'center'}}>
           <input
@@ -3406,56 +3406,56 @@ function ReferralPage() {
             placeholder="your@email.com"
             value={email}
             onChange={e => { setEmail(e.target.value); setResult(null); setEmailSent(false); }}
-            style={{flex:'1', minWidth:'220px', padding:'12px 16px', borderRadius:'10px', border:'1.5px solid #CBD5E1', fontSize:'15px', outline:'none'}}
+            style={{flex:'1', minWidth:'220px', padding:'12px 16px', borderRadius:'10px', border:'1.5px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.05)', color:'#F1F5F9', fontSize:'15px', outline:'none'}}
           />
           <button
             type="submit"
             disabled={looking}
-            style={{padding:'12px 22px', borderRadius:'10px', background:'#6366F1', color:'#fff', fontWeight:700, fontSize:'15px', border:'none', cursor: looking ? 'default' : 'pointer', opacity: looking ? 0.7 : 1, whiteSpace:'nowrap'}}
+            style={{padding:'12px 22px', borderRadius:'10px', background:'linear-gradient(135deg,#6366F1,#8B5CF6)', color:'#fff', fontWeight:700, fontSize:'15px', border:'none', cursor: looking ? 'default' : 'pointer', opacity: looking ? 0.7 : 1, whiteSpace:'nowrap'}}
           >
             {looking ? 'Looking…' : 'Look Up'}
           </button>
-          {lookupError && <div style={{width:'100%', color:'#EF4444', fontSize:'13px'}}>{lookupError}</div>}
+          {lookupError && <div style={{width:'100%', color:'#FCA5A5', fontSize:'13px'}}>{lookupError}</div>}
         </form>
 
         {/* Result */}
         {result && (
           <div style={{marginTop:'24px', textAlign:'left', maxWidth:'440px', margin:'24px auto 0'}}>
             {result.found ? (
-              <div style={{padding:'20px 24px', background:'rgba(99,102,241,.07)', border:'1.5px solid rgba(99,102,241,.3)', borderRadius:'12px'}}>
-                <div style={{fontSize:'13px', color:'#6366F1', fontWeight:700, letterSpacing:'.06em', marginBottom:'4px'}}>YOUR REFERRAL CODE</div>
-                <div style={{fontSize:'2rem', fontWeight:900, color:'#1E293B', letterSpacing:'.12em', marginBottom:'12px'}}>{result.code}</div>
+              <div style={{padding:'20px 24px', background:'rgba(99,102,241,.09)', border:'1.5px solid rgba(99,102,241,.3)', borderRadius:'12px'}}>
+                <div style={{fontSize:'13px', color:'#818CF8', fontWeight:700, letterSpacing:'.06em', marginBottom:'4px'}}>YOUR REFERRAL CODE</div>
+                <div style={{fontSize:'2rem', fontWeight:900, color:'#F1F5F9', letterSpacing:'.12em', marginBottom:'12px'}}>{result.code}</div>
                 <div style={{display:'flex', gap:'20px', marginBottom:'14px', flexWrap:'wrap'}}>
-                  <div style={{background:'#F1F5F9', borderRadius:'8px', padding:'10px 16px', flex:'1', minWidth:'100px', textAlign:'center'}}>
-                    <div style={{fontSize:'22px', fontWeight:800, color:'#6366F1'}}>{result.totalCompleted}</div>
-                    <div style={{fontSize:'12px', color:'#64748B'}}>Successful Referrals</div>
+                  <div style={{background:'rgba(255,255,255,0.06)', borderRadius:'8px', padding:'10px 16px', flex:'1', minWidth:'100px', textAlign:'center'}}>
+                    <div style={{fontSize:'22px', fontWeight:800, color:'#818CF8'}}>{result.totalCompleted}</div>
+                    <div style={{fontSize:'12px', color:'#94A3B8'}}>Successful Referrals</div>
                   </div>
-                  <div style={{background:'#F1F5F9', borderRadius:'8px', padding:'10px 16px', flex:'1', minWidth:'100px', textAlign:'center'}}>
+                  <div style={{background:'rgba(255,255,255,0.06)', borderRadius:'8px', padding:'10px 16px', flex:'1', minWidth:'100px', textAlign:'center'}}>
                     <div style={{fontSize:'22px', fontWeight:800, color:'#10B981'}}>{result.creditsEarned}</div>
-                    <div style={{fontSize:'12px', color:'#64748B'}}>Credits Earned</div>
+                    <div style={{fontSize:'12px', color:'#94A3B8'}}>Credits Earned</div>
                   </div>
                 </div>
-                <div style={{fontSize:'12px', color:'#94A3B8', marginBottom:'14px', fontStyle:'italic'}}>Code becomes active once your first visit is confirmed and completed.</div>
+                <div style={{fontSize:'12px', color:'#64748B', marginBottom:'14px', fontStyle:'italic'}}>Code becomes active once your first visit is confirmed and completed.</div>
                 <button
                   onClick={handleEmailCode}
                   disabled={emailSending || emailSent}
-                  style={{width:'100%', padding:'11px', borderRadius:'10px', border:'1.5px solid #6366F1', background: emailSent ? '#6366F1' : 'transparent', color: emailSent ? '#fff' : '#6366F1', fontWeight:700, fontSize:'14px', cursor: emailSent ? 'default' : 'pointer'}}
+                  style={{width:'100%', padding:'11px', borderRadius:'10px', border:'1.5px solid #6366F1', background: emailSent ? '#6366F1' : 'transparent', color: emailSent ? '#fff' : '#818CF8', fontWeight:700, fontSize:'14px', cursor: emailSent ? 'default' : 'pointer'}}
                 >
                   {emailSent ? '✓ Code sent to your inbox!' : emailSending ? 'Sending…' : '📧 Send Me My Code'}
                 </button>
               </div>
             ) : (
-              <div style={{padding:'20px 24px', background:'rgba(245,158,11,.07)', border:'1.5px solid rgba(245,158,11,.3)', borderRadius:'12px', textAlign:'center'}}>
+              <div style={{padding:'20px 24px', background:'rgba(245,158,11,.08)', border:'1.5px solid rgba(245,158,11,.25)', borderRadius:'12px', textAlign:'center'}}>
                 <div style={{fontSize:'22px', marginBottom:'8px'}}>🤔</div>
-                <div style={{fontWeight:700, color:'#92400E', marginBottom:'6px'}}>No code found for that email.</div>
-                <div style={{fontSize:'13px', color:'#64748B'}}>Make sure you used the same email from your booking. If you haven't booked yet, your code will be created when you do.</div>
+                <div style={{fontWeight:700, color:'#FCD34D', marginBottom:'6px'}}>No code found for that email.</div>
+                <div style={{fontSize:'13px', color:'#94A3B8'}}>Make sure you used the same email from your booking. If you haven't booked yet, your code will be created when you do.</div>
                 <Link to="/checkout" style={{display:'inline-block', marginTop:'14px', padding:'10px 20px', borderRadius:'10px', background:'#F59E0B', color:'#fff', fontWeight:700, fontSize:'14px', textDecoration:'none'}}>Book Now</Link>
               </div>
             )}
           </div>
         )}
 
-        <p style={{marginTop:'20px', fontSize:'13px', color:'#94A3B8'}}>Don't have a code yet? <Link to="/checkout" style={{color:'#6366F1', fontWeight:600}}>Book a service</Link> and one will be created for you automatically.</p>
+        <p style={{marginTop:'20px', fontSize:'13px', color:'#94A3B8'}}>Don't have a code yet? <Link to="/checkout" style={{color:'#818CF8', fontWeight:600}}>Book a service</Link> and one will be created for you automatically.</p>
       </div>
     </div>
   );
