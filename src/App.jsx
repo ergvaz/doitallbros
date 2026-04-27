@@ -383,7 +383,7 @@ function SummerPopup({ onClose }) {
   const navigate = useNavigate();
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.65)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}} onClick={onClose}>
-      <div style={{background:'#fff',borderRadius:'20px',maxWidth:'540px',width:'100%',overflow:'hidden',boxShadow:'0 24px 80px rgba(0,0,0,0.35)'}} onClick={e=>e.stopPropagation()}>
+      <div style={{background:'#0D1526',borderRadius:'20px',maxWidth:'540px',width:'100%',overflow:'hidden',boxShadow:'0 24px 80px rgba(0,0,0,0.6)',border:'1px solid rgba(255,255,255,0.08)'}} onClick={e=>e.stopPropagation()}>
         <div style={{background:'linear-gradient(135deg,#14532d,#16a34a)',padding:'36px 36px 28px',color:'#fff',textAlign:'center'}}>
           <div style={{fontSize:'48px',marginBottom:'10px'}}>🌿</div>
           <h2 style={{margin:0,fontSize:'28px',fontWeight:800,letterSpacing:'-.02em'}}>Summer Lawn Care</h2>
@@ -391,20 +391,20 @@ function SummerPopup({ onClose }) {
         </div>
         <div style={{padding:'28px 36px',display:'flex',flexDirection:'column',gap:'14px'}}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-            <div style={{background:'#f0fdf4',border:'1.5px solid #bbf7d0',borderRadius:'12px',padding:'16px',textAlign:'center'}}>
+            <div style={{background:'rgba(16,185,129,0.08)',border:'1.5px solid rgba(16,185,129,0.25)',borderRadius:'12px',padding:'16px',textAlign:'center'}}>
               <div style={{fontSize:'22px',marginBottom:'4px'}}>✂️</div>
-              <div style={{fontWeight:700,color:'#166534',fontSize:'14px'}}>Basic Package</div>
-              <div style={{color:'#6b7280',fontSize:'12px',marginTop:'2px'}}>Mowing + edging</div>
-              <div style={{fontWeight:800,color:'#16a34a',fontSize:'16px',marginTop:'6px'}}>From $45/visit</div>
+              <div style={{fontWeight:700,color:'#6EE7B7',fontSize:'14px'}}>Basic Package</div>
+              <div style={{color:'#94A3B8',fontSize:'12px',marginTop:'2px'}}>Mowing + edging</div>
+              <div style={{fontWeight:800,color:'#10B981',fontSize:'16px',marginTop:'6px'}}>From $45/visit</div>
             </div>
-            <div style={{background:'#f0fdf4',border:'1.5px solid #bbf7d0',borderRadius:'12px',padding:'16px',textAlign:'center'}}>
+            <div style={{background:'rgba(16,185,129,0.08)',border:'1.5px solid rgba(16,185,129,0.25)',borderRadius:'12px',padding:'16px',textAlign:'center'}}>
               <div style={{fontSize:'22px',marginBottom:'4px'}}>🌱</div>
-              <div style={{fontWeight:700,color:'#166534',fontSize:'14px'}}>Advanced Package</div>
-              <div style={{color:'#6b7280',fontSize:'12px',marginTop:'2px'}}>Mowing, edging, weeds & bushes</div>
-              <div style={{fontWeight:800,color:'#16a34a',fontSize:'16px',marginTop:'6px'}}>From $85/visit</div>
+              <div style={{fontWeight:700,color:'#6EE7B7',fontSize:'14px'}}>Advanced Package</div>
+              <div style={{color:'#94A3B8',fontSize:'12px',marginTop:'2px'}}>Mowing, edging, weeds & bushes</div>
+              <div style={{fontWeight:800,color:'#10B981',fontSize:'16px',marginTop:'6px'}}>From $85/visit</div>
             </div>
           </div>
-          <div style={{background:'#fefce8',border:'1.5px solid #fde68a',borderRadius:'10px',padding:'12px 16px',textAlign:'center',fontSize:'14px',color:'#92400e',fontWeight:600}}>
+          <div style={{background:'rgba(251,191,36,0.08)',border:'1.5px solid rgba(251,191,36,0.25)',borderRadius:'10px',padding:'12px 16px',textAlign:'center',fontSize:'14px',color:'#FCD34D',fontWeight:600}}>
             💰 Pay upfront for the full season and save an extra 10%
           </div>
           <button
@@ -521,27 +521,27 @@ function SummerPage() {
 
   const sel = (active) => ({
     padding:'12px 14px', borderRadius:'10px', cursor:'pointer',
-    border: `2px solid ${active ? '#16a34a' : '#e5e7eb'}`,
-    background: active ? '#f0fdf4' : '#fff',
+    border: `2px solid ${active ? '#10B981' : 'rgba(255,255,255,0.12)'}`,
+    background: active ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.04)',
   });
 
   return (
     <div style={{maxWidth:'640px',margin:'0 auto',padding:'40px 20px'}}>
       <div style={{textAlign:'center',marginBottom:'36px'}}>
         <div style={{fontSize:'42px',marginBottom:'8px'}}>🌿</div>
-        <h1 style={{fontSize:'30px',fontWeight:800,color:'#111',margin:'0 0 8px',letterSpacing:'-.02em'}}>Summer Lawn Care</h1>
-        <p style={{color:'#6b7280',fontSize:'16px',margin:0}}>Weekly or biweekly service all season. We'll handle the yard — you enjoy the summer.</p>
+        <h1 style={{fontSize:'30px',fontWeight:800,color:'#F1F5F9',margin:'0 0 8px',letterSpacing:'-.02em'}}>Summer Lawn Care</h1>
+        <p style={{color:'#94A3B8',fontSize:'16px',margin:0}}>Weekly or biweekly service all season. We'll handle the yard — you enjoy the summer.</p>
       </div>
 
       <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:'28px'}}>
         {/* Service Level */}
         <div>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Service Level</div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1',marginBottom:'10px'}}>Service Level</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
             {[['basic','Basic','Mowing + edging'],['advanced','Advanced','Mowing, edging, weeds & bushes']].map(([val,label,desc])=>(
               <div key={val} onClick={()=>setService(val)} style={sel(service===val)}>
-                <div style={{fontWeight:700,color:service===val?'#166534':'#111'}}>{label}</div>
-                <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>{desc}</div>
+                <div style={{fontWeight:700,color:service===val?'#10B981':'#F1F5F9'}}>{label}</div>
+                <div style={{fontSize:'12px',color:'#94A3B8',marginTop:'2px'}}>{desc}</div>
                 <div style={{fontWeight:700,color:'#16a34a',marginTop:'6px'}}>${PRICING[val][size]}/visit</div>
               </div>
             ))}
@@ -550,10 +550,10 @@ function SummerPage() {
 
         {/* Yard Size */}
         <div>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Yard Size</div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1',marginBottom:'10px'}}>Yard Size</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
             {Object.entries(SIZE_LABELS).map(([val,label])=>(
-              <div key={val} onClick={()=>setSize(val)} style={{...sel(size===val),textAlign:'center',fontWeight:600,fontSize:'13px',color:size===val?'#166534':'#374151'}}>
+              <div key={val} onClick={()=>setSize(val)} style={{...sel(size===val),textAlign:'center',fontWeight:600,fontSize:'13px',color:size===val?'#10B981':'#CBD5E1'}}>
                 {label}
               </div>
             ))}
@@ -562,12 +562,12 @@ function SummerPage() {
 
         {/* Frequency */}
         <div>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Frequency</div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1',marginBottom:'10px'}}>Frequency</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
             {[['weekly','Weekly','Every week'],['biweekly','Biweekly','Every 2 weeks']].map(([val,label,desc])=>(
               <div key={val} onClick={()=>setFrequency(val)} style={{...sel(frequency===val),textAlign:'center'}}>
-                <div style={{fontWeight:700,fontSize:'14px',color:frequency===val?'#166534':'#374151'}}>{label}</div>
-                <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>{desc}</div>
+                <div style={{fontWeight:700,fontSize:'14px',color:frequency===val?'#10B981':'#CBD5E1'}}>{label}</div>
+                <div style={{fontSize:'12px',color:'#94A3B8',marginTop:'2px'}}>{desc}</div>
               </div>
             ))}
           </div>
@@ -575,17 +575,17 @@ function SummerPage() {
 
         {/* Payment */}
         <div>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Payment</div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1',marginBottom:'10px'}}>Payment</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
             <div onClick={()=>setPaymentType('per-job')} style={sel(paymentType==='per-job')}>
-              <div style={{fontWeight:700,fontSize:'14px',color:paymentType==='per-job'?'#166534':'#374151'}}>Per Visit</div>
-              <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Billed after each visit · {jobCount} visits</div>
+              <div style={{fontWeight:700,fontSize:'14px',color:paymentType==='per-job'?'#10B981':'#CBD5E1'}}>Per Visit</div>
+              <div style={{fontSize:'12px',color:'#94A3B8',marginTop:'2px'}}>Billed after each visit · {jobCount} visits</div>
               <div style={{fontWeight:700,color:'#16a34a',marginTop:'6px'}}>${basePrice}/visit</div>
             </div>
             <div onClick={()=>setPaymentType('one-time')} style={{...sel(paymentType==='one-time'),position:'relative'}}>
               <div style={{position:'absolute',top:'-1px',right:'10px',background:'#16a34a',color:'#fff',fontSize:'10px',fontWeight:700,padding:'2px 8px',borderRadius:'0 0 6px 6px'}}>SAVE 10%</div>
-              <div style={{fontWeight:700,fontSize:'14px',color:paymentType==='one-time'?'#166534':'#374151'}}>One-Time</div>
-              <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>Pay upfront, save 10% · {jobCount} visits</div>
+              <div style={{fontWeight:700,fontSize:'14px',color:paymentType==='one-time'?'#10B981':'#CBD5E1'}}>One-Time</div>
+              <div style={{fontSize:'12px',color:'#94A3B8',marginTop:'2px'}}>Pay upfront, save 10% · {jobCount} visits</div>
               <div style={{fontWeight:700,color:'#16a34a',marginTop:'6px'}}>${Math.round(basePrice*jobCount*0.9)} total</div>
             </div>
           </div>
@@ -593,10 +593,10 @@ function SummerPage() {
 
         {/* Preferred Day */}
         <div>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Preferred Day of the Week</div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1',marginBottom:'10px'}}>Preferred Day of the Week</div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px'}}>
             {DAYS.map(day=>(
-              <div key={day} onClick={()=>setPreferredDay(day)} style={{...sel(preferredDay===day),textAlign:'center',fontWeight:600,fontSize:'13px',color:preferredDay===day?'#166534':'#374151',padding:'10px'}}>
+              <div key={day} onClick={()=>setPreferredDay(day)} style={{...sel(preferredDay===day),textAlign:'center',fontWeight:600,fontSize:'13px',color:preferredDay===day?'#10B981':'#CBD5E1',padding:'10px'}}>
                 {day}
               </div>
             ))}
@@ -605,10 +605,10 @@ function SummerPage() {
 
         {/* Payment Method */}
         <div>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'10px'}}>Payment Method <span style={{color:'#ef4444'}}>*</span></div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1',marginBottom:'10px'}}>Payment Method <span style={{color:'#ef4444'}}>*</span></div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
             {[['card','Card'],['cash','Cash'],['cashapp','Cash App'],['venmo','Venmo'],['apple_cash','Apple Cash']].map(([val,label])=>(
-              <div key={val} onClick={()=>setPaymentMethod(val)} style={{...sel(paymentMethod===val),textAlign:'center',fontWeight:600,fontSize:'14px',color:paymentMethod===val?'#166534':'#374151',padding:'12px'}}>
+              <div key={val} onClick={()=>setPaymentMethod(val)} style={{...sel(paymentMethod===val),textAlign:'center',fontWeight:600,fontSize:'14px',color:paymentMethod===val?'#10B981':'#CBD5E1',padding:'12px'}}>
                 {label}
               </div>
             ))}
@@ -617,42 +617,42 @@ function SummerPage() {
 
         {/* Contact Info */}
         <div style={{display:'flex',flexDirection:'column',gap:'14px'}}>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151'}}>Your Information</div>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1'}}>Your Information</div>
           {[['name','Full Name','text',true],['email','Email Address','email',true],['phone','Phone Number','tel',true],['address','Service Address','text',true]].map(([field,label,type,req])=>(
             <div key={field}>
-              <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#374151',marginBottom:'6px'}}>{label}{req&&<span style={{color:'#ef4444'}}> *</span>}</label>
+              <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#CBD5E1',marginBottom:'6px'}}>{label}{req&&<span style={{color:'#ef4444'}}> *</span>}</label>
               <input
                 type={type}
                 required={req}
                 value={formData[field]}
                 onChange={e=>setFormData(p=>({...p,[field]:e.target.value}))}
-                style={{width:'100%',boxSizing:'border-box',padding:'11px 14px',border:'1.5px solid #d1d5db',borderRadius:'8px',fontSize:'15px',outline:'none'}}
+                style={{width:'100%',boxSizing:'border-box',padding:'11px 14px',border:'1.5px solid rgba(255,255,255,0.15)',borderRadius:'8px',fontSize:'15px',outline:'none',background:'rgba(255,255,255,0.05)',color:'#E2E8F0'}}
                 placeholder={label}
               />
             </div>
           ))}
           <div>
-            <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#374151',marginBottom:'6px'}}>Additional Notes <span style={{fontWeight:400,color:'#9ca3af'}}>(Optional)</span></label>
+            <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#CBD5E1',marginBottom:'6px'}}>Additional Notes <span style={{fontWeight:400,color:'#9ca3af'}}>(Optional)</span></label>
             <textarea
               rows={3}
               value={formData.notes}
               onChange={e=>setFormData(p=>({...p,notes:e.target.value}))}
               placeholder="Gate code, specific areas to focus on, pets in yard, etc."
-              style={{width:'100%',boxSizing:'border-box',padding:'11px 14px',border:'1.5px solid #d1d5db',borderRadius:'8px',fontSize:'15px',resize:'vertical',fontFamily:'inherit'}}
+              style={{width:'100%',boxSizing:'border-box',padding:'11px 14px',border:'1.5px solid rgba(255,255,255,0.15)',borderRadius:'8px',fontSize:'15px',resize:'vertical',fontFamily:'inherit',background:'rgba(255,255,255,0.05)',color:'#E2E8F0'}}
             />
           </div>
         </div>
 
         {/* Referral Code */}
         <div>
-          <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#374151',marginBottom:'6px'}}>Referral Code <span style={{fontWeight:400,color:'#9ca3af'}}>(Optional)</span></label>
+          <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#CBD5E1',marginBottom:'6px'}}>Referral Code <span style={{fontWeight:400,color:'#9ca3af'}}>(Optional)</span></label>
           <div style={{display:'flex',gap:'8px'}}>
             <input
               type="text"
               placeholder="Enter referral code"
               value={referralCode}
               onChange={e=>{setReferralCode(e.target.value.toUpperCase());setReferralStatus(null);setReferralMessage('');setReferralDiscount(0);}}
-              style={{flex:1,padding:'11px 14px',border:'1.5px solid #d1d5db',borderRadius:'8px',fontSize:'15px',textTransform:'uppercase'}}
+              style={{flex:1,padding:'11px 14px',border:'1.5px solid rgba(255,255,255,0.15)',borderRadius:'8px',fontSize:'15px',textTransform:'uppercase',background:'rgba(255,255,255,0.05)',color:'#E2E8F0'}}
             />
             <button
               type="button"
@@ -665,7 +665,7 @@ function SummerPage() {
                   else{setReferralStatus('invalid');setReferralMessage(data.error||'Invalid code');}
                 }catch{setReferralStatus('invalid');setReferralMessage('Could not validate. Try again.');}
               }}
-              style={{padding:'11px 18px',borderRadius:'8px',border:'1.5px solid #d1d5db',background:'#f9fafb',cursor:'pointer',fontWeight:600,fontSize:'14px',whiteSpace:'nowrap'}}
+              style={{padding:'11px 18px',borderRadius:'8px',border:'1.5px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.06)',cursor:'pointer',fontWeight:600,fontSize:'14px',whiteSpace:'nowrap',color:'#CBD5E1'}}
             >Apply</button>
           </div>
           {referralMessage&&<p style={{marginTop:'6px',fontSize:'13px',color:referralStatus==='valid'?'#10b981':'#ef4444',fontWeight:600}}>{referralMessage}</p>}
@@ -673,14 +673,14 @@ function SummerPage() {
 
         {/* Promo Code */}
         <div>
-          <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#374151',marginBottom:'6px'}}>Discount Code <span style={{fontWeight:400,color:'#9ca3af'}}>(Optional)</span></label>
+          <label style={{display:'block',fontWeight:600,fontSize:'14px',color:'#CBD5E1',marginBottom:'6px'}}>Discount Code <span style={{fontWeight:400,color:'#9ca3af'}}>(Optional)</span></label>
           <div style={{display:'flex',gap:'8px'}}>
             <input
               type="text"
               placeholder="Enter discount code"
               value={promoCode}
               onChange={e=>{setPromoCode(e.target.value.toUpperCase());setPromoStatus(null);setPromoMessage('');}}
-              style={{flex:1,padding:'11px 14px',border:'1.5px solid #d1d5db',borderRadius:'8px',fontSize:'15px',textTransform:'uppercase'}}
+              style={{flex:1,padding:'11px 14px',border:'1.5px solid rgba(255,255,255,0.15)',borderRadius:'8px',fontSize:'15px',textTransform:'uppercase',background:'rgba(255,255,255,0.05)',color:'#E2E8F0'}}
             />
             <button
               type="button"
@@ -690,16 +690,16 @@ function SummerPage() {
                 if(code==='SNOW'){setPromoStatus('valid');setPromoMessage('✓ SNOW applied — 10% off lawn care services!');}
                 else{setPromoStatus('invalid');setPromoMessage('Invalid discount code.');}
               }}
-              style={{padding:'11px 18px',borderRadius:'8px',border:'1.5px solid #d1d5db',background:'#f9fafb',cursor:'pointer',fontWeight:600,fontSize:'14px',whiteSpace:'nowrap'}}
+              style={{padding:'11px 18px',borderRadius:'8px',border:'1.5px solid rgba(255,255,255,0.15)',background:'rgba(255,255,255,0.06)',cursor:'pointer',fontWeight:600,fontSize:'14px',whiteSpace:'nowrap',color:'#CBD5E1'}}
             >Apply</button>
           </div>
           {promoMessage&&<p style={{marginTop:'6px',fontSize:'13px',color:promoStatus==='valid'?'#10b981':'#ef4444',fontWeight:600}}>{promoMessage}</p>}
         </div>
 
         {/* Price Summary */}
-        <div style={{background:'#f9fafb',border:'1.5px solid #e5e7eb',borderRadius:'12px',padding:'18px 20px',display:'flex',flexDirection:'column',gap:'8px'}}>
-          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#374151',marginBottom:'4px'}}>Price Summary</div>
-          <div style={{display:'flex',justifyContent:'space-between',fontSize:'14px',color:'#374151'}}>
+        <div style={{background:'rgba(255,255,255,0.04)',border:'1.5px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'18px 20px',display:'flex',flexDirection:'column',gap:'8px'}}>
+          <div style={{fontWeight:700,fontSize:'13px',textTransform:'uppercase',letterSpacing:'.06em',color:'#CBD5E1',marginBottom:'4px'}}>Price Summary</div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:'14px',color:'#CBD5E1'}}>
             <span>{service==='basic'?'Basic':'Advanced'} Lawn Care · {SIZE_LABELS[size]} · {jobCount} visits ({frequency})</span>
             <span style={{fontWeight:600}}>{paymentType==='one-time'?`$${(basePrice*jobCount).toFixed(2)}`:`$${basePrice}/visit`}</span>
           </div>
@@ -721,7 +721,7 @@ function SummerPage() {
               <span>-${referralDiscountAmt.toFixed(2)}</span>
             </div>
           )}
-          <div style={{borderTop:'1px solid #e5e7eb',paddingTop:'10px',marginTop:'4px',display:'flex',justifyContent:'space-between',fontWeight:800,fontSize:'18px',color:'#111'}}>
+          <div style={{borderTop:'1px solid rgba(255,255,255,0.1)',paddingTop:'10px',marginTop:'4px',display:'flex',justifyContent:'space-between',fontWeight:800,fontSize:'18px',color:'#F1F5F9'}}>
             <span>{paymentType==='one-time'?'Total Due':'Total Due Per Visit'}</span>
             <span style={{color:'#16a34a'}}>${finalTotal.toFixed(2)}{paymentType!=='one-time'&&'/visit'}</span>
           </div>
@@ -1468,7 +1468,7 @@ function AddServicePage() {
                     </label>
                     {found && (
                       <div style={{display:'flex', alignItems:'center', gap:'0.5rem'}}>
-                        <label style={{fontSize:'0.85rem', color:'#64748B'}}>Qty:</label>
+                        <label style={{fontSize:'0.85rem', color:'#94A3B8'}}>Qty:</label>
                         <input type="number" min="1" value={found.qty} style={{width:'60px'}} onChange={e => setDetail('furnitureItems', items.map(i => i.type === type ? {...i, qty: parseInt(e.target.value)||1} : i))} />
                       </div>
                     )}
@@ -1603,7 +1603,7 @@ function AddServicePage() {
                     </label>
                     {found && hasQty && (
                       <div style={{display:'flex', alignItems:'center', gap:'0.5rem'}}>
-                        <label style={{fontSize:'0.85rem', color:'#64748B'}}>Qty:</label>
+                        <label style={{fontSize:'0.85rem', color:'#94A3B8'}}>Qty:</label>
                         <input type="number" min="1" value={found.qty||1} style={{width:'60px'}} onChange={e => setDetail('orgAreas', items.map(i => i.type === type ? {...i, qty: parseInt(e.target.value)||1} : i))} />
                       </div>
                     )}
@@ -2570,7 +2570,7 @@ function CheckoutPage() {
             )}
             <div className="form-row" style={{marginTop:'1rem'}}>
               <div className="form-group">
-                <label>Backup Date <span style={{fontWeight:400, fontSize:'0.85rem', color:'#64748B'}}>(in case first isn't available)</span></label>
+                <label>Backup Date <span style={{fontWeight:400, fontSize:'0.85rem', color:'#94A3B8'}}>(in case first isn't available)</span></label>
                 <input
                   type="date"
                   value={backupDate}
@@ -2740,7 +2740,7 @@ function CheckoutPage() {
                         {emailCodeSent ? '✓ Sent!' : emailCodeSending ? 'Sending…' : '📧 Email Me My Code'}
                       </button>
                     </div>
-                    <div style={{color:'#64748B', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
+                    <div style={{color:'#94A3B8', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
                     <div style={{color:'#94A3B8', fontSize:'11px', marginTop:'3px', fontStyle:'italic'}}>Code becomes active once your visit is confirmed and completed.</div>
                     {existingCode.totalCompleted > 0 && <div style={{color:'#10B981', fontSize:'12px', marginTop:'4px', fontWeight:600}}>✓ {existingCode.totalCompleted} successful referral{existingCode.totalCompleted !== 1 ? 's' : ''} · {existingCode.creditsEarned} credit{existingCode.creditsEarned !== 1 ? 's' : ''} earned</div>}
                   </div>
@@ -2755,11 +2755,11 @@ function CheckoutPage() {
                             {emailCodeSent ? '✓ Sent!' : emailCodeSending ? 'Sending…' : '📧 Email Me My Code'}
                           </button>
                         </div>
-                        <div style={{color:'#64748B', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
+                        <div style={{color:'#94A3B8', fontSize:'12px'}}>Share this code with friends — they get 10% off, you get 20% off your next visit.</div>
                         <div style={{color:'#F59E0B', fontSize:'11px', marginTop:'3px', fontWeight:600}}>⚠ Not active until your first visit is confirmed and completed.</div>
                       </>
                     ) : (
-                      <div style={{color:'#64748B'}}>🎟 Enter your name above to preview your referral code. It becomes active after your first completed visit.</div>
+                      <div style={{color:'#94A3B8'}}>🎟 Enter your name above to preview your referral code. It becomes active after your first completed visit.</div>
                     )}
                   </div>
                 )}
@@ -3079,7 +3079,7 @@ function ContactPage() {
         <form className="contact-form" onSubmit={handleSubmit}>
           <h3>Send Us a Message</h3>
           {submitError && (
-            <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem' }}>
+            <div style={{ background: 'rgba(239,68,68,0.12)', color: '#FCA5A5', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem', border: '1px solid rgba(239,68,68,0.25)' }}>
               {submitError}
             </div>
           )}
@@ -3194,7 +3194,7 @@ function CustomRequestModal({ onClose }) {
       <div className="modal-box" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <h2>Custom Service Request</h2>
-        <p style={{color:'#64748B', marginBottom:'1.5rem'}}>Tell us what you need and we'll get back to you with pricing and availability.</p>
+        <p style={{color:'#94A3B8', marginBottom:'1.5rem', fontSize:'0.95rem'}}>Tell us what you need and we'll get back to you with pricing and availability.</p>
         <form onSubmit={handleSubmit} className="custom-request-form">
           <div className="form-row">
             <div className="form-group">
@@ -3435,7 +3435,7 @@ function ReferralPage() {
                     <div style={{fontSize:'12px', color:'#94A3B8'}}>Credits Earned</div>
                   </div>
                 </div>
-                <div style={{fontSize:'12px', color:'#64748B', marginBottom:'14px', fontStyle:'italic'}}>Code becomes active once your first visit is confirmed and completed.</div>
+                <div style={{fontSize:'12px', color:'#94A3B8', marginBottom:'14px', fontStyle:'italic'}}>Code becomes active once your first visit is confirmed and completed.</div>
                 <button
                   onClick={handleEmailCode}
                   disabled={emailSending || emailSent}
