@@ -9,7 +9,17 @@ const PASSWORD = 'doitallbrothers2026';
 const STORE_KEY = 'dab_tracker_v1';
 
 const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-const todayStr = () => new Date().toISOString().slice(0, 10);
+// Local-tz YYYY-MM-DD. toISOString() gives UTC and was rolling the date
+// over for users east/west of UTC; this returns the date in the user's
+// own timezone (e.g. Louisville EDT — same calendar day as on screen).
+const localDateStr = (input) => {
+  const d = input ? (input instanceof Date ? input : new Date(input)) : new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+const todayStr = () => localDateStr();
 
 const DAY_NAMES = new Set(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']);
 const isDayName = (d) => DAY_NAMES.has(d);
@@ -561,7 +571,7 @@ function Dashboard({ data, update, setView }) {
                         {isContact ? item.message?.slice(0, 50) + '…' : item.service}
                       </div>
                     </div>
-                    <div className="inbox-preview-date">{fmtDateShort(item.createdAt?.slice(0,10))}</div>
+                    <div className="inbox-preview-date">{fmtDateShort(item.createdAt)}</div>
                   </div>
                 );
               })}
@@ -1074,7 +1084,7 @@ function InboxView({ data, update }) {
                   </div>
                 </div>
                 <div className="inbox-item-right">
-                  <div className="inbox-item-date">{fmtDateShort(item.createdAt?.slice(0,10))}</div>
+                  <div className="inbox-item-date">{fmtDateShort(item.createdAt)}</div>
                   {item._type === 'booking' || item._type === 'custom_request'
                     ? <Badge label={item.processedStatus || 'pending'} color={item.processedStatus ? '#10B981' : '#3B82F6'} />
                     : <Badge label={item.status || 'new'} color={item.status === 'new' ? '#3B82F6' : '#64748B'} />}
@@ -1099,7 +1109,7 @@ function InboxView({ data, update }) {
               ['Email', selected.email || selected.clientEmail],
               ['Phone', selected.phone || selected.clientPhone],
               ['Address', selected.address || selected.clientAddress],
-              ['Received', fmtDate(selected.createdAt?.slice(0,10))],
+              ['Received', fmtDate(selected.createdAt)],
               ...(selected.bookingId ? [['Submission ID', selected.bookingId]] : []),
               ...(selected.customerConfirmed ? [['Customer Confirmed', `✓ ${selected.customerConfirmedAt ? new Date(selected.customerConfirmedAt).toLocaleString() : 'Yes'}`]] : []),
               ...((selected.notes || selected.extra_notes) ? [['Notes', selected.notes || selected.extra_notes]] : []),
@@ -2045,7 +2055,7 @@ function CalendarView({ data, update, setView }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const [detailBooking, setDetailBooking] = useState(null);
 
-  const todayStr2 = now.toISOString().slice(0, 10);
+  const todayStr2 = localDateStr(now);
 
   const prevMonth = () => { if (month === 0) { setYear(y => y - 1); setMonth(11); } else setMonth(m => m - 1); };
   const nextMonth = () => { if (month === 11) { setYear(y => y + 1); setMonth(0); } else setMonth(m => m + 1); };
@@ -2722,7 +2732,7 @@ function NotesView({ data, update }) {
                   {n.title && <div className="note-title">{n.title}</div>}
                   <div className="note-text">{n.text}</div>
                   <div className="note-footer">
-                    <span className="note-date">{fmtDateShort(n.createdAt?.slice(0, 10))}</span>
+                    <span className="note-date">{fmtDateShort(n.createdAt)}</span>
                     <div className="note-actions">
                       <div className="color-pickers">
                         {NOTE_COLORS.map(c => (
@@ -2809,7 +2819,7 @@ function RequestsView({ data, update }) {
                     </div>
                   </div>
                   <div className="request-card-right">
-                    <span className="request-date">{fmtDateShort(req.date || req.createdAt?.slice(0, 10))}</span>
+                    <span className="request-date">{fmtDateShort(req.date || req.createdAt)}</span>
                     <span className="chevron">{isExpanded ? '▲' : '▼'}</span>
                   </div>
                 </div>
