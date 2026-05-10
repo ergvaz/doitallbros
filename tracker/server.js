@@ -8,6 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const QUEUE_FILE = path.join(__dirname, 'pending.json');
 const AVAIL_FILE = path.join(__dirname, 'availability.json');
+const STATE_FILE = path.join(__dirname, 'state.json');
 
 // n8n intake webhook — receives new bookings/requests for logging + availability check
 const N8N_INTAKE_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/5ebf6849-cf49-4f63-a335-811104ada728';
@@ -16,7 +17,8 @@ const N8N_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/9937e869-76b6-4b
 // n8n contact webhook — receives contact/custom request replies from tracker owner
 const N8N_CONTACT_WEBHOOK = 'https://n8n.srv1122720.hstgr.cloud/webhook/ee98ccfc-81d0-45e6-a4be-ea52d4cc46f9';
 
-app.use(express.json());
+// Larger body limit for full-state PUTs (clients/bookings/notes can grow).
+app.use(express.json({ limit: '8mb' }));
 
 // CORS
 app.use((req, res, next) => {
@@ -39,6 +41,36 @@ const readAvail = () => {
   catch { return []; }
 };
 const writeAvail = (items) => fs.writeFileSync(AVAIL_FILE, JSON.stringify(items));
+
+// ── State helpers (server-backed React app state) ────────────
+// Replaces browser localStorage as the source of truth so any device
+// hitting the tracker URL sees the same clients/bookings/notes/etc.
+const DEFAULT_STATE = {
+  clients: [], bookings: [], contacts: [], tasks: [],
+  revenues: [], notes: [], requests: [],
+  _meta: { updatedAt: null, revision: 0 },
+};
+const readState = () => {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    return { ...DEFAULT_STATE, ...parsed, _meta: { ...DEFAULT_STATE._meta, ...(parsed._meta || {}) } };
+  } catch { return DEFAULT_STATE; }
+};
+const writeStateAtomic = (state) => {
+  // Bump revision + timestamp so the React app can decide whether to refresh.
+  const next = {
+    ...state,
+    _meta: {
+      ...(state._meta || {}),
+      updatedAt: new Date().toISOString(),
+      revision: ((state._meta && state._meta.revision) || 0) + 1,
+    },
+  };
+  const tmp = STATE_FILE + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(next));
+  fs.renameSync(tmp, STATE_FILE);
+  return next;
+};
 
 // ── API routes ───────────────────────────────────────────────
 
@@ -224,6 +256,69 @@ app.post('/api/forward', async (req, res) => {
   } catch (err) {
     console.error('[tracker] /api/forward error:', err.message);
     res.status(500).json({ error: 'Failed to forward to n8n' });
+  }
+});
+
+// ── Server-backed React state ────────────────────────────────
+// GET  /api/state              → full state
+// PUT  /api/state              → replace full state
+// PATCH /api/state/:collection → replace one collection (clients/bookings/...)
+// PUT  /api/state/seed         → seed from localStorage on first run, only
+//                                accepts a body if the server has no state yet
+app.get('/api/state', (req, res) => {
+  res.json(readState());
+});
+
+app.put('/api/state', (req, res) => {
+  try {
+    const body = req.body || {};
+    if (typeof body !== 'object' || Array.isArray(body)) {
+      return res.status(400).json({ error: 'state must be an object' });
+    }
+    const saved = writeStateAtomic(body);
+    res.json({ success: true, _meta: saved._meta });
+  } catch (err) {
+    console.error('[tracker] /api/state PUT error:', err.message);
+    res.status(500).json({ error: 'Failed to save state' });
+  }
+});
+
+const ALLOWED_COLLECTIONS = new Set(Object.keys(DEFAULT_STATE).filter((k) => !k.startsWith('_')));
+app.patch('/api/state/:collection', (req, res) => {
+  try {
+    const { collection } = req.params;
+    if (!ALLOWED_COLLECTIONS.has(collection)) {
+      return res.status(400).json({ error: `unknown collection: ${collection}` });
+    }
+    if (!Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'collection body must be an array' });
+    }
+    const current = readState();
+    const next = { ...current, [collection]: req.body };
+    const saved = writeStateAtomic(next);
+    res.json({ success: true, _meta: saved._meta });
+  } catch (err) {
+    console.error('[tracker] PATCH /api/state error:', err.message);
+    res.status(500).json({ error: 'Failed to patch collection' });
+  }
+});
+
+// One-shot seed endpoint — only accepts data if server-side state is empty.
+// Lets users push their existing localStorage state up on first deploy
+// without overwriting an already-populated server.
+app.put('/api/state/seed', (req, res) => {
+  try {
+    const current = readState();
+    const populated = ALLOWED_COLLECTIONS.size > 0 && [...ALLOWED_COLLECTIONS].some((k) => (current[k] || []).length > 0);
+    if (populated) {
+      return res.status(409).json({ error: 'server already has state', _meta: current._meta });
+    }
+    const saved = writeStateAtomic(req.body || {});
+    console.log('[tracker] state seeded from client');
+    res.json({ success: true, _meta: saved._meta });
+  } catch (err) {
+    console.error('[tracker] /api/state/seed error:', err.message);
+    res.status(500).json({ error: 'Failed to seed state' });
   }
 });
 

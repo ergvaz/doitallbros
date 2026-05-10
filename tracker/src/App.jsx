@@ -68,6 +68,7 @@ const REQUEST_STATUSES = {
   confirmed:   { label: 'Confirmed',   color: '#10B981' },
 };
 
+// localStorage stays as the offline cache. Server is source of truth.
 const loadData = () => {
   try {
     const s = localStorage.getItem(STORE_KEY);
@@ -78,6 +79,51 @@ const loadData = () => {
 
 const saveData = (d) => {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch {}
+};
+
+// ── Server-backed persistence ─────────────────────────────────────
+// The /api/state endpoint replaces browser localStorage as the canonical
+// source. localStorage stays as a cache so the app keeps working when
+// the server is briefly unreachable.
+const STATE_URL      = `${import.meta.env.BASE_URL}api/state`;
+const STATE_SEED_URL = `${import.meta.env.BASE_URL}api/state/seed`;
+
+const fetchServerState = async () => {
+  try {
+    const res = await fetch(STATE_URL);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+};
+
+const pushServerState = async (data) => {
+  try {
+    const res = await fetch(STATE_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return res.ok;
+  } catch { return false; }
+};
+
+const seedServerState = async (data) => {
+  try {
+    const res = await fetch(STATE_SEED_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return res.ok;
+  } catch { return false; }
+};
+
+// True when a state object actually contains records (used to decide
+// whether to seed from local cache on first run).
+const isStatePopulated = (s) => {
+  if (!s) return false;
+  return ['clients','bookings','contacts','tasks','revenues','notes','requests']
+    .some((k) => Array.isArray(s[k]) && s[k].length > 0);
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -281,7 +327,7 @@ const NAV = [
   { id: 'notes',     label: 'Notes',        icon: 'note'   },
 ];
 
-function Sidebar({ view, onChange, inboxCount, onLogout }) {
+function Sidebar({ view, onChange, inboxCount, onLogout, syncStatus, lastSync, onForceSync }) {
   const now = new Date();
   return (
     <nav className="sidebar">
@@ -308,6 +354,7 @@ function Sidebar({ view, onChange, inboxCount, onLogout }) {
         ))}
       </div>
       <div className="sidebar-footer">
+        <SyncIndicator status={syncStatus} lastSync={lastSync} onForceSync={onForceSync} />
         <div className="sidebar-date">
           {now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
         </div>
@@ -317,6 +364,41 @@ function Sidebar({ view, onChange, inboxCount, onLogout }) {
         </button>
       </div>
     </nav>
+  );
+}
+
+function SyncIndicator({ status, lastSync, onForceSync }) {
+  const COLORS = {
+    idle:    { bg: '#1e293b', dot: '#64748b', label: 'Idle' },
+    loading: { bg: '#1e293b', dot: '#60a5fa', label: 'Loading…' },
+    saving:  { bg: '#1e293b', dot: '#fbbf24', label: 'Saving…' },
+    synced:  { bg: '#1e293b', dot: '#10b981', label: 'Synced' },
+    offline: { bg: '#3f1d1d', dot: '#ef4444', label: 'Offline (cached)' },
+  };
+  const c = COLORS[status] || COLORS.idle;
+  const time = lastSync ? new Date(lastSync).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '—';
+  return (
+    <button
+      onClick={onForceSync}
+      title={`Click to force-sync. Last sync: ${time}`}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '8px 10px', marginBottom: 8, width: '100%',
+        background: c.bg, border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: 8, cursor: 'pointer', color: '#e2e8f0',
+        fontSize: 12, fontWeight: 500, transition: 'background 150ms',
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.background = '#2a3a55'}
+      onMouseLeave={(e) => e.currentTarget.style.background = c.bg}
+    >
+      <span style={{
+        width: 8, height: 8, borderRadius: '50%', background: c.dot,
+        boxShadow: `0 0 8px ${c.dot}`,
+        animation: status === 'saving' || status === 'loading' ? 'pulse 1.2s ease-in-out infinite' : 'none',
+      }} />
+      <span style={{ flex: 1, textAlign: 'left' }}>{c.label}</span>
+      <span style={{ fontSize: 10, opacity: 0.6 }}>{time}</span>
+    </button>
   );
 }
 
@@ -2793,7 +2875,77 @@ export default function App() {
   const [data, setData] = useState(loadData);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  useEffect(() => { saveData(data); }, [data]);
+  // ── Server-backed sync state ────────────────────────────────
+  // 'idle'    nothing happening yet
+  // 'loading' first-load fetch in progress
+  // 'synced'  in sync with server
+  // 'saving'  push pending
+  // 'offline' last save failed; data lives in localStorage only
+  const [syncStatus, setSyncStatus] = useState('idle');
+  const [lastSync, setLastSync] = useState(null);
+  const initialLoadDoneRef = useRef(false);
+  const saveTimerRef = useRef(null);
+  const inFlightRef = useRef(false);
+
+  // Initial load: pull from server, fall back to localStorage; if server is
+  // empty but local has data, seed the server one time.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setSyncStatus('loading');
+      const serverState = await fetchServerState();
+      if (cancelled) return;
+      if (serverState) {
+        if (!isStatePopulated(serverState) && isStatePopulated(data)) {
+          // First-time deploy — push existing localStorage to server
+          const ok = await seedServerState(data);
+          if (ok) {
+            console.log('[tracker] seeded server from localStorage');
+            setSyncStatus('synced');
+            setLastSync(new Date().toISOString());
+          } else {
+            setSyncStatus('offline');
+          }
+        } else {
+          // Adopt server state. Skip if it equals current data.
+          setData((prev) => {
+            const merged = { ...DEFAULT_DATA, ...serverState };
+            return JSON.stringify(prev) === JSON.stringify(merged) ? prev : merged;
+          });
+          setSyncStatus('synced');
+          setLastSync(serverState?._meta?.updatedAt || new Date().toISOString());
+        }
+      } else {
+        // Server unreachable — keep localStorage data, mark offline.
+        setSyncStatus('offline');
+      }
+      initialLoadDoneRef.current = true;
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Save pipeline: localStorage immediately, debounced PUT to server.
+  useEffect(() => {
+    saveData(data);
+    if (!initialLoadDoneRef.current) return;     // skip first-load echo
+    if (inFlightRef.current) return;             // collapse during in-flight
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    setSyncStatus((s) => (s === 'offline' ? s : 'saving'));
+    saveTimerRef.current = setTimeout(async () => {
+      inFlightRef.current = true;
+      const ok = await pushServerState(data);
+      inFlightRef.current = false;
+      if (ok) { setSyncStatus('synced'); setLastSync(new Date().toISOString()); }
+      else    { setSyncStatus('offline'); }
+    }, 500);
+  }, [data]);
+
+  const forceSync = async () => {
+    setSyncStatus('saving');
+    const ok = await pushServerState(data);
+    if (ok) { setSyncStatus('synced'); setLastSync(new Date().toISOString()); }
+    else    { setSyncStatus('offline'); }
+  };
 
   // Poll the Express server every 30s for new bookings/contacts + availability updates
   useEffect(() => {
@@ -3078,7 +3230,15 @@ export default function App() {
         </div>
       )}
 
-      <Sidebar view={view} onChange={handleNav} inboxCount={newInboxCount} onLogout={logout} />
+      <Sidebar
+        view={view}
+        onChange={handleNav}
+        inboxCount={newInboxCount}
+        onLogout={logout}
+        syncStatus={syncStatus}
+        lastSync={lastSync}
+        onForceSync={forceSync}
+      />
       <div className="main">
         {view === 'dashboard' && <Dashboard {...props} />}
         {view === 'inbox'     && <InboxView {...props} />}
